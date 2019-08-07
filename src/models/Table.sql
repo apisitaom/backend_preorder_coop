@@ -1,4 +1,11 @@
-
+--ADMIN
+create table users (
+    id uuid primary key,
+    email varchar(128) not null,
+    password varchar(128) not null,
+    created_date timestamp,
+    modified_date timestamp
+);
 --------------------------1--------------------
 --Shipping Status
 create table ShippingStatus(
