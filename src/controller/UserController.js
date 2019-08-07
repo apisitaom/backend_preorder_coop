@@ -4,7 +4,7 @@ const uuid4 = require('uuid4')
 const moment = require('moment')
 
 //BACKLIST FOR LOGUT JWT TOKEN 
-const blacklist = require('jwt-blacklist');
+const blacklist = require('express-jwt-blacklist-updated');
 
 const User = {
     //LOGIN
@@ -15,7 +15,7 @@ const User = {
      if(!Helper.Helper.isValidEmail(req.body.email)){
          return res.status(400).send({'message':'Missing value2'});
      }
-     const text = 'SELECT * FROM users WHERE email = $1';
+     const text = 'SELECT * FROM member WHERE email = $1';
      try{
         const { rows } = await con.pool.query(text,[req.body.email]);
         if(!rows[0]){
@@ -32,7 +32,7 @@ const User = {
     },
     //GET ALL USER
         async getUserData (req,res){
-        const findAllQuery = 'select * from users';
+        const findAllQuery = 'select * from member';
 
         try{
         const { rows } = await con.pool.query(findAllQuery);
@@ -51,8 +51,8 @@ const User = {
             return res.status(400).send({'message':'missing data 2 '});
     }
     const hasPassword = Helper.Helper.hashPassword(req.body.password);
-
-    const createQuery = `INSERT INTO users(id,email,password,created_date,modified_date)
+    //createdate | active | datemodify | fristname | lastname | gender | brithday | addressuser | subdistrict | disstrict | province | zipcode | photo | email | passworduser
+    const createQuery = `INSERT INTO member(id,email,password,created_date,modified_date)
     VALUES($1, $2, $3, $4, $5)
       returning *`
 
@@ -72,7 +72,7 @@ const User = {
     },
     //GET ONE
     async getUserOneData (req,res){
-        const findAllQuery = 'select * from users where id = $1';
+        const findAllQuery = 'select * from member where id = $1';
         try{
         const { rows } = await con.pool.query(findAllQuery,[req.params.id]);
         console.log('Get Users-data');

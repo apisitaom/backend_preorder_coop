@@ -17,7 +17,6 @@ app.use(
 app.get('/',(req,res) =>{
     res.json({info : `GET START ${port}`})
 })
-
 //BODY PATH
 app.get('/user/get',user.User.getUserData)
 
