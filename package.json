@@ -1,0 +1,28 @@
+{
+  "name": "postgres",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^3.0.6",
+    "body-parser": "^1.19.0",
+    "brew": "0.0.8",
+    "dotenv": "^8.0.0",
+    "express": "^4.17.1",
+    "express-jwt-blacklist": "^1.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "jwt-blacklist": "0.0.2",
+    "moment": "^2.24.0",
+    "nodemon": "^1.19.1",
+    "pg": "^7.11.0",
+    "postgresql": "0.0.1",
+    "uuid4": "^1.1.4"
+  }
+}
