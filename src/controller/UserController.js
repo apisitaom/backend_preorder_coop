@@ -27,7 +27,7 @@ const User = {
         const token = Helper.Helper.generateToken(rows[0].id);
         return res.status(200).send({token});
      }catch(error){
-         return ress.status(400).send(error,{'message':'error'});
+         return res.status(400).send(error,{'message':'error'});
      }
     },
     //GET ALL USER
