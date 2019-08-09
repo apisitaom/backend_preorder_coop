@@ -20,13 +20,11 @@ app.use(express.static('public'));
 app.post('/profile', image.upload)
 //PATH GET images + name picture 
 app.use('/images', express.static(__dirname + '/public/uploads'));
-app.use('/file',express.static(__dirname+'/public/uploads'))
 
 app.get('/',(req,res) =>{
     res.json({info : `GET START ${port}`})
 })
 //USER
-app.get('/user/get',user.User.getUserData)
 app.post('/user/login',user.User.login)
 app.post('/user/create',user.User.createUser)
 //SELLER

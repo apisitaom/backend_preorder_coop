@@ -11,7 +11,7 @@ const Seller  = {
   }
   if(!Helper.Helper.isValidEmail(req.body.email)){
       return res.status(400).send({'message':'missing data 2 '});
-}    
+  }    
     const {shopname,address,subdistrict,district,province,zipcode,phone,email,password,taxid,picture,bankid,promptpayid} = req.body
     const hasPassword = Helper.Helper.hashPassword(req.body.password);
     const create = `INSERT INTO seller(createdate,sellername,address,subdistrict,district,province,zipcode,phonenumber,email,sellerpassword,taxid,photo,bankid,promptpayid) 

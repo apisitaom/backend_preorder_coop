@@ -5,37 +5,38 @@ const moment = require('moment')
 
 const optionValue = {
     
+async insert (req,res){
+    //product
+    // proid|createdate|active|datemodify|proname|prodetail|photo|sellerid 
+     // productoption
+    // proopid | createdate|active|datemodify|sku|price|proid 
+    // optionvalue
+    // optionvalueid | createdate | active | datemodify | optionvaluename | optionvalue | proopid 
+    const {productname,detail,sku,optionname,optionvalue,pice,sellerid}=req.body
+    const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 
-    
-    // create table OptionValue(
-    //     optionValueId       serial primary key,
-    //     createdate          timestamp,
-    //     active              boolean,
-    //     datemodify          timestamp,
-    //     optionValueName     varchar(50) not null,
-    //     OptionValue         varchar(50) not null,
-    
-    //     proOpId             integer not null,
-    //     FOREIGN key (proOpId) REFERENCES ProductOption(proOpId)
-    // );
+    const product = `INSERT INTO product (createdate,proname,prodetail,photo,sellerid) VALUES ($1,$2,$3,$4,$5) returnning proid`;
+    const valueproduct = [];
 
-    // create table ProductOption(
-    //     proOpId             serial primary key,
-    //     createdate          timestamp,
-    //     active              boolean,
-    //     datemodify          timestamp,
-    //     sku                 varchar(60) not null,
-    //     price               float not null,
-    
-    //     proId               integer not null,
-    //     FOREIGN key (proId) REFERENCES Product (proId)
-    // );
+    const productoptions = `INSERT INTO productoption (createdate,sku,price,proid) VALUES ($1,$2,$3,$4) returnning proopid`;
+    const valuepro = [date,sku,pice,proid];
 
+    const optionvalues = `INSERT INTO optionvalue (createdate,optionvaluename,optionvalue,proopid) VALUES ($1,$2,$3,$4)`;
+    const valueop = [date,optionname,optionvalue,proopid];
 
-
-  
-
-
+    try{
+        //OPTION VALUE
+        await con.pool.query(optionvalues,valueop);
+        //PRODUCT OPTION
+        await con.pool.query(productoptions,valuepro);
+        //PRODUCT
+        await con.pool.query(product,valueproduct);
+        console.log(req.body);
+        return res.status(200).send({'message':'success'});
+    }catch(error){
+        return res.status(400).send({'message':'error'});
+    }
+  }
 }
 
 exports.optionValue = optionValue

@@ -89,10 +89,10 @@ const User = {
 
      //LOGOUT BY REFLESH TOKEN
      async logout(req,res){
-        console.log(makeRefresh(200))
+        console.log(makeRefreshToken(200))
     },
      //RANDOM REFRESH TOKEN 
-    async makeRefresh(length){
+    async makeRefreshToken(length){
         var result = '';
         var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         var charactersLength = characters.length;
