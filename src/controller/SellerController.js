@@ -10,13 +10,14 @@ const Seller  = {
     }
     if(!Helper.Helper.isValidEmail(req.body.email)){
       return res.status(400).send({'message':'missing data 2 '});
-    }
-    const {shopname,address,subdistrict,district,province,zipcode,phone,email,password,taxid,picture,bankname,accountname,accountnumber,promptpayname,promptpaynumber} = req.body
-    const selectCheck = 'SELECT email FROM seller WHERE email = $1'
-    const insertBank = 'INSERT INTO bank(createdate,active,datemodify,bankname,bankaccountname,banknumber) VALUES($1,$2,$3,$4,$5,$6) returning bankid'
-    const insertPromptpay = 'INSERT INTO promptpay(createdate,active,datemodify,promptpayname,promptpaynumber) VALUES($1,$2,$3,$4,$5) returning promptpayid'
-    const today = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
-    const activeStatus = true
+  }    
+    const {shopname,address,subdistrict,district,province,zipcode,phone,email,password,taxid,picture,bankid,promptpayid} = req.body
+    const hasPassword = Helper.Helper.hashPassword(req.body.password);
+    const create = `INSERT INTO seller(createdate,sellername,address,subdistrict,district,province,zipcode,phonenumber,email,sellerpassword,taxid,photo,bankid,promptpayid) 
+    VALUES ($1, $2, $3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning *`;
+    const createdate = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+    const value = [createdate, shopname,address,subdistrict,district,province,zipcode,phone,email,hasPassword,taxid,picture,bankid,promptpayid];
+    console.log(req.body)
 
     const hashPassword = Helper.Helper.hashPassword(password);
     console.log(req.body)

@@ -1,3 +1,24 @@
+create table a (
+ida serial primary key,
+name varchar(50)
+);
+create table b (
+idb serial primary key,
+name varchar(50),
+
+ida integer not null,
+FOREIGN key (ida) REFERENCES a(ida)
+);
+create table c (
+idc serial primary key,
+name varchar(50),
+
+idb integer not null,
+FOREIGN key (idb) REFERENCES b(idb)
+);
+
+
+
 --ADMIN
 create table users (
     id uuid primary key,
@@ -77,7 +98,7 @@ create table Bank(
     bankNumber          varchar(60) not null
 );
 
---          --------------------2--------------------
+----------------------2--------------------
 
 --Seller 
 create table Seller(
@@ -126,7 +147,7 @@ create table Shipping(
     FOREIGN KEY (shipStatusId) REFERENCES shippingstatus (shipstatusid)
 );
 
---          --------------------3--------------------
+----------------------3--------------------
 --Product 
 create table Product(
     proId               serial primary key,
@@ -141,7 +162,7 @@ create table Product(
     FOREIGN key (sellerId) REFERENCES Seller (sellerId)
 );
 
---          --------------------4--------------------
+----------------------4--------------------
 
 --Event Detail
 create table EventDetail(
@@ -160,13 +181,14 @@ create table ProductOption(
     createdate          timestamp,
     active              boolean,
     datemodify          timestamp,
+    picture             varchar(255),
     sku                 varchar(60) not null,
     price               float not null,
 
     proId               integer not null,
     FOREIGN key (proId) REFERENCES Product (proId)
 );
---          --------------------5--------------------
+----------------------5--------------------
 --Order
 create table OrderProduct(
     orderId             serial primary key,
@@ -191,13 +213,13 @@ create table OptionValue(
     createdate          timestamp,
     active              boolean,
     datemodify          timestamp,
-    optionValueName     varchar(50) not null,
-    OptionValue         varchar(50) not null,
+    optionValueName     text[] not null,
+    OptionValue         text[] not null,
 
     proOpId             integer not null,
     FOREIGN key (proOpId) REFERENCES ProductOption(proOpId)
 );
---          --------------------6--------------------
+----------------------6--------------------
 
 --Receipt
 create table Receipt(
