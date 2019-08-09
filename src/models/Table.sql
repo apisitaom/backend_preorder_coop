@@ -160,6 +160,7 @@ create table ProductOption(
     createdate          timestamp,
     active              boolean,
     datemodify          timestamp,
+    picture             varchar(255),
     sku                 varchar(60) not null,
     price               float not null,
 
