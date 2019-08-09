@@ -15,7 +15,7 @@ const User = {
      if(!Helper.Helper.isValidEmail(req.body.email)){
          return res.status(400).send({'message':'Missing value2'});
      }
-     const text = 'SELECT * FROM member WHERE email = $1';
+     const text = 'SELECT * FROM users WHERE email = $1';
      try{
         const { rows } = await con.pool.query(text,[req.body.email]);
         if(!rows[0]){
@@ -27,12 +27,12 @@ const User = {
         const token = Helper.Helper.generateToken(rows[0].id);
         return res.status(200).send({token});
      }catch(error){
-         return ress.status(400).send(error,{'message':'error'});
+         return res.status(400).send(error,{'message':'error'});
      }
     },
     //GET ALL USER
         async getUserData (req,res){
-        const findAllQuery = 'select * from member';
+        const findAllQuery = 'select * from users';
 
         try{
         const { rows } = await con.pool.query(findAllQuery);
@@ -49,20 +49,28 @@ const User = {
         }
         if(!Helper.Helper.isValidEmail(req.body.email)){
             return res.status(400).send({'message':'missing data 2 '});
-    }
-    const hasPassword = Helper.Helper.hashPassword(req.body.password);
-    //createdate | active | datemodify | fristname | lastname | gender | brithday | addressuser | subdistrict | disstrict | province | zipcode | photo | email | passworduser
-    const createQuery = `INSERT INTO member(id,email,password,created_date,modified_date)
-    VALUES($1, $2, $3, $4, $5)
-      returning *`
+        }
+        const checkQuery = `SELECT email FROM users where email = $1` 
+        
+        const hasPassword = Helper.Helper.hashPassword(req.body.password);
+        const createQuery = `INSERT INTO users(id,email,password,created_date,modified_date)
+        VALUES($1, $2, $3, $4, $5)
+        returning *`
 
-    const value = [uuid4(),req.body.email,hasPassword,moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')];
+        const value = [uuid4(),req.body.email,hasPassword,moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')];
     
     try{
-        const { rows } = await con.pool.query(createQuery, value);
-        console.log(req.body);
-        const token = Helper.Helper.generateToken(rows[0].id);
-        return res.status(200).send({ token });
+        const { rows } = await con.pool.query(checkQuery, [req.body.email]);
+        console.log(rows);
+        if (!rows[0]){
+            console.log('yes')
+            const { rows } = await con.pool.query(createQuery, value);
+            const token = Helper.Helper.generateToken(rows[0].id);
+            return res.status(200).send({ token });
+        }else{
+            console.log('no')
+            return res.status(200).send('False');
+        }
     }catch(error){
         if (error.routine === '_bt_check_unique') {
             return res.status(400).send({ 'message': 'User with that EMAIL already exist' })
@@ -72,7 +80,7 @@ const User = {
     },
     //GET ONE
     async getUserOneData (req,res){
-        const findAllQuery = 'select * from member where id = $1';
+        const findAllQuery = 'select * from users where id = $1';
         try{
         const { rows } = await con.pool.query(findAllQuery,[req.params.id]);
         console.log('Get Users-data');

@@ -1,4 +1,11 @@
-
+--ADMIN
+create table users (
+    id uuid primary key,
+    email varchar(128) not null,
+    password varchar(128) not null,
+    created_date timestamp,
+    modified_date timestamp
+);
 --------------------------1--------------------
 --Shipping Status
 create table ShippingStatus(
@@ -74,18 +81,18 @@ create table Bank(
 
 --Seller 
 create table Seller(
-    sellerId            serial primary key,
-    createdate          timestamp,
+    sellerId            uuid primary key         default gen_random_uuid(),
+    createdate          timestamp default now(),
     active              boolean,
-    datemodify          timestamp,
+    datemodify          timestamp default now(),
     sellerName          varchar(50) not null,
     address             varchar(255) null,
     subdistrict         varchar(255) null,
     district            varchar(255) null,
     zipcode             varchar(50) null,
-    province            varchar(255) null,
+    province            varchar(255) null,  
     phoneNumber         varchar(50) not null,
-    email               varchar(60) not null,
+    email               varchar(255) UNIQUE,
     sellerPassword      varchar(60) not null,
     taxId               varchar(60) not null,
     photo               varchar(255) null,
