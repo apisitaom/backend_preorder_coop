@@ -85,10 +85,26 @@ const User = {
     async logOut (req,res){
         await  blacklist.revoke(req.headers.authorization)
         return res.json({success : true,'message':'login success'}).status(200)
+    },
+
+     //LOGOUT BY REFLESH TOKEN
+     async logout(req,res){
+        console.log(makeRefresh(200))
+    },
+     //RANDOM REFRESH TOKEN 
+    async makeRefresh(length){
+        var result = '';
+        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var charactersLength = characters.length;
+
+        for(let i=0;i<length;i++){
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result; 
     }
+
+    
 }
-
-
 
 
 module.exports = {User}

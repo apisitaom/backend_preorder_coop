@@ -77,7 +77,7 @@ create table Bank(
     bankNumber          varchar(60) not null
 );
 
---          --------------------2--------------------
+----------------------2--------------------
 
 --Seller 
 create table Seller(
@@ -126,7 +126,7 @@ create table Shipping(
     FOREIGN KEY (shipStatusId) REFERENCES shippingstatus (shipstatusid)
 );
 
---          --------------------3--------------------
+----------------------3--------------------
 --Product 
 create table Product(
     proId               serial primary key,
@@ -141,7 +141,7 @@ create table Product(
     FOREIGN key (sellerId) REFERENCES Seller (sellerId)
 );
 
---          --------------------4--------------------
+----------------------4--------------------
 
 --Event Detail
 create table EventDetail(
@@ -166,7 +166,7 @@ create table ProductOption(
     proId               integer not null,
     FOREIGN key (proId) REFERENCES Product (proId)
 );
---          --------------------5--------------------
+----------------------5--------------------
 --Order
 create table OrderProduct(
     orderId             serial primary key,
@@ -197,7 +197,7 @@ create table OptionValue(
     proOpId             integer not null,
     FOREIGN key (proOpId) REFERENCES ProductOption(proOpId)
 );
---          --------------------6--------------------
+----------------------6--------------------
 
 --Receipt
 create table Receipt(
