@@ -7,6 +7,10 @@ const user = require('./src/controller/UserController')
 const seller = require('./src/controller/SellerController')
 //IMAGE CONTROLLER
 const image = require('./src/controller/ImageController')
+//OPTION VALUES
+const optionvalue = require('./src/controller/OptionvalueController')
+
+
 //PORT 
 const port = 4000
 
@@ -30,7 +34,8 @@ app.post('/user/create',user.User.createUser)
 //SELLER
 app.post('/seller/register',seller.insert)
 app.post('/seller/login',seller.login)
-
+//OPTION VALUE
+app.post('/optionvalue',optionvalue.optionValue.insert)
 app.listen(port,'0.0.0.0',()=>{
     console.log(`Backend running on port ${port}`)
     

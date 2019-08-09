@@ -11,30 +11,48 @@ async insert (req,res){
      // productoption
     // proopid | createdate|active|datemodify|sku|price|proid 
     // optionvalue
-    // optionvalueid | createdate | active | datemodify | optionvaluename | optionvalue | proopid 
-    const {productname,detail,sku,optionname,optionvalue,pice,sellerid}=req.body
+    // optionvalueid | createdate | active | datemodify | optionvaluename | optionvalue | proopid
+
+    const {picture,productname,detail,sku,optionname,optionvalue,price,sellerid}=req.body
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 
-    const product = `INSERT INTO product (createdate,proname,prodetail,photo,sellerid) VALUES ($1,$2,$3,$4,$5) returnning proid`;
-    const valueproduct = [];
-
-    const productoptions = `INSERT INTO productoption (createdate,sku,price,proid) VALUES ($1,$2,$3,$4) returnning proopid`;
-    const valuepro = [date,sku,pice,proid];
-
-    const optionvalues = `INSERT INTO optionvalue (createdate,optionvaluename,optionvalue,proopid) VALUES ($1,$2,$3,$4)`;
-    const valueop = [date,optionname,optionvalue,proopid];
+    const create = `with ins1 as (
+        insert into product (photo,proname,prodetail,sellerid) values ($1,$2,$3,$4) returning proid
+    )
+    ,ins2 as (
+        insert into productoption (sku,price,proid) select $5,$6,proid from ins1 returning proopid
+    )
+        insert into optionvalue (optionvaluename,optionvalue,proopid) select $7 , $8 ,proopid from ins2;
+    `;
+    const value = [picture,productname,detail,sellerid,sku,price,optionvalue,optionname];
 
     try{
-        //OPTION VALUE
-        await con.pool.query(optionvalues,valueop);
-        //PRODUCT OPTION
-        await con.pool.query(productoptions,valuepro);
-        //PRODUCT
-        await con.pool.query(product,valueproduct);
+        //PRODUCT || PRODUCT OPTION || OPTION VALUE 
+        await con.pool.query(create,value);
         console.log(req.body);
         return res.status(200).send({'message':'success'});
     }catch(error){
-        return res.status(400).send({'message':'error'});
+        // return res.status(400).send({'message':'error'});
+        throw error
+    }
+  },
+
+  async inserta (req,res){
+      
+    const create = ` with ins1 as (
+        insert into a (name) values ('apisit')
+        returning ida 
+    )
+    ,ins2 as (
+        insert into b (name,ida) select 'prompha', ida from ins1
+        returning idb 
+    )
+    insert into c (name,idb) select 'ok',idb from ins2;
+    `;
+    try{
+
+    }catch(error){
+
     }
   }
 }
