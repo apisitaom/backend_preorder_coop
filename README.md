@@ -4,3 +4,37 @@ backend
 BLOG to create postgres REST API \
 https://blog.logrocket.com/setting-up-a-restful-api-with-node-js-and-postgresql-d96d6fc892d8/
 
+
+CREATE TABLE option (
+   id serial primary key,
+   name text,
+   price integer ARRAY[4],
+   tail text[][]
+);
+
+INSERT INTO option(name,price,tail) 
+VALUES ('Manisha', 
+'{20000, 14600, 23500, 13250}', 
+'{{“FD”, “MF”}, {“FD”, “Property”}}');
+
+ id |  name   |           price           |              tail               
+----+---------+---------------------------+---------------------------------
+  1 | Manisha | {20000,14600,23500,13250} | {{“FD”,“MF”},{“FD”,“Property”}}
+(1 row)
+
+api=# select price[1],price[3] from option where id=1; 
+ price | price 
+-------+-------
+ 20000 | 23500
+(1 row)
+
+api=# select tail[1][2],tail[2][2] from option ;
+ tail |    tail    
+------+------------
+ “MF” | “Property”
+(1 row)
+
+INSERT INTO option(name,price,tail) 
+VALUES ('Apisit Prompha', 
+'{1, 2, 3, 4}', 
+'{{“A”, “B”}, {“C”, “D”}}');
