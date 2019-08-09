@@ -191,8 +191,8 @@ create table OptionValue(
     createdate          timestamp,
     active              boolean,
     datemodify          timestamp,
-    optionValueName     varchar(50) not null,
-    OptionValue         varchar(50) not null,
+    optionValueName     text[] not null,
+    OptionValue         text[] not null,
 
     proOpId             integer not null,
     FOREIGN key (proOpId) REFERENCES ProductOption(proOpId)
