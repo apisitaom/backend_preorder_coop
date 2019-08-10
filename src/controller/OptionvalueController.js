@@ -35,25 +35,6 @@ async insert (req,res){
         // return res.status(400).send({'message':'error'});
         throw error
     }
-  },
-
-  async inserta (req,res){
-      
-    const create = ` with ins1 as (
-        insert into a (name) values ('apisit')
-        returning ida 
-    )
-    ,ins2 as (
-        insert into b (name,ida) select 'prompha', ida from ins1
-        returning idb 
-    )
-    insert into c (name,idb) select 'ok',idb from ins2;
-    `;
-    try{
-
-    }catch(error){
-
-    }
   }
 }
 
