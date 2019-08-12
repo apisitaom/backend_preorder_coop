@@ -38,3 +38,11 @@ INSERT INTO option(name,price,tail)
 VALUES ('Apisit Prompha', 
 '{1, 2, 3, 4}', 
 '{{“A”, “B”}, {“C”, “D”}}');
+
+
+
+me=# select optionvaluename[1],optionvalue[1] from optionvalue where optionvalueid = 2;
+ optionvaluename | optionvalue 
+-----------------+-------------
+ สี               | ขาว
+(1 row)
