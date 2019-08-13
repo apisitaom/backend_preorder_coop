@@ -1,9 +1,11 @@
 //IMAGE
 const multer = require('multer')
 const path = require('path')
+//MOMENT
+const moment = require('moment')
 //PSQL
 const con = require('../config/config')
-//IMAGE
+
 const storage = multer.diskStorage({
     destination: ('./public/uploads/'),
   
@@ -11,12 +13,12 @@ const storage = multer.diskStorage({
         cb(null, file.fieldname + '-' +new Date().getTime().toString()+ path.extname(file.originalname))
 
         const text =  file.fieldname + '-' +new Date().getTime().toString()+ path.extname(file.originalname)
-        
         console.log(file)
         //PICTURE TABLE
          await con.pool.query('INSERT INTO picture(picture) VALUES($1)',[text]);
     }
-  })
+  }) 
+
   const upload = multer({
     storage: storage,
     limits:{
