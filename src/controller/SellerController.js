@@ -10,20 +10,22 @@ const Seller  = {
     }
     if(!Helper.Helper.isValidEmail(req.body.email)){
       return res.status(400).send({'message':'missing data 2 '});
-  z}    
+  }    
     const {shopname,address,subdistrict,district,province,zipcode,phone,email,password,taxid,picture,bankname,accountname,accountnumber,promptpayname,promptpaynumber} = req.body
     const insertBank = 'INSERT INTO bank(createdate,active,datemodify,bankname,bankaccountname,banknumber) VALUES($1,$2,$3,$4,$5,$6) returning bankid'
     const insertPromptpay = 'INSERT INTO promptpay(createdate,active,datemodify,promptpayname,promptpaynumber) VALUES($1,$2,$3,$4,$5) returning promptpayid'
     const activeStatus = true
     const hashPassword = Helper.Helper.hashPassword(password);
     const today = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
+    const valuePromptpay = [today,activeStatus,today,promptpayname,promptpaynumber]
+    const valueBank = [today,activeStatus,today,bankname, accountname,accountnumber]
     try{
       await con.pool.query('BEGIN')
-      const rowBankNew = await con.pool.query(insertBank, [today,activeStatus,today,bankname, accountname,accountnumber])
-      const rowPromptpayNew = await con.pool.query(insertPromptpay, [today,activeStatus,today,promptpayname,promptpaynumber])
-      const insertSeller = `INSERT INTO seller(active,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,photo,bankid,promptpayid) 
-      VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning sellerid`
-      const value = [activeStatus,shopname,address,subdistrict,district,zipcode,province,phone,email,hashPassword,taxid,picture,rowBankNew.rows[0].bankid,rowPromptpayNew.rows[0].promptpayid]
+      const rowBankNew = await con.pool.query(insertBank, valueBank)
+      const rowPromptpayNew = await con.pool.query(insertPromptpay, valuePromptpay)
+      const insertSeller = `INSERT INTO seller(active,datemodify,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,photo,bankid,promptpayid) 
+      VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) returning sellerid`
+      const value = [activeStatus,today,shopname,address,subdistrict,district,zipcode,province,phone,email,hashPassword,taxid,picture,rowBankNew.rows[0].bankid,rowPromptpayNew.rows[0].promptpayid]
       console.log(value)
       const result = await con.pool.query(insertSeller,value)
       await con.pool.query('COMMIT')
