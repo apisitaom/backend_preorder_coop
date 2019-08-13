@@ -65,12 +65,10 @@ const storage = multer.diskStorage({
         // }catch(error){
         //     return send({'message':'error '});
         // }
-        
-
     }
 })
 
-const upload = multer({
+const upload= multer({
     storage : storage,
     limits:{fileSize: 1000000}
 }).array('picture')
