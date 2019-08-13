@@ -1,21 +1,3 @@
-create table a (
-ida serial primary key,
-name varchar(50)
-);
-create table b (
-idb serial primary key,
-name varchar(50),
-
-ida integer not null,
-FOREIGN key (ida) REFERENCES a(ida)
-);
-create table c (
-idc serial primary key,
-name varchar(50),
-
-idb integer not null,
-FOREIGN key (idb) REFERENCES b(idb)
-);
 
 --create extension if not exists pgcrypto;
 
