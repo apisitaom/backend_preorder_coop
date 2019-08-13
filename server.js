@@ -38,8 +38,8 @@ app.post('/seller/register',seller.insert)
 app.post('/seller/login',seller.login)
 //OPTION VALUE
 app.post('/optionvalue',optionvalue.optionValue.insert)
-//PRODUCT
-
+//PRODUCT GET POPUP
+app.get('/product/popup',product.Product.getPopup)
 
 app.listen(port,()=>{
     console.log(`Backend running on port `+port)

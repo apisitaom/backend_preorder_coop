@@ -49,8 +49,8 @@ const storage = multer.diskStorage({
 
     filename: async function (req,file, cb){
         cb(null,file.fieldname +'-'+new Date().getTime().toString()+path.extname(file.originalname))  
-        // const {productname="3",detail="4",sku="5",optionname=["2"],optionvalue=["1"],price=25.0,sellerid=1}=req.body
-        const {productname,detail,sku,optionname,optionvalue,price,sellerid}=req.body
+        const {productname="3",detail="4",sku="5",optionname=["2"],optionvalue=["1"],price=25.0,sellerid=1}=req.body
+        // const {productname,detail,sku,optionname,optionvalue,price,sellerid}=req.body
 
         const text = file.fieldname +'-'+new Date().getTime().toString()+path.extname(file.originalname)
 

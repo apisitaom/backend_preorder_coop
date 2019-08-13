@@ -164,7 +164,7 @@ create table ProductOption(
     active              boolean,
     datemodify          timestamp,
     picture             varchar(255),
-    sku                 varchar(60) not null,
+    sku                 varchar(60) UNIQUE not null,
     price               float not null,
 
     proId               uuid not null,
