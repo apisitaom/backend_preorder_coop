@@ -1,28 +1,28 @@
 
-
+--create extension if not exists pgcrypto;
 
 --ADMIN
 create table users (
-    id uuid primary key,
-    email varchar(128) not null,
-    password varchar(128) not null,
-    created_date timestamp,
-    modified_date timestamp
+    id                  uuid primary key         default gen_random_uuid(),
+    email               varchar(128) not null,
+    password            varchar(128) not null,
+    created_date        timestamp default now(),
+    modified_date       timestamp
 );
 --------------------------1--------------------
 --Shipping Status
 create table ShippingStatus(
-    shipStatusId        serial primary key,
+    shipStatusId        uuid primary key         default gen_random_uuid(),
     shippingStatusName  varchar(50) not null,
-    createdate          timestamp,
+    createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp
 );
 
 --Event
 create table EventProduct(
-    eventId             serial primary key,
-    createdate          timestamp,
+    eventId             uuid primary key         default gen_random_uuid(),
+    createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
     timeStart           timestamp,
@@ -32,8 +32,8 @@ create table EventProduct(
 
 --User
 create table Member(
-    userId              serial primary key,
-    createdate          timestamp,
+    userId              uuid primary key         default gen_random_uuid(),
+    createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
     fristName           varchar(50) not null,
@@ -52,8 +52,8 @@ create table Member(
 
 --Payment Status
 create table PaymentStatus(
-    payStatusId         serial primary key,
-    createdate          timestamp,
+    payStatusId         uuid primary key         default gen_random_uuid(),
+    createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
     statusName          varchar(50) not null
@@ -61,8 +61,8 @@ create table PaymentStatus(
 
 --Promptpay
 create table Promptpay(
-    promptpayId         serial primary key,
-    createdate          timestamp,
+    promptpayId         uuid primary key         default gen_random_uuid(),
+    createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
     promptpayName       varchar(60) not null,
@@ -71,8 +71,8 @@ create table Promptpay(
 
 --Bank
 create table Bank(
-    bankId              serial primary key,
-    createdate          timestamp,
+    bankId              uuid primary key         default gen_random_uuid(),
+    createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
     bankName            varchar(60) not null,
@@ -87,7 +87,7 @@ create table Seller(
     sellerId            uuid primary key         default gen_random_uuid(),
     createdate          timestamp default now(),
     active              boolean,
-    datemodify          timestamp default now(),
+    datemodify          timestamp,
     sellerName          varchar(50) not null,
     address             varchar(255) null,
     subdistrict         varchar(255) null,
@@ -100,47 +100,47 @@ create table Seller(
     taxId               varchar(60) not null,
     photo               varchar(255) null,
 
-    bankId              integer not null REFERENCES Bank(bankId),
-    promptpayId integer not null REFERENCES Promptpay (promptpayId)
+    bankId              uuid not null REFERENCES Bank(bankId),
+    promptpayId         uuid not null REFERENCES Promptpay (promptpayId)
 );
 
 --Payment
 create table Payment(
-    payId               serial primary key,
-    createdate          timestamp,
+    payId               uuid primary key         default gen_random_uuid(),
+    createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
     slip                varchar(255),--photo
     summary             float not null,
 
-    payStatusId         integer not null,
+    payStatusId         uuid not null,
     FOREIGN KEY (payStatusId) REFERENCES PaymentStatus (payStatusId)
 );
 
 --Shipping
 create table Shipping(
-    shipId              serial primary key,
-    createdate          timestamp,
+    shipId              uuid primary key         default gen_random_uuid(),
+    createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
     shipTrackNo         varchar(100),
 
-    shipStatusId        integer not null,
+    shipStatusId        uuid not null,
     FOREIGN KEY (shipStatusId) REFERENCES shippingstatus (shipstatusid)
 );
 
 ----------------------3--------------------
 --Product 
 create table Product(
-    proId               serial primary key,
-    createdate          timestamp,
+    proId               uuid primary key         default gen_random_uuid(),
+    createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
     proName             varchar(50) not null,
     proDetail           varchar(50) not null,
     photo               varchar(255) not null,
 
-    sellerId            integer not null,
+    sellerId            uuid not null,
     FOREIGN key (sellerId) REFERENCES Seller (sellerId)
 );
 
@@ -148,41 +148,41 @@ create table Product(
 
 --Event Detail
 create table EventDetail(
-    eventDeId           serial primary key,
+    eventDeId           uuid primary key         default gen_random_uuid(),
     totalProduct        float,
 
-    eventId             integer not null,
-    proId               integer not null,
+    eventId             uuid not null,
+    proId               uuid not null,
     FOREIGN key (eventId) REFERENCES EventProduct(eventId),
     FOREIGN key (proId) REFERENCES Product(proId)
 );
 
 --Product Option
 create table ProductOption(
-    proOpId             serial primary key,
-    createdate          timestamp,
+    proOpId             uuid primary key         default gen_random_uuid(),
+    createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
     picture             varchar(255),
     sku                 varchar(60) not null,
     price               float not null,
 
-    proId               integer not null,
+    proId               uuid not null,
     FOREIGN key (proId) REFERENCES Product (proId)
 );
 ----------------------5--------------------
 --Order
 create table OrderProduct(
-    orderId             serial primary key,
-    createdate          timestamp,
+    orderId             uuid primary key         default gen_random_uuid(),
+    createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
     summary             float not null,
 
-    userId              integer not null,
-    payId               integer not null,
-    shipId              integer not null,
-    eventId             integer not null,
+    userId              uuid not null,
+    payId               uuid not null,
+    shipId              uuid not null,
+    eventId             uuid not null,
     FOREIGN KEY (userId) REFERENCES Member(userId),
     FOREIGN KEY (payId) REFERENCES Payment(payId),
     FOREIGN KEY (shipId) REFERENCES Shipping(shipId),
@@ -191,37 +191,37 @@ create table OrderProduct(
 
 --Option Value
 create table OptionValue(
-    optionValueId       serial primary key,
-    createdate          timestamp,
+    optionValueId       uuid primary key         default gen_random_uuid(),
+    createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
     optionValueName     text[] not null,
     OptionValue         text[] not null,
 
-    proOpId             integer not null,
+    proOpId             uuid not null,
     FOREIGN key (proOpId) REFERENCES ProductOption(proOpId)
 );
 ----------------------6--------------------
 
 --Receipt
 create table Receipt(
-    receiptid           serial primary key,
-    createdate          timestamp,
+    receiptid           uuid primary key         default gen_random_uuid(),
+    createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
 
-    orderId             integer not null,
+    orderId             uuid not null,
     FOREIGN key (orderId) REFERENCES OrderProduct(orderId)
 );
 
 --Order Detail
 create table OrderDetail(
-    orderDetailId       serial primary key,
+    orderDetailId       uuid primary key         default gen_random_uuid(),
     price               float not null,
     amount              integer not null,
     
-    orderId             integer not null,
-    proId               integer not null,
+    orderId             uuid not null,
+    proId               uuid not null,
     FOREIGN KEY (orderId) REFERENCES OrderProduct(orderId),
     FOREIGN KEY (proId) REFERENCES Product(proId)
 );

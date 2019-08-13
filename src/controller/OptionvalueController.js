@@ -8,46 +8,41 @@ const multer = require('multer')
 const path = require('path')
 //INSERT ASYNC
 const optionValue = {
-    
-async insert (req,res){
-
-    // const {picture,productname="3",detail="4",sku="5",optionname=["2"],optionvalue=["1"],price=25.0,sellerid=1}=req.body
-    const {picture,productname,detail,sku,optionname,optionvalue,price,sellerid}=req.body
-   
-    // const optionname = []
-    // const optionvalue = []
-    // for (let prop in option){
-    //     optionname.push(prop);
-    //     optionvalue.push(option[prop]);
-    // }
-   
-    const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-    const create = `with ins1 as (
-        insert into product (createdate,photo,proname,prodetail,sellerid) values ($1,$2,$3,$4,$5) returning proid
-    )
-    ,ins2 as (
-        insert into productoption (createdate,sku,price,proid) select $6,$7,$8,proid from ins1 returning proopid
-    )
-        insert into optionvalue (createdate,optionvaluename,optionvalue,proopid) select $9 , $10,$11 ,proopid from ins2;
-    `;
-    const value = [date,picture,productname,detail,sellerid, date,sku,price,date,optionvalue,optionname];
-
-    try{
-        //PRODUCT || PRODUCT OPTION || OPTION VALUE 
-        await con.pool.query(create,value);
-        console.log(req.body);
-        return res.status(200).send({'message':'success'});
-    }catch(error){
-        // return res.status(400).send({'message':'error'});
-        throw error
+    async get (req, res) {
+        const getProduct = `SELECT * FROM product WHERE `
+        try {
+            
+        } catch (error) {
+            throw error
+        }
+    },   
+    async insert (req,res){
+        const a = req.body.option
+        const {picture,productname,detail,option,sellerid} = req.body
+        const today = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+        const active = true
+        const insertProduct = 'INSERT INTO product(active,datemodify,proname,prodetail,photo,sellerid) VALUES($1,$2,$3,$4,$5,$6) returning proid'
+        const valueProduct = [active, today, productname, detail, picture, sellerid]
+        try{
+            con.pool.query('BEGIN')
+            const returnProduct = await con.pool.query(insertProduct,valueProduct)
+            console.log(`insert Product`)
+            for (let i = 0 ; i < option.length; i++) {
+                const insertPOp = 'INSERT INTO productoption(active,datemodify,picture,sku,price,proid) VALUES($1,$2,$3,$4,$5,$6) returning proopid'
+                const valuePOp = [active, today, picture, option[i].sku, option[i].price, returnProduct.rows[0].proid]
+                const returnPOp = await con.pool.query(insertPOp, valuePOp)
+                console.log(`insert Product Option : ${i}`)
+                const insertOpValue = 'INSERT INTO optionvalue(active,datemodify,optionvaluename,optionvalue,proopid) VALUES($1,$2,$3,$4,$5)'
+                const valueOpValue = [active, today, option[i].optionname, option[i].optionvalue, returnPOp.rows[0].proopid]
+                await con.pool.query(insertOpValue, valueOpValue)
+                console.log(`insert Option Value : ${i}`)
+            }
+            con.pool.query('COMMIT')
+            return res.status(200).send({'message':'success'});
+        }catch(error){
+            throw error
+        }
     }
-    
-
-  }
-
-
-
-  
 }
 const storage = multer.diskStorage({
     destination:('./public/uploads/'),
@@ -87,4 +82,4 @@ const upload= multer({
     limits:{fileSize: 1000000}
 }).array('picture')
 
-module.exports = { upload }
+module.exports = { upload, optionValue}

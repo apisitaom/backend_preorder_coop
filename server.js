@@ -36,7 +36,8 @@ app.post('/user/create',user.User.createUser)
 app.post('/seller/register',seller.insert)
 app.post('/seller/login',seller.login)
 //OPTION VALUE
-// app.post('/optionvalue',optionvalue.optionValue.insert)
+app.post('/optionvalue',optionvalue.optionValue.insert)
+
 app.listen(port,()=>{
     console.log(`Backend running on port `+port)
 })
