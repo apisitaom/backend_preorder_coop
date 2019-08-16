@@ -26,7 +26,6 @@ const Seller  = {
       const insertSeller = `INSERT INTO seller(active,datemodify,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,photo,bankid,promptpayid) 
       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) returning sellerid`
       const value = [activeStatus,today,shopname,address,subdistrict,district,zipcode,province,phone,email,hashPassword,taxid,picture,rowBankNew.rows[0].bankid,rowPromptpayNew.rows[0].promptpayid]
-      console.log(value)
       const result = await con.pool.query(insertSeller,value)
       await con.pool.query('COMMIT')
       const token = Helper.Helper.generateToken(result.rows[0].sellerid);

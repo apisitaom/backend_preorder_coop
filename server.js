@@ -11,7 +11,8 @@ const image = require('./src/controller/ImageController')
 const optionvalue = require('./src/controller/OptionvalueController')
 //PRODUCT
 const product = require('./src/controller/ProductController')
-
+//PREORDER
+const preorder = require('./src/controller/PreorderController')
 //PORT 
 const port = 4000
 
@@ -39,6 +40,11 @@ app.post('/seller/login',seller.login)
 //OPTION VALUE
 app.post('/optionvalue',optionvalue.optionValue.insert)
 //PRODUCT
+app.get('/products', product.Product.getMaxMin)
+//PREORDER
+app.get('/preorders', preorder.Preorder.getProduct)
+app.get('/preorder/:id', preorder.Preorder.getProductDetail)
+app.post('/preorder', preorder.Preorder.insertPreorder)
 
 
 app.listen(port,()=>{
