@@ -13,6 +13,8 @@ const optionvalue = require('./src/controller/OptionvalueController')
 const product = require('./src/controller/ProductController')
 //CORE
 const cors = require('cors')
+//PREORDER
+const preorder = require('./src/controller/PreorderController')
 //PORT 
 const port = 4000
 
@@ -41,9 +43,16 @@ app.post('/api/login/seller',seller.login)
 
 //add product-saler
 app.post('/optionvalue',optionvalue.optionValue.insert)
+
 //product(popup)-saler-get
 app.get('/product/popup/:id',product.Product.getPopup)
 
+//PRODUCT
+app.get('/products', product.Product.getMaxMin)
+//PREORDER
+app.get('/preorders', preorder.Preorder.getProduct)
+app.get('/preorder/:id', preorder.Preorder.getProductDetail)
+app.post('/preorder', preorder.Preorder.insertPreorder)
 
 app.listen(port,()=>{
     console.log(`Backend running on port `+port)
