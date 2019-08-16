@@ -6,7 +6,7 @@ const moment = require('moment')
 //BACKLIST FOR LOGUT JWT TOKEN 
 const blacklist = require('express-jwt-blacklist-updated');
 
-const User = {
+const Admin = {
     //LOGIN
     async login(req,res){
      if(!req.body.email || !req.body.password){
@@ -15,7 +15,7 @@ const User = {
      if(!Helper.Helper.isValidEmail(req.body.email)){
          return res.status(400).send({'message':'Missing value2'});
      }
-     const text = 'SELECT * FROM users WHERE email = $1';
+     const text = 'SELECT * FROM admin WHERE email = $1';
      try{
         const { rows } = await con.pool.query(text,[req.body.email]);
         if(!rows[0]){
@@ -32,58 +32,54 @@ const User = {
     },
     //GET ALL USER
         async getUserData (req,res){
-        const findAllQuery = 'select * from users';
+        const findAllQuery = 'select * from admin';
 
         try{
         const { rows } = await con.pool.query(findAllQuery);
-        console.log('Get Users-data');
+        console.log('Get Admin-data');
             return res.status(200).send({rows});
         }catch(error){
             return res.status(400).send(error);
         }
     },
     //CREATE USER
-    async createUser (req,res){
-        if(!req.body.email || !req.body.password){
-            return res.status(400).send({'message':'missing values 1'});
+    async createAdmin(req, res) {
+        if (!req.body.email || !req.body.password) {
+          return res.status(400).send({'message': 'Some values are missing'});
         }
-        if(!Helper.Helper.isValidEmail(req.body.email)){
-            return res.status(400).send({'message':'missing data 2 '});
+        if (!Helper.Helper.isValidEmail(req.body.email)) {
+          return res.status(400).send({ 'message': 'Please enter a valid email address' });
         }
-        const checkQuery = `SELECT email FROM users where email = $1` 
-        
-        const hasPassword = Helper.Helper.hashPassword(req.body.password);
-        const createQuery = `INSERT INTO users(id,email,password,created_date,modified_date)
-        VALUES($1, $2, $3, $4, $5)
-        returning *`
-
-        const value = [uuid4(),req.body.email,hasPassword,moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')];
+        const hashPassword = Helper.Helper.hashPassword(req.body.password);
     
-    try{
-        const { rows } = await con.pool.query(checkQuery, [req.body.email]);
-        console.log(rows);
-        if (!rows[0]){
-            console.log('yes')
-            const { rows } = await con.pool.query(createQuery, value);
-            const token = Helper.Helper.generateToken(rows[0].id);
-            return res.status(200).send({ token });
-        }else{
-            console.log('no')
-            return res.status(200).send('False');
-        }
-    }catch(error){
-        if (error.routine === '_bt_check_unique') {
+        const createQuery = `INSERT INTO
+          admin( email, password, created_date, modified_date)
+          VALUES( $1, $2, $3, $4)
+          returning *`;
+        const values = [
+          req.body.email,
+          hashPassword,
+          moment(new Date()),
+          moment(new Date())
+        ];
+    
+        try {
+          const { rows } = await con.pool.query(createQuery, values);
+          const token = Helper.Helper.generateToken(rows[0].id);
+          return res.status(201).send({ token });
+        } catch(error) {
+          if (error.routine === '_bt_check_unique') {
             return res.status(400).send({ 'message': 'User with that EMAIL already exist' })
           }
-        return res.status(400).send(error);
-    }
-    },
+          return res.status(400).send(error);
+        }
+      },
     //GET ONE
     async getUserOneData (req,res){
-        const findAllQuery = 'select * from users where id = $1';
+        const findAllQuery = 'select * from admin where id = $1';
         try{
         const { rows } = await con.pool.query(findAllQuery,[req.params.id]);
-        console.log('Get Users-data');
+        console.log('Get Admin-data');
             return res.status(200).send({rows});
         }catch(error){
             return res.status(400).send(error);
@@ -115,6 +111,6 @@ const User = {
 }
 
 
-module.exports = {User}
+module.exports = {Admin}
 
 
