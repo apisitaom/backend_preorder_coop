@@ -31,7 +31,6 @@ const Seller  = {
       const result = await con.pool.query(insertSeller,value)
       await con.pool.query('COMMIT')
       const token = Helper.Helper.generateToken(result.rows[0].sellerid);
-      // return res.status(200).send({token});
       console.log(value)
       res.end('success')
     }catch(error){
