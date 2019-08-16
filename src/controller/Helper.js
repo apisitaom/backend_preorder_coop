@@ -24,6 +24,8 @@ const Helper = {
     
         return token;
       }
+    
+      
     }
 
 exports.Helper = Helper

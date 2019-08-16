@@ -2,7 +2,7 @@
 --create extension if not exists pgcrypto;
 
 --ADMIN
-create table users (
+create table admin (
     id                  uuid primary key         default gen_random_uuid(),
     email               varchar(128) not null,
     password            varchar(128) not null,
@@ -145,6 +145,20 @@ create table Product(
 );
 
 ----------------------4--------------------
+--Product Option
+create table ProductOption(
+    proOpId             uuid primary key         default gen_random_uuid(),
+    createdate          timestamp default now(),
+    active              boolean,
+    datemodify          timestamp,
+    sku                 varchar(60) not null,
+    price               float not null,
+    optionvalue         json[],
+
+    proId               uuid not null,
+    FOREIGN key (proId) REFERENCES Product (proId)
+);
+
 
 --Event Detail
 create table EventDetail(
@@ -152,24 +166,11 @@ create table EventDetail(
     totalProduct        float,
 
     eventId             uuid not null,
-    proId               uuid not null,
+    proOpId               uuid not null,
     FOREIGN key (eventId) REFERENCES EventProduct(eventId),
-    FOREIGN key (proId) REFERENCES Product(proId)
+    FOREIGN key (proOpId) REFERENCES ProductOption(proOpId)
 );
 
---Product Option
-create table ProductOption(
-    proOpId             uuid primary key         default gen_random_uuid(),
-    createdate          timestamp default now(),
-    active              boolean,
-    datemodify          timestamp,
-    picture             varchar(255),
-    sku                 varchar(60) UNIQUE not null,
-    price               float not null,
-
-    proId               uuid not null,
-    FOREIGN key (proId) REFERENCES Product (proId)
-);
 ----------------------5--------------------
 --Order
 create table OrderProduct(
@@ -187,19 +188,6 @@ create table OrderProduct(
     FOREIGN KEY (payId) REFERENCES Payment(payId),
     FOREIGN KEY (shipId) REFERENCES Shipping(shipId),
     FOREIGN KEY (eventId) REFERENCES EventProduct(eventId)
-);
-
---Option Value
-create table OptionValue(
-    optionValueId       uuid primary key         default gen_random_uuid(),
-    createdate          timestamp default now(),
-    active              boolean,
-    datemodify          timestamp,
-    optionValueName     text[] not null,
-    OptionValue         text[] not null,
-
-    proOpId             uuid not null,
-    FOREIGN key (proOpId) REFERENCES ProductOption(proOpId)
 );
 ----------------------6--------------------
 
@@ -225,6 +213,3 @@ create table OrderDetail(
     FOREIGN KEY (orderId) REFERENCES OrderProduct(orderId),
     FOREIGN KEY (proId) REFERENCES Product(proId)
 );
-
-
-
