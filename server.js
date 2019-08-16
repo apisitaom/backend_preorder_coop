@@ -39,6 +39,7 @@ app.post('/seller/register',seller.insert)
 app.post('/seller/login',seller.login)
 //OPTION VALUE
 app.post('/optionvalue',optionvalue.optionValue.insert)
+<<<<<<< HEAD
 //PRODUCT
 app.get('/products', product.Product.getMaxMin)
 //PREORDER
@@ -46,6 +47,10 @@ app.get('/preorders', preorder.Preorder.getProduct)
 app.get('/preorder/:id', preorder.Preorder.getProductDetail)
 app.post('/preorder', preorder.Preorder.insertPreorder)
 
+=======
+//PRODUCT GET POPUP
+app.get('/product/popup',product.Product.getPopup)
+>>>>>>> 8c7ca6ad14eea27aafbae8eab257b64b419a2ab4
 
 app.listen(port,()=>{
     console.log(`Backend running on port `+port)
