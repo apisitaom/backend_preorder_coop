@@ -44,6 +44,7 @@ app.post('/api/login/seller',seller.login)
 //add product-saler
 app.post('/optionvalue',optionvalue.optionValue.insert)
 
+
 //product(popup)-saler-get
 app.get('/product/popup/:id',product.Product.getPopup)
 
@@ -53,6 +54,10 @@ app.get('/products', product.Product.getMaxMin)
 app.get('/preorders', preorder.Preorder.getProduct)
 app.get('/preorder/:id', preorder.Preorder.getProductDetail)
 app.post('/preorder', preorder.Preorder.insertPreorder)
+
+//PRODUCT GET POPUP
+app.get('/product/popup',product.Product.getPopup)
+
 
 app.listen(port,()=>{
     console.log(`Backend running on port `+port)
