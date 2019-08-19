@@ -46,3 +46,14 @@ me=# select optionvaluename[1],optionvalue[1] from optionvalue where optionvalue
 -----------------+-------------
  สี               | ขาว
 (1 row)
+
+-- insert and return value
+
+`with ins1 as (
+            insert into product (createdate,photo,proname,prodetail,sellerid) values ($1,$2,$3,$4,$5) returning proid
+        )
+        ,ins2 as (
+            insert into productoption (createdate,sku,price,proid) select $6,$7,$8,proid from ins1 returning proopid
+        )
+            insert into optionvalue (createdate,optionvaluename,optionvalue,proopid) select $9 , $10,$11 ,proopid from ins2;
+        `

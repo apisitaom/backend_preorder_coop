@@ -2,7 +2,7 @@
 --create extension if not exists pgcrypto;
 
 --ADMIN
-create table users (
+create table admin (
     id                  uuid primary key         default gen_random_uuid(),
     email               varchar(128) not null,
     password            varchar(128) not null,
@@ -217,6 +217,3 @@ create table OrderDetail(
     FOREIGN KEY (orderId) REFERENCES OrderProduct(orderId),
     FOREIGN KEY (proId) REFERENCES Product(proId)
 );
-
-
-
