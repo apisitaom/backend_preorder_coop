@@ -15,7 +15,7 @@ const Product = {
         },
     async getMaxMin(req, res) {
         try {
-            const selectMin =   `SELECT pro.proid,pro.proname,proop.price 
+         const selectMin =   `SELECT pro.proid,pro.proname,proop.price 
                                     FROM product pro 
                                     FULL JOIN productoption proop 
                                     ON pro.proid = proop.proid 

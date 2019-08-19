@@ -3,8 +3,6 @@ const jwt = require('jsonwebtoken')
 const dotenv = require('dotenv')
 dotenv.config();
 
-console.log(dotenv.parsed)
-
 const Helper = {
     hashPassword(password){
         return bcrypt.hashSync(password, bcrypt.genSaltSync(8))

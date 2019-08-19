@@ -1,11 +1,6 @@
 //IMAGE
 const multer = require('multer')
 const path = require('path')
-//PSQL
-const con = require('../config/config')
-//SELLER
-const Helper = require('./Helper')
-const moment = require('moment')
 //SELLER
 const storage = multer.diskStorage({
     destination: ('./public/uploads/'),
