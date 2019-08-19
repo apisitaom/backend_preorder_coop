@@ -58,6 +58,6 @@ const Product = {
         } catch (error) {
             console.log(error)
         }
-}
+    }
 }
 module.exports = {Product}

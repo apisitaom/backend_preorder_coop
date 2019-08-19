@@ -18,9 +18,15 @@ const optionValue = {
         try{
             con.pool.query('BEGIN')
             const returnProduct = await con.pool.query(insertProduct,valueProduct)
+<<<<<<< HEAD
             const insertPOp = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid) VALUES($1,$2,$3,$4,$5,$6)'
             for (let i = 0 ; i < option.length; i++) {
                 const valuePOp = [active, today, option[i].sku, option[i].price, option[i].optionvalue, returnProduct.rows[0].proid]
+=======
+            const insertPOp = 'INSERT INTO productoption(active,datemodify,sku,price,includingvat,optionvalue,proid) VALUES($1,$2,$3,$4,$5,$6,$7)'
+            for (let i = 0 ; i < option.length; i++) {
+                const valuePOp = [active, today, option[i].sku, option[i].price, option[i].vat.toFixed(2), option[i].optionvalue, returnProduct.rows[0].proid]
+>>>>>>> fang
                 await con.pool.query(insertPOp, valuePOp)
             }
             con.pool.query('COMMIT')
