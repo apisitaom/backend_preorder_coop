@@ -17,7 +17,7 @@ router.get('/',(req,res)=>{
 })
 
 //TEST GET SELLER
-router.get('/getall',seller.getall)
+router.get('/get',seller.getall)
 
 //REGISTER-SALER
 router.post('/register',img.upload,seller.insert)
