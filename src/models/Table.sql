@@ -27,7 +27,7 @@ create table EventProduct(
     datemodify          timestamp,
     timeStart           timestamp,
     timeEnd             timestamp,
-    countDownTime       timestamp
+    countDownTime       time
 );
 
 --User
@@ -153,6 +153,10 @@ create table ProductOption(
     datemodify          timestamp,
     sku                 varchar(60) not null,
     price               float not null,
+<<<<<<< HEAD
+=======
+    includingvat        float not null,
+>>>>>>> fang
     optionvalue         json[],
 
     proId               uuid not null,
