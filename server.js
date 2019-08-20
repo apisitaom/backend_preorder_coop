@@ -1,20 +1,21 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const app = express() 
+
 //USER
-const admin = require('./src/controller/AdminController')
+const admin = require('./src/services/AdminService')
 //SELLER 
-const seller = require('./src/controller/SellerController')
+const seller = require('./src/services/SellerService')
 //IMAGE CONTROLLER
-const image = require('./src/controller/ImageController')
+const image = require('./src/services/ImageController')
 //OPTION VALUES
-const optionvalue = require('./src/controller/OptionvalueController')
+const optionvalue = require('./src/services/OptionvalueService')
 //PRODUCT
-const product = require('./src/controller/ProductController')
+const product = require('./src/services/ProductService')
 //CORE
 const cors = require('cors')
 //PREORDER
-const preorder = require('./src/controller/PreorderController')
+const preorder = require('./src/services/PreorderService')
 //PORT 
 const port = 4000
 
@@ -24,6 +25,7 @@ app.use(bodyParser.json())
 app.use(
     bodyParser.urlencoded({extended: true})
 )
+
 app.get('/',(req,res) =>{
     res.json({info : `GET START ${port}`})
 })

@@ -1,5 +1,5 @@
-const con = require('../config/config')
-const Helper = require('./Helper')
+const con = require('../configdb/config')
+const Helper = require('../lib/Helper')
 //MOMENT TIME
 const moment = require('moment')
 //INSERT TO SELLER 
@@ -11,8 +11,7 @@ const Seller  = {
     if(!Helper.Helper.isValidEmail(req.body.email)){
       return res.status(400).send({'message':'missing pattern email'});
   }    
-    console.log('AJSBD!@&*$^!@*(#&&!@(*$U!K@$!@$')
-    console.log(req)
+
     const {shopname,address,subdistrict,district,province,zipcode,phone,email,password,taxid,bankname,accountname,accountnumber,promptpayname,promptpaynumber} = req.body
     const insertBank = 'INSERT INTO bank(createdate,active,datemodify,bankname,bankaccountname,banknumber) VALUES($1,$2,$3,$4,$5,$6) returning bankid'
     const insertPromptpay = 'INSERT INTO promptpay(createdate,active,datemodify,promptpayname,promptpaynumber) VALUES($1,$2,$3,$4,$5) returning promptpayid'
@@ -31,9 +30,8 @@ const Seller  = {
       const result = await con.pool.query(insertSeller,value)
       await con.pool.query('COMMIT')
       const token = Helper.Helper.generateToken(result.rows[0].sellerid);
-      // return res.status(200).send({token});
       console.log(value)
-      res.end('success')
+      res.end('ok')
     }catch(error){
     if (error.routine === '_bt_check_unique') {
         return res.status(400).send({ 'message': 'User with that EMAIL already exist' })
@@ -63,6 +61,16 @@ const Seller  = {
     }catch(error){
         return res.status(400).send(error,{'message':'error'});
     }
+   },
+   async getall (req,res){
+     const sql = 'select * from seller'
+
+     try{
+      const {  rows } = await con.pool.query(sql)
+      return res.status(200).send({rows})
+     }catch(error){
+      return res.status(400).send({'message':'error'})
+     }
    }
 }
 
