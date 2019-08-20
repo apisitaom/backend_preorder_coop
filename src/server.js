@@ -15,7 +15,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(express.static('public'))
 
-app.use((req,res,next)=>{
+app.use((err,req,res,next)=>{
     const clientIp = reqip.getClientIp(req); 
     let currentDatetime = new Date()
     let formattedDate = currentDatetime.getFullYear() + "-" + (currentDatetime.getMonth() + 1) + "-" + currentDatetime.getDate() + " " + currentDatetime.getHours() + ":" + currentDatetime.getMinutes() + ":" + currentDatetime.getSeconds() 
