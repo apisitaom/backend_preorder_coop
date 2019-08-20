@@ -1,9 +1,5 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const dotenv = require('dotenv')
-dotenv.config();
-
-console.log(dotenv.parsed)
 
 const Helper = {
     hashPassword(password){
@@ -19,13 +15,11 @@ const Helper = {
         const token = jwt.sign({
           userId: id
         },
-        process.env.SECRET || 'Apisit0857646956' , { expiresIn: '1d' }
+        process.env.SECRET, { expiresIn: '1d' }
         );
     
         return token;
       }
-    
-      
     }
 
 exports.Helper = Helper

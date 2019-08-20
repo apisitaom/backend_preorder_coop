@@ -1,8 +1,8 @@
-const con = require('../config/config')
-const Helper = require('./Helper')
+const con = require('../configdb/config')
+const Helper = require('../lib/Helper')
 //MOMENT TIME
 const moment = require('moment')
-const img = require('./ImageController')
+const img = require('../lib/ImageUpload')
 //IMAGE
 const multer = require('multer')
 const path = require('path')
@@ -14,20 +14,14 @@ const optionValue = {
         const active = true
         const insertProduct = 'INSERT INTO product(active,datemodify,proname,prodetail,photo,sellerid) VALUES($1,$2,$3,$4,$5,$6) returning proid'
         const valueProduct = [active, today, productname, detail, picture, sellerid]
-        // console.log(req.body.option[0])
         try{
             con.pool.query('BEGIN')
             const returnProduct = await con.pool.query(insertProduct,valueProduct)
-<<<<<<< HEAD
             const insertPOp = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid) VALUES($1,$2,$3,$4,$5,$6)'
             for (let i = 0 ; i < option.length; i++) {
                 const valuePOp = [active, today, option[i].sku, option[i].price, option[i].optionvalue, returnProduct.rows[0].proid]
-=======
-            const insertPOp = 'INSERT INTO productoption(active,datemodify,sku,price,includingvat,optionvalue,proid) VALUES($1,$2,$3,$4,$5,$6,$7)'
-            for (let i = 0 ; i < option.length; i++) {
-                const valuePOp = [active, today, option[i].sku, option[i].price, option[i].vat.toFixed(2), option[i].optionvalue, returnProduct.rows[0].proid]
->>>>>>> fang
                 await con.pool.query(insertPOp, valuePOp)
+                console.log(valuePOp)
             }
             con.pool.query('COMMIT')
             return res.status(200).send({'message':'success'});

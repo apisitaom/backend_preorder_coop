@@ -1,6 +1,5 @@
-const con = require('../config/config')
-const Helper = require('./Helper')
-const uuid4 = require('uuid4')
+const con = require('../configdb/config')
+const Helper = require('../lib/Helper')
 const moment = require('moment')
 
 //BACKLIST FOR LOGUT JWT TOKEN 
@@ -86,15 +85,16 @@ const Admin = {
         }
     },
     //LOGOUT
-    async logOut (req,res){
-        await  blacklist.revoke(req.headers.authorization)
-        return res.json({success : true,'message':'login success'}).status(200)
-    },
+    // async logOut (req,res){
+    //     await  blacklist.revoke(req.headers.authorization)
+    //     return res.json({success : true,'message':'login success'}).status(200)
+    // },
 
-     //LOGOUT BY REFLESH TOKEN
-     async logout(req,res){
-        console.log(makeRefreshToken(200))
-    },
+    //  //LOGOUT BY REFLESH TOKEN
+    //  async logout(req,res){
+    //     console.log(makeRefreshToken(200))
+    // },
+    
      //RANDOM REFRESH TOKEN 
     async makeRefreshToken(length){
         var result = '';

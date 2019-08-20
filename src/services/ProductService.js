@@ -1,4 +1,4 @@
-const con = require('../config/config')
+const con = require('../configdb/config')
 
 const Product = {
     async getPopup(req,res){
@@ -7,6 +7,7 @@ const Product = {
         from product inner join productoption on product.proid = productoption.proid where product.proid = $1`;
         try{
             const { rows } = await  con.pool.query(getPopup,[req.params.id]);
+            console.log('get popup data')
             return res.status(200).send({'message':'get popup success',rows});
         }catch(error){
             return res.status(400).send({'message':'error'});
@@ -14,7 +15,7 @@ const Product = {
         },
     async getMaxMin(req, res) {
         try {
-            const selectMin =   `SELECT pro.proid,pro.proname,proop.price 
+         const selectMin =   `SELECT pro.proid,pro.proname,proop.price 
                                     FROM product pro 
                                     FULL JOIN productoption proop 
                                     ON pro.proid = proop.proid 
