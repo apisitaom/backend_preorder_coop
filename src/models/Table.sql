@@ -213,7 +213,7 @@ create table OrderDetail(
     amount              integer not null,
     
     orderId             uuid not null,
-    proId               uuid not null,
+    proOpId               uuid not null,
     FOREIGN KEY (orderId) REFERENCES OrderProduct(orderId),
-    FOREIGN KEY (proId) REFERENCES Product(proId)
+    FOREIGN KEY (proOpId) REFERENCES ProductOption(proOpId)
 );
