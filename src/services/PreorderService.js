@@ -1,4 +1,4 @@
-const con = require('../config/config')
+const con = require('../configdb/config')
 
 const Preorder = {
     async getProduct (req, res) {

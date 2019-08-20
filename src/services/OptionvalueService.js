@@ -1,8 +1,8 @@
-const con = require('../config/config')
-const Helper = require('./Helper')
+const con = require('../configdb/config')
+const Helper = require('../lib/Helper')
 //MOMENT TIME
 const moment = require('moment')
-const img = require('./ImageController')
+const img = require('../lib/ImageUpload')
 //IMAGE
 const multer = require('multer')
 const path = require('path')

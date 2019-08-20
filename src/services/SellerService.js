@@ -1,5 +1,5 @@
-const con = require('../config/config')
-const Helper = require('./Helper')
+const con = require('../configdb/config')
+const Helper = require('../lib/Helper')
 //MOMENT TIME
 const moment = require('moment')
 //INSERT TO SELLER 
@@ -61,6 +61,16 @@ const Seller  = {
     }catch(error){
         return res.status(400).send(error,{'message':'error'});
     }
+   },
+   async getall (req,res){
+     const sql = 'select * from seller'
+
+     try{
+      const {  rows } = await con.pool.query(sql)
+      return res.status(200).send({rows})
+     }catch(error){
+      return res.status(400).send({'message':'error'})
+     }
    }
 }
 
