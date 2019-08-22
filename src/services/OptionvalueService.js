@@ -2,10 +2,6 @@ const con = require('../configdb/config')
 const Helper = require('../lib/Helper')
 //MOMENT TIME
 const moment = require('moment')
-const img = require('../lib/ImageUpload')
-//IMAGE
-const multer = require('multer')
-const path = require('path')
 //INSERT ASYNC
 const optionValue = {
     async insert (req,res){
@@ -22,11 +18,23 @@ const optionValue = {
                 const valuePOp = [active, today, option[i].sku, option[i].price, option[i].optionvalue, returnProduct.rows[0].proid,option[i].vat]
                 await con.pool.query(insertPOp, valuePOp)
                 console.log(valuePOp)
+                console.log('add product')
             }
             con.pool.query('COMMIT')
-            return res.status(200).send({'message':'success'});
+            const response = {
+                status : "200",
+                message : "success",
+                }
+            return res.status(200).send(response);
         }catch(error){
-            console.log(error)
+            const response = {
+                status : "400",
+                message : "error",
+                }
+                return res.status(400).send(response);
+        }
+        finally{
+            throw error
         }
     }
 }
