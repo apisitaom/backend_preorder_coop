@@ -1,7 +1,6 @@
 const router = require('express').Router()
 //SELLER
 const seller = require('../services/SellerService')
-
 //LIB IMAGE
 const img  =require('../lib/ImageUpload')
 //OPTION VALUE
@@ -16,11 +15,10 @@ const order = require('../services/OrderService')
 router.get('/',(req,res)=>{
     res.json('SELLER ROUTER')
 })
-
 //TEST GET SELLER
 router.get('/get',seller.getall)
 
-//REGISTER-SALER
+//REGISTER-SALER    
 router.post('/register',img.upload,seller.insert)
 
 //LOGIN-SALER
@@ -31,6 +29,12 @@ router.post('/optionvalue',optionvalue.optionValue.insert)
 
 //PRODUCT(popup)-SALER-GET
 router.get('/popup/:id',product.Product.getPopup)
+
+//SHOPINFO-SALER
+router.get('/shopinfo/:id',seller.shopinfo)
+
+//ORDERLIST-SALER
+router.post('/orderlistsaler',seller.orderlist_saler)
 
 //PREORDER
 router.get('/preorder',preorder.Preorder.getProduct)
