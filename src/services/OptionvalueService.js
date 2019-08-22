@@ -17,9 +17,9 @@ const optionValue = {
         try{
             con.pool.query('BEGIN')
             const returnProduct = await con.pool.query(insertProduct,valueProduct)
-            const insertPOp = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid) VALUES($1,$2,$3,$4,$5,$6)'
+            const insertPOp = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid,includingvat) VALUES($1,$2,$3,$4,$5,$6,$7)'
             for (let i = 0 ; i < option.length; i++) {
-                const valuePOp = [active, today, option[i].sku, option[i].price, option[i].optionvalue, returnProduct.rows[0].proid]
+                const valuePOp = [active, today, option[i].sku, option[i].price, option[i].optionvalue, returnProduct.rows[0].proid,option[i].vat]
                 await con.pool.query(insertPOp, valuePOp)
                 console.log(valuePOp)
             }
