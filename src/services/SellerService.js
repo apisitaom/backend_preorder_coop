@@ -31,7 +31,12 @@ const Seller  = {
       await con.pool.query('COMMIT')
       const token = Helper.Helper.generateToken(result.rows[0].sellerid);
       console.log(value)
-      res.end('ok')
+      const response = {
+        status : "200",
+        message : "success",
+        result : token
+        }
+      return res.status(200).send(response)
     }catch(error){
     if (error.routine === '_bt_check_unique') {
         return res.status(400).send({ 'message': 'User with that EMAIL already exist' })
@@ -57,7 +62,12 @@ const Seller  = {
            return res.status(400).send({'message':'Missing value4'});
        }
        const token = Helper.Helper.generateToken(rows[0].id);
-       return res.status(200).send({token});
+       const response = {
+        status : "200",
+        message : "success",
+        result : token
+        }
+       return res.status(200).send(response);
     }catch(error){
         return res.status(400).send(error,{'message':'error'});
     }
