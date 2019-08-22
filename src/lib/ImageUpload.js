@@ -4,6 +4,10 @@ const storage = multer.diskStorage({
     destination: ('./public/uploads/'),
      filename: function (req, file, cb) {
         cb(null, file.fieldname + '-' +new Date().getTime().toString()+ path.extname(file.originalname))
+
+        const text = file.fieldname + '-' +new Date().getTime().toString()+ path.extname(file.originalname)
+
+        req.picture = text
       }
   }) 
 

@@ -98,7 +98,7 @@ create table Seller(
     email               varchar(255) UNIQUE,
     sellerPassword      varchar(60) not null,
     taxId               varchar(60) not null,
-    photo               varchar(255) null,
+    photo               text [],
 
     bankId              uuid not null REFERENCES Bank(bankId),
     promptpayId         uuid not null REFERENCES Promptpay (promptpayId)
@@ -153,10 +153,7 @@ create table ProductOption(
     datemodify          timestamp,
     sku                 varchar(60) not null,
     price               float not null,
-<<<<<<< HEAD
-=======
-    includingvat        float not null,
->>>>>>> fang
+    includingvat        float,
     optionvalue         json[],
 
     proId               uuid not null,
@@ -209,7 +206,7 @@ create table Receipt(
 --Order Detail
 create table OrderDetail(
     orderDetailId       uuid primary key         default gen_random_uuid(),
-    price               float not null,
+        
     amount              integer not null,
     
     orderId             uuid not null,
