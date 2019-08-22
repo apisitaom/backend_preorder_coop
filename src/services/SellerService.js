@@ -39,7 +39,11 @@ const Seller  = {
       return res.status(200).send(response)
     }catch(error){
     if (error.routine === '_bt_check_unique') {
-        return res.status(400).send({ 'message': 'User with that EMAIL already exist' })
+      const response = {
+        status : "400",
+        message : "User with that EMAIL already exist"
+        }
+        return res.status(400).send(response)
       }
       throw error
     }
@@ -69,17 +73,29 @@ const Seller  = {
         }
        return res.status(200).send(response);
     }catch(error){
-        return res.status(400).send(error,{'message':'error'});
+      const response = {
+        status : "200",
+        message : "login false"
+        }
+        return res.status(400).send(response);
     }
    },
    async getall (req,res){
      const sql = 'select * from seller'
 
      try{
-      const {  rows } = await con.pool.query(sql)
-      return res.status(200).send({rows})
+      const { rows } = await con.pool.query(sql)
+      const response = {
+        status : "200",
+        result : rows
+        }
+      return res.status(200).send(response)
      }catch(error){
-      return res.status(400).send({'message':'error'})
+      const response = {
+        status : "400",
+        message : "error"
+        }
+      return res.status(400).send(response)
      }
    }
 }
