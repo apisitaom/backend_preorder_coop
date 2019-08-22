@@ -36,7 +36,7 @@ create table Member(
     createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
-    fristName           varchar(50) not null,
+    firstName           varchar(50) not null,
     lastName            varchar(50) not null,
     gender              varchar(50) not null,
     brithDay            date,
@@ -153,10 +153,7 @@ create table ProductOption(
     datemodify          timestamp,
     sku                 varchar(60) not null,
     price               float not null,
-<<<<<<< HEAD
-=======
     includingvat        float not null,
->>>>>>> fang
     optionvalue         json[],
 
     proId               uuid not null,
@@ -182,7 +179,6 @@ create table OrderProduct(
     createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
-    summary             float not null,
 
     userId              uuid not null,
     payId               uuid not null,

@@ -10,7 +10,8 @@ const optionvalue = require('../services/OptionvalueService')
 const product = require('../services/ProductService')
 //PROORDER
 const preorder = require('../services/PreorderService')
-
+//ORDER
+const order = require('../services/OrderService')
 
 router.get('/',(req,res)=>{
     res.json('SELLER ROUTER')
@@ -35,5 +36,8 @@ router.get('/popup/:id',product.Product.getPopup)
 router.get('/preorder',preorder.Preorder.getProduct)
 router.get('/preorder/:id',preorder.Preorder.getProductDetail)
 router.post('/preorder',preorder.Preorder.insertPreorder)
+
+//ORDER
+router.post('/orders/:id', order.Order.getOrderDetail)
 
 module.exports = router
