@@ -5,12 +5,17 @@ const moment = require('moment')
 //INSERT TO SELLER 
 const Seller  = {
   async insert (req,res){
-    if(!req.body.email || !req.body.password){
-      return res.status(400).send({'message':'missing values email or password'});
-    }
-    if(!Helper.Helper.isValidEmail(req.body.email)){
-      return res.status(400).send({'message':'missing pattern email'});
-    }    
+    // if(!req.body.email || !req.body.password){
+    //   return res.status(400).send({'message':'missing values email or password'});
+    // }
+    // if(!Helper.Helper.isValidEmail(req.body.email)){
+    //   return res.status(400).send({'message':'missing pattern email'});
+    // }    
+    console.log('()@!&*$)(!@*$)(!@*$)@!($*)(')
+    console.log(req)
+    console.log('!(*@$&!@(*&$!@')
+    console.log(req.body)
+    console.log('123984132908401234')
     const {shopname,address,subdistrict,district,province,zipcode,phone,email,password,taxid,bankname,accountname,accountnumber,promptpayname,promptpaynumber} = req.body
     const insertBank = 'INSERT INTO bank(createdate,active,datemodify,bankname,bankaccountname,banknumber) VALUES($1,$2,$3,$4,$5,$6) returning bankid'
     const insertPromptpay = 'INSERT INTO promptpay(createdate,active,datemodify,promptpayname,promptpaynumber) VALUES($1,$2,$3,$4,$5) returning promptpayid'
@@ -38,20 +43,23 @@ const Seller  = {
       console.log(value)
       const response = {
         status : "200",
-        message : "success",
+        message : "success"
         }
-      res.end(response)
+      // res.end(response)
+        return res.send(response)
     }catch(error){
     if (error.routine === '_bt_check_unique') {
         return res.status(400).send({'message':'email has already exit'})
       }
+      console.log(value)
       const response = {
         status : "400",
-        message : "error",
+        message : "error"
         }
-        return res.status(400).send(response)
+        return res.send(response)
     }
     finally{
+      res.end()
         throw error
    }
   },
@@ -135,7 +143,7 @@ const Seller  = {
    },
    async orderlist_saler(req,res){
 
-    const values = ``
+    const values = `select `
     
     console.log('orderlist-seller')
     try{

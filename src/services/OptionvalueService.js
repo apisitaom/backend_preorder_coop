@@ -5,6 +5,9 @@ const moment = require('moment')
 //INSERT ASYNC
 const optionValue = {
     async insert (req,res){
+        console.log('*(&@Y$&*!@Y$Y!@(*$*!@(*')
+        console.log(req.body)
+        console.log('*(&@Y$&*!@Y$Y!@(*$*!@(*')
         const {picture,productname,detail,option,sellerid} = req.body
         const today = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
         const active = true
