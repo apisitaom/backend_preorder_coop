@@ -3,10 +3,10 @@ const moment = require('moment')
 
 const Preorder = {
     async getProduct (req, res) {
-        const selectAll = 'SELECT proid,proname FROM product'
+        const selectAll = 'SELECT proid,proname FROM product WHERE sellerid = $1'
         let resp = []
         try {
-            const value = await con.pool.query(selectAll)
+            const value = await con.pool.query(selectAll,[req.params.id])
             for ( let i = 0; i < (value.rows).length; i++) {
                 let obj = {
                     order : i+1,
@@ -15,8 +15,18 @@ const Preorder = {
                 }
                 resp.push(obj)
             }
-            return res.status(200).send(resp)
+            const results = {
+                status : "200",
+                message : "seccess",
+                result : resp
+            }
+            return res.status(200).send(results)
         } catch (error) {
+            const results = {
+                status : "400",
+                message : "error"
+            }
+            return res.status(400).send(results)
             console.log(error)
         }
     },
