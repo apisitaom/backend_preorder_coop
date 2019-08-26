@@ -40,7 +40,7 @@ router.get('/shopinfo/:id',seller.shopinfo)
 router.post('/orderlistsaler',seller.orderlist_saler)
 
 //PREORDER
-router.get('/preorder',preorder.Preorder.getProduct)
+router.get('/preorders/:id',preorder.Preorder.getProduct)
 router.get('/preorder/:id',preorder.Preorder.getProductDetail)
 router.post('/preorder',preorder.Preorder.insertPreorder)
 

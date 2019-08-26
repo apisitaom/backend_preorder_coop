@@ -36,9 +36,19 @@ const Preorder = {
                             WHERE proid = $1`
         try { 
             const result = await con.pool.query(selectOne,[key])
-            return res.status(200).send(result.rows)
+            const resp = {
+                status : "200",
+                message : "seccess",
+                result : result.rows
+            }
+            return res.status(200).send(resp)
         } catch (error) {   
-            console.log(error)
+            const resp = {
+                status : "200",
+                message : "seccess",
+                result : resp
+            }
+            return res.status(200).send(resp)
         }
     },
     async insertPreorder (req, res) {
@@ -88,24 +98,24 @@ const Preorder = {
             const result = await con.pool.query(selectProduct,[req.params.id]) 
             let sumValue = []
             let price,allValue
-            for (let i = 0; i < (result.rows).length; i++) {
-                const id = result.rows[i].proid
-                const queryMax = await con.pool.query(selectMax,[id])
-                const queryMin = await con.pool.query(selectMin,[id])
-                const max = queryMax.rows[i].price
-                const min = queryMin.rows[i].price
-                const proName = result.rows[i].proname
-                price = min + ' - ' + max
-                allValue = {
-                    order : i+1,
-                    proid : id,
-                    proname : proName,
-                    price : price
-                }
-                sumValue.push(allValue)
-                console.log(queryMin)
-            }
-            return res.status(200).send(sumValue)
+            // for (let i = 0; i < (result.rows).length; i++) {
+            //     const id = result.rows[i].proid
+            //     const queryMax = await con.pool.query(selectMax,[id])
+            //     const queryMin = await con.pool.query(selectMin,[id])
+            //     const max = queryMax.rows[i].price
+            //     const min = queryMin.rows[i].price
+            //     const proName = result.rows[i].proname
+            //     price = min + ' - ' + max
+            //     allValue = {
+            //         order : i+1,
+            //         proid : id,
+            //         proname : proName,
+            //         price : price
+            //     }
+            //     sumValue.push(allValue)
+            //     console.log(queryMin)
+            // }
+            return res.status(200).send('false')
         } catch (error) {
             console.log(error)
         }
