@@ -30,6 +30,9 @@ router.post('/optionvalue',optionvalue.optionValue.insert)
 //PRODUCT(popup)-SALER-GET
 router.get('/popup/:id',product.Product.getPopup)
 
+//PRODUCTS LIST SELLER
+router.get('/products/:id', preorder.Preorder.getProduct)
+
 //SHOPINFO-SALER
 router.get('/shopinfo/:id',seller.shopinfo)
 

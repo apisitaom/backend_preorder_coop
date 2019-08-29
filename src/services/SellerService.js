@@ -143,13 +143,13 @@ const Seller  = {
    },
    async orderlist_saler(req,res){
 
-    const values = `select `
+    const values = `select member.fristname, member.lastname,orderproduct.createdate from orderproduct full join orderproduct on member.userid = orderproduct.userid; `
     
     console.log('orderlist-seller')
     try{
 
     }catch(error){
-      
+
     }
     finally{
     throw error
