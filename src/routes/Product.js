@@ -7,4 +7,8 @@ router.get('/', (req, res, next)=>{
 
 router.get('/list', product.cartCustomer);
 
+router.get('/lists', product.homepageCustomer);
+
+router.post('/add', product.insertProductHomepage);
+
 module.exports = router

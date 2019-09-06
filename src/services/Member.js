@@ -70,7 +70,9 @@ async function getProfileMember (req, res, next) {
     const decode = helper.Helper.verifyToken(token);
     const sql = `select fristname, lastname, gender, brithday, addressuser, subdistrict, disstrict, province, zipcode, photo, email, phone from member where userid = $1`
     const value = [decode.data.id];
-    
+    //JWT
+    console.log(decode.data);
+    console.log(req);
     try {
         const { rows } = await db.query(sql, value);
         const tranfom = {
