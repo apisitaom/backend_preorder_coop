@@ -47,6 +47,7 @@ create table Member(
     zipcode             varchar(100),
     photo               varchar(100),
     email               varchar(100),
+    phone               varchar(100),
     passwordUser        varchar(100)
 );
 
@@ -141,6 +142,8 @@ create table Product(
     photo               varchar(255) not null,
 
     sellerId            uuid not null,
+    userid              uuid null,
+    FOREIGN key (userid) REFERENCES Member (userId),
     FOREIGN key (sellerId) REFERENCES Seller (sellerId)
 );
 
