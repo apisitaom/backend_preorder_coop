@@ -94,6 +94,21 @@ async function getProfileMember (req, res, next) {
 
     }
 }
+// UPDATE table_name  
+// SET column1 = value1, column2 = value2...., columnN = valueN  
+// WHERE [condition];  
+
+
+// userid|createdate | active |  datemodify |firstname |lastname | gender |brithday | addressuser | subdistrict | disstrict | province | zipcode|photo|email|phone|passworduser 
+async function updateMember (req, res, next) {
+    const { headers } = req;
+    const subtoken = headers.authorization.split(' ');
+    const token = subtoken[1];
+    const decode = helper.Helper.verifyToken(token);
+    const sql = ``
+    const value = [decode.data.id];
+
+}
 
 async function logInMember (req, res, next) {
     const { email, password } = req.body;  
