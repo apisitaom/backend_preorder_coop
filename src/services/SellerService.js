@@ -167,6 +167,7 @@ const Seller = {
 
   // customer-profile
   async updateSeller(req, res, next) {
+    
     const { shopname, address, subdistrict, district, province, zipcode, phone, email, password, bankname, accountname, accountnumber, promptpayname, promptpaynumber, } = req.body
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
