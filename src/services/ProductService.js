@@ -6,7 +6,7 @@ const errorMessage = require('../lib/errorMessage');
 const successMessage = require('../lib/successMessage');
 //Responce
 const responce = require('../lib/Reposnce');
-const moment = require('moment');
+const helper = require('../lib/Helper');
 
 function responeSuccess(res, message, get) {
     res.send({
@@ -87,7 +87,7 @@ const Product = {
 async function homepageCustomer(req, res, next) {
     //Homepage-cutomer
     const sql = `select product.proname, product.photo, eventproduct.timestart,
-    eventproduct.timeend, eventproduct.countdowntime, 
+    eventproduct.timeend, eventproduct.countdowntime, productoption.proopid,
     productoption.optionvalue,  productoption.price, seller.sellername from productoption 
     full join product on product.proid = productoption.proid 
     full join eventdetail on eventdetail.eventid = productoption.proid
@@ -106,35 +106,34 @@ async function homepageCustomer(req, res, next) {
 
 async function insertProductHomepage (req, res, next) {
     
-    const { productname, amount, datepre  ,sellerid} = req.body
+    const {amount, userid, proopid} = req.body
+    console.log(req.body);
+    //  JWT
+    const { headers } = req;
+    const subtoken = headers.authorization.split(' ');
+    const token = subtoken[1];
+    const decode = helper.Helper.verifyToken(token);
+    const value = [decode.data.id];
 
     const active = true;
-    const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-    const isNull = "-";
-    const uuId = '99e650ff-683d-42ca-a05b-3528505f7e60';
-    const  sqlProduct = `insert into product ( active, proname, sellerid) values ($1, $2, $3) returning proid`
-    const valuesProduct = [ active, productname, sellerid ];
     
     // ORDER PRODUCT
-    // const sqlOrderProduct = `insert into orderproduct ( active) values ($1) returning orderid`
-    // const valuesOrderProduct = [  active ];
-
-    // MEMBER 
-    const sqlMember = ``
-    const valueMember = [];
+    const sqlOrderProduct = `insert into orderproduct (active, userid) values ($1, $2) returning orderid`
+    const valuesOrderProduct = [  active , userid];
     
-    const sqlOrderDetail = `insert into orderdetail ( active, amount, proid) values ($1, $2, $3)`
+    const sqlOrderDetail = `insert into orderdetail (active, amount, proopid, orderid) values ($1, $2, $3, $4)`
 
     try {
+
         await db.query('BEGIN');
-        
-        const  product  = await db.query(sqlProduct, valuesProduct);
 
-        const values = [ active, amount, product.rows[0].proid];
-        const orderdetail = await db.query(sqlOrderDetail, values);
-
-        console.log('==============>', product.rows[0].proid);
+        // ORDER PRODUCT
+        const orderproduct = await db.query(sqlOrderProduct, valuesOrderProduct);
     
+        // ORDER DETAIL
+        const valuesOrderDetail = [ active, amount, proopid, orderproduct.rows[0].orderid];
+        await db.query(sqlOrderDetail, valuesOrderDetail);
+        
         await db.query('COMMIT');
 
         return responce.resSuccess(res, successMessage.success);
@@ -164,7 +163,6 @@ async function cartCustomer(req, res, next) {
     } finally {
         throw error
     }
-
 }
 
 module.exports = {

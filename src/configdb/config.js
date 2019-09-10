@@ -1,9 +1,9 @@
 const Pool = require('pg').Pool
 const pool = new Pool({
-  user:process.env.USER || "aom",
-  host: process.env.HOST || "localhost",
-  database: process.env.DATABASE || "me",
-  password: process.env.PASSWORD || "aom",
+  user:process.env.USER ,
+  host: process.env.HOST ,
+  database: process.env.DATABASE ,
+  password: process.env.PASSWORD ,
   port: 5432,
 })
 
