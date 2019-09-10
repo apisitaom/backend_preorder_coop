@@ -1,5 +1,4 @@
-const con = require('../configdb/config')
-
+const db = require('../configdb/configDB');
 const Order = {
     async getOrderDetail (req, res) {
         const id = req.params.id
@@ -20,7 +19,7 @@ const Order = {
                             FULL JOIN paymentstatus pays ON pay.paystatusid = pays.paystatusid
                             WHERE op.orderid IS NOT NULL and p.sellerid = $1`
         try {
-            const result = await con.pool.query(queryText,[id])
+            const result = await db.query(queryText,[id])
             for (let i = 0; i < (result.rows).length ;i++) {
                 let value = {
                     orderid : result.rows[0].orderid,

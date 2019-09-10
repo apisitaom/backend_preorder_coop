@@ -1,4 +1,3 @@
-const con = require('../configdb/config')
 const moment = require('moment')
 const db = require('../configdb/configDB');
 const Preorder = {

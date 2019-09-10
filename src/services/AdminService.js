@@ -1,7 +1,7 @@
 const con = require('../configdb/config')
 const Helper = require('../lib/Helper')
 const moment = require('moment')
-
+const db = require('../configdb/configDB');
 //BACKLIST FOR LOGUT JWT TOKEN 
 const blacklist = require('express-jwt-blacklist-updated');
 
@@ -16,7 +16,7 @@ const Admin = {
      }
      const text = 'SELECT * FROM admin WHERE email = $1';
      try{
-        const { rows } = await con.pool.query(text,[req.body.email]);
+        const { rows } = await db.query(text,[req.body.email]);
         if(!rows[0]){
             return res.status(400).send({'message':'Missing value3'});
         }
@@ -34,7 +34,7 @@ const Admin = {
         const findAllQuery = 'select * from admin';
 
         try{
-        const { rows } = await con.pool.query(findAllQuery);
+        const { rows } = await db.query(findAllQuery);
         console.log('Get Admin-data');
             return res.status(200).send({rows});
         }catch(error){
@@ -63,7 +63,7 @@ const Admin = {
         ];
     
         try {
-          const { rows } = await con.pool.query(createQuery, values);
+          const { rows } = await db.query(createQuery, values);
           const token = Helper.Helper.generateToken(rows[0].id);
           return res.status(201).send({ token });
         } catch(error) {
@@ -77,7 +77,7 @@ const Admin = {
     async getUserOneData (req,res){
         const findAllQuery = 'select * from admin where id = $1';
         try{
-        const { rows } = await con.pool.query(findAllQuery,[req.params.id]);
+        const { rows } = await db.query(findAllQuery,[req.params.id]);
         console.log('Get Admin-data');
             return res.status(200).send({rows});
         }catch(error){

@@ -1,5 +1,4 @@
-const con = require('../configdb/config')
-const Helper = require('../lib/Helper')
+const db = require('../configdb/configDB');
 //MOMENT TIME
 const moment = require('moment')
 //INSERT ASYNC
@@ -21,16 +20,16 @@ const optionValue = {
         const insertProduct = 'INSERT INTO product(active,datemodify,proname,prodetail,photo,sellerid) VALUES($1,$2,$3,$4,$5,$6) returning proid'
         const valueProduct = [active, today, productname, detail, picture, sellerid]
         try{
-            con.pool.query('BEGIN')
+            db.query('BEGIN')
 
-            const returnProduct = await con.pool.query(insertProduct,valueProduct)
+            const returnProduct = await db.query(insertProduct,valueProduct)
             const insertPOp = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid,includingvat) VALUES($1,$2,$3,$4,$5,$6,$7)'
             // for (let i = 0 ; i < option.length; i++) {
             //     const valuePOp = [active, today, option[i].sku, option[i].price, option[i].optionvalue, returnProduct.rows[0].proid,option[i].vat]
-            //     await con.pool.query(insertPOp, valuePOp)
+            //     await db.query(insertPOp, valuePOp)
             //     console.log('add product')
             // }
-            con.pool.query('COMMIT')
+            db.query('COMMIT')
             const response = {
                 status : "200",
                 message : "success",
