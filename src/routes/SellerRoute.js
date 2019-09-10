@@ -30,6 +30,9 @@ router.post('/optionvalue',optionvalue.optionValue.insert)
 //PRODUCT(popup)-SALER-GET
 router.get('/popup/:id',product.Product.getPopup)
 
+//PRODUCTS LIST SELLER
+router.get('/products/:id', preorder.Preorder.getProduct)
+
 //SHOPINFO-SALER
 router.get('/shopinfo/:id',seller.shopinfo)
 
@@ -43,5 +46,7 @@ router.post('/preorder',preorder.Preorder.insertPreorder)
 
 //ORDER
 router.post('/orders/:id', order.Order.getOrderDetail)
+
+//======================Chapter 2 ======================//
 
 module.exports = router

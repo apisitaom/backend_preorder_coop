@@ -13,7 +13,7 @@ create table admin (
 --Shipping Status
 create table ShippingStatus(
     shipStatusId        uuid primary key         default gen_random_uuid(),
-    shippingStatusName  varchar(50) not null,
+    shippingStatusName  varchar(50)  ,
     createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp
@@ -36,9 +36,9 @@ create table Member(
     createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
-    firstName           varchar(50) not null,
-    lastName            varchar(50) not null,
-    gender              varchar(50) not null,
+    firstname           varchar(50)  ,
+    lastName            varchar(50)  ,
+    gender              varchar(50)  ,
     brithDay            date,
     addressUser         varchar(255),
     subdistrict         varchar(100),
@@ -47,6 +47,7 @@ create table Member(
     zipcode             varchar(100),
     photo               varchar(100),
     email               varchar(100),
+    phone               varchar(100),
     passwordUser        varchar(100)
 );
 
@@ -56,7 +57,7 @@ create table PaymentStatus(
     createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
-    statusName          varchar(50) not null
+    statusName          varchar(50)  
 );
 
 --Promptpay
@@ -65,8 +66,8 @@ create table Promptpay(
     createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
-    promptpayName       varchar(60) not null,
-    promptpaynumber     varchar(60) not null
+    promptpayName       varchar(60)  ,
+    promptpaynumber     varchar(60)  
 );
 
 --Bank
@@ -75,9 +76,9 @@ create table Bank(
     createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
-    bankName            varchar(60) not null,
-    bankAccountname     varchar(60) not null,
-    bankNumber          varchar(60) not null
+    bankName            varchar(60)  ,
+    bankAccountname     varchar(60)  ,
+    bankNumber          varchar(60)  
 );
 
 ----------------------2--------------------
@@ -88,20 +89,20 @@ create table Seller(
     createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
-    sellerName          varchar(50) not null,
+    sellerName          varchar(50)  null,
     address             varchar(255) null,
     subdistrict         varchar(255) null,
     district            varchar(255) null,
     zipcode             varchar(50) null,
     province            varchar(255) null,  
-    phoneNumber         varchar(50) not null,
+    phoneNumber         varchar(50)  null,
     email               varchar(255) UNIQUE,
-    sellerPassword      varchar(60) not null,
-    taxId               varchar(60) not null,
+    sellerPassword      varchar(60)  not null,
+    taxId               varchar(60)  ,
     photo               text [],
 
-    bankId              uuid not null REFERENCES Bank(bankId),
-    promptpayId         uuid not null REFERENCES Promptpay (promptpayId)
+    bankId              uuid   REFERENCES Bank(bankId),
+    promptpayId         uuid   REFERENCES Promptpay (promptpayId)
 );
 
 --Payment
@@ -111,9 +112,9 @@ create table Payment(
     active              boolean,
     datemodify          timestamp,
     slip                varchar(255),--photo
-    summary             float not null,
+    summary             float  ,
 
-    payStatusId         uuid not null,
+    payStatusId         uuid  ,
     FOREIGN KEY (payStatusId) REFERENCES PaymentStatus (payStatusId)
 );
 
@@ -125,7 +126,7 @@ create table Shipping(
     datemodify          timestamp,
     shipTrackNo         varchar(100),
 
-    shipStatusId        uuid not null,
+    shipStatusId        uuid  ,
     FOREIGN KEY (shipStatusId) REFERENCES shippingstatus (shipstatusid)
 );
 
@@ -136,11 +137,13 @@ create table Product(
     createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
-    proName             varchar(50) not null,
-    proDetail           varchar(50) not null,
-    photo               varchar(255) not null,
+    proName             varchar(50)  ,
+    proDetail           varchar(50)  ,
+    photo               varchar(255)  ,
 
-    sellerId            uuid not null,
+    sellerId            uuid  ,
+    userid              uuid ,
+    FOREIGN key (userid) REFERENCES Member (userId),
     FOREIGN key (sellerId) REFERENCES Seller (sellerId)
 );
 
@@ -151,13 +154,12 @@ create table ProductOption(
     createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
-    sku                 varchar(60) not null,
-    price               float not null,
-    includingvat        float not null,
+    sku                 varchar(60),
+    price               float,
     includingvat        float,
     optionvalue         json[],
 
-    proId               uuid not null,
+    proId               uuid ,
     FOREIGN key (proId) REFERENCES Product (proId)
 );
 
@@ -167,8 +169,8 @@ create table EventDetail(
     eventDeId           uuid primary key         default gen_random_uuid(),
     totalProduct        float,
 
-    eventId             uuid not null,
-    proOpId               uuid not null,
+    eventId             uuid  ,
+    proOpId               uuid  ,
     FOREIGN key (eventId) REFERENCES EventProduct(eventId),
     FOREIGN key (proOpId) REFERENCES ProductOption(proOpId)
 );
@@ -181,10 +183,10 @@ create table OrderProduct(
     active              boolean,
     datemodify          timestamp,
 
-    userId              uuid not null,
-    payId               uuid not null,
-    shipId              uuid not null,
-    eventId             uuid not null,
+    userId              uuid  ,
+    payId               uuid  ,
+    shipId              uuid  ,
+    eventId             uuid  ,
     FOREIGN KEY (userId) REFERENCES Member(userId),
     FOREIGN KEY (payId) REFERENCES Payment(payId),
     FOREIGN KEY (shipId) REFERENCES Shipping(shipId),
@@ -199,18 +201,20 @@ create table Receipt(
     active              boolean,
     datemodify          timestamp,
 
-    orderId             uuid not null,
+    orderId             uuid  ,
     FOREIGN key (orderId) REFERENCES OrderProduct(orderId)
 );
 
 --Order Detail
 create table OrderDetail(
     orderDetailId       uuid primary key         default gen_random_uuid(),
-        
-    amount              integer not null,
+    createdate          timestamp default now(),
+    active              boolean,
+    datemodify          timestamp,    
+    amount              integer  ,
     
-    orderId             uuid not null,
-    proOpId               uuid not null,
+    orderId             uuid  ,
+    proOpId               uuid  ,
     FOREIGN KEY (orderId) REFERENCES OrderProduct(orderId),
     FOREIGN KEY (proOpId) REFERENCES ProductOption(proOpId)
 );
