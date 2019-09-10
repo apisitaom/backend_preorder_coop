@@ -1,12 +1,12 @@
 const con = require('../configdb/config')
 const moment = require('moment')
-
+const db = require('../configdb/configDB');
 const Preorder = {
     async getProduct (req, res) {
         const selectAll = 'SELECT proid,proname FROM product WHERE sellerid = $1'
         let resp = []
         try {
-            const value = await con.pool.query(selectAll,[req.params.id])
+            const value = await db.query(selectAll,[req.params.id])
             for ( let i = 0; i < (value.rows).length; i++) {
                 let obj = {
                     order : i+1,
@@ -35,7 +35,7 @@ const Preorder = {
         const selectOne =   `SELECT proopid,sku,price,optionvalue from productoption
                             WHERE proid = $1`
         try { 
-            const result = await con.pool.query(selectOne,[key])
+            const result = await db.query(selectOne,[key])
             return res.status(200).send(result.rows)
         } catch (error) {   
             console.log(error)
@@ -52,13 +52,13 @@ const Preorder = {
             let b = moment(dStart)
             let countdown = a.diff(b)
             const valueEvent = [active, today, dStart, dEnd, countdown]
-            await con.pool.query('BEGIN')
-            const result = await con.pool.query(queryEvent, valueEvent)
+            await db.query('BEGIN')
+            const result = await db.query(queryEvent, valueEvent)
             for (let i = 0; i < (option).length; i++) {
                 const valueEventDetail = [option[i].amount, result.rows[0].eventid, option[i].id]
-                await con.pool.query(queryEventDetail, valueEventDetail)
+                await db.query(queryEventDetail, valueEventDetail)
             }
-            await con.pool.query('COMMIT')
+            await db.query('COMMIT')
             return res.status(200).send({'message':'insert success'});
         } catch (error) {
             console.log(error)
