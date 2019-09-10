@@ -146,7 +146,7 @@ const Seller = {
   },
   async orderlist_saler(req, res) {
 
-    const sql = `select member.fristname, member.lastname,orderproduct.createdate from orderproduct full join orderproduct on member.userid = orderproduct.userid; `
+    const sql = `select member.firstname, member.lastname,orderproduct.createdate from orderproduct full join orderproduct on member.userid = orderproduct.userid; `
 
     console.log('orderlist-seller')
 

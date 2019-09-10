@@ -94,7 +94,6 @@ async function homepageCustomer(req, res, next) {
     full join eventproduct on eventproduct.eventid = eventdetail.eventid
     full join seller on seller.sellerid = product.sellerid;
     `
-
     try {
         const { rows } = await db.query(sql);
         return responce.resSuccess(res, successMessage.success, rows);
@@ -107,28 +106,42 @@ async function homepageCustomer(req, res, next) {
 
 async function insertProductHomepage (req, res, next) {
     
-    const { productname, amount, datepre  } = req.body
+    const { productname, amount, datepre  ,sellerid} = req.body
 
-    const sqlProduct = `insert into product ( active, proname) values ($1, $2) returning userid`
-    const valuesProduct = [active, productname,];
-    const sqlOrderProduct = `insert into orderproduct (createdate, active) values ($1, $2) returning orderid`
-    const valuesOrderProduct = [date, active];
-    const sqlOrderDetail = `insert into orderdetail ( createdate, active, amount, orderid, proid) values ($1, $2, $3, $4, $5)`
-    const values = [];
     const active = true;
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+    const isNull = "-";
+    const uuId = '99e650ff-683d-42ca-a05b-3528505f7e60';
+    const  sqlProduct = `insert into product ( active, proname, sellerid) values ($1, $2, $3) returning proid`
+    const valuesProduct = [ active, productname, sellerid ];
+    
+    // ORDER PRODUCT
+    // const sqlOrderProduct = `insert into orderproduct ( active) values ($1) returning orderid`
+    // const valuesOrderProduct = [  active ];
+
+    // MEMBER 
+    const sqlMember = ``
+    const valueMember = [];
+    
+    const sqlOrderDetail = `insert into orderdetail ( active, amount, proid) values ($1, $2, $3)`
+
     try {
         await db.query('BEGIN');
-        // body
-        const { product } = await db.query(sqlProduct, valuesProduct);
-        const { orderproduct } = await db.query(sqlOrderProduct, valuesOrderProduct);
-        const valuesOrderDetail = [];
-        console.log('==============>',product[0]);
-        console.log('==============>',orderproduct);
+        
+        const  product  = await db.query(sqlProduct, valuesProduct);
 
+        const values = [ active, amount, product.rows[0].proid];
+        const orderdetail = await db.query(sqlOrderDetail, values);
+
+        console.log('==============>', product.rows[0].proid);
+    
         await db.query('COMMIT');
+
+        return responce.resSuccess(res, successMessage.success);
     } catch (error) {
-        await db.query('REVOKE');
+        throw error
+        // await db.query('REVOKE');
+        // return responce.resError(res, errorMessage.saveError);
     } finally {
         res.end();
     }

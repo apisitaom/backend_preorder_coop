@@ -45,8 +45,7 @@ async function registerMember (req, res, next) {
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     const active = true;
     const hashPassword = helper.Helper.hashPassword(password);
-    const sql = `INSERT INTO member (createdate, active, datemodify, fristname, lastname, gender, brithday, addressuser, subdistrict, disstrict, province, zipcode, photo, email, phone, passworduser) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`
-    
+    const sql = `INSERT INTO member (createdate, active, datemodify, firstname, lastname, gender, brithday, addressuser, subdistrict, disstrict, province, zipcode, photo, email, phone, passworduser) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`
     // const val = `{${req.files.map((item) => item.filename).join()}}`
     // const picture = []
     // picture.push(val)
@@ -68,15 +67,15 @@ async function getProfileMember (req, res, next) {
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-    const sql = `select fristname, lastname, gender, brithday, addressuser, subdistrict, disstrict, province, zipcode, photo, email, phone from member where userid = $1`
+    const sql = `select firstname, lastname, gender, brithday, addressuser, subdistrict, disstrict, province, zipcode, photo, email, phone from member where userid = $1`
     const value = [decode.data.id];
     //JWT
-    console.log(decode.data);
-    console.log(req);
+    // console.log(decode.data);
+    // console.log(req);
     try {
         const { rows } = await db.query(sql, value);
         const tranfom = {
-            customerfirstname: rows[0].fristname,
+            customerfirstname: rows[0].firstname,
             customerlastname: rows[0].lastname,
             sex: rows[0].gender,
             birthday: rows[0].brithday,
@@ -116,11 +115,11 @@ async function logInMember (req, res, next) {
         } 
         const tranfrom = {
             id: rows[0].userid,
-            fristname: rows[0].fristname,
+            firstname: rows[0].firstname,
             lastname: rows[0].lastname,
         }
         const mergedata = {
-            fristname: rows[0].fristname,
+            firstname: rows[0].firstname,
             lastname: rows[0].lastname,
         }
         const token = helper.Helper.generateToken(tranfrom);
