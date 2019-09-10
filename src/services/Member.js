@@ -3,29 +3,30 @@ const moment = require('moment');
 const successMessage = require('../lib/successMessage');
 const errorMessage = require('../lib/errorMessage');
 const helper = require('../lib/Helper');
+const Responce = require('../lib/Reposnce');
 
-function responceSuccess (res, message, get, tokens){
+function responceSuccess (res, message, datas, tokens){
     res.send({
         code: 200,
         msg: message,
-        data: get,
+        data: datas,
         token: tokens
     });
 }
 
-function responceError (res, message, get){
+function responceError (res, message, datas){
     res.send({
         code: 500,
         msg: message,
-        data: get
+        data: datas
     });
 }
 
-function responceErrReq (res, message, get){
+function responceErrReq (res, message, datas){
     res.send({
         code: 400,
         msg: message,
-        data: get
+        data: datas
     });
 }
 
@@ -83,6 +84,7 @@ async function getProfileMember (req, res, next) {
             subdistrict: rows[0].subdistrict,
             district: rows[0].disstrict,
             province: rows[0].province,
+            zipcode: rows[0].zipcode,
             phonenumber: rows[0].phone,
             email: rows[0].email,
             picture: rows[0].photo,
@@ -91,22 +93,44 @@ async function getProfileMember (req, res, next) {
     } catch (error) {
         return responceError(res, errorMessage.saveError);
     } finally {
-
+        res.end();
     }
 }
+
 // UPDATE table_name  
 // SET column1 = value1, column2 = value2...., columnN = valueN  
 // WHERE [condition];  
 
 
-// userid|createdate | active |  datemodify |firstname |lastname | gender |brithday | addressuser | subdistrict | disstrict | province | zipcode|photo|email|phone|passworduser 
+// userid|createdate | active |  datemodify |firstname |lastname | gender |brithday | addressuser 
+// | subdistrict | disstrict | province | zipcode|photo|email|phone|passworduser 
 async function updateMember (req, res, next) {
+    const {customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, password} = req.body
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-    const sql = ``
-    const value = [decode.data.id];
+
+    console.log(req);
+
+    const val = `{${req.files.map((item) => item.filename).join()}}`
+    const picture = []
+    picture.push(val)
+
+    const hashPassword = helper.Helper.hashPassword(password);
+
+    const sql = `update member set firstname = $1, lastname = $2, gender = $3, brithday = $4, addressuser = $5,
+    subdistrict = $6, disstrict = $7, province = $8, zipcode = $9, phone = $10, email = $11, photo = $12, passworduser = $13 where userid = $14`
+    const value = [customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, picture,hashPassword,decode.data.id];
+    try {
+        await db.query(sql, value);
+        return Responce.resSuccess(res, successMessage.upload);
+    } catch (error){
+        throw error
+        // return Responce.resError(res, errorMessage.saveError);
+    } finally {
+        res.end();
+    }
 
 }
 
@@ -142,7 +166,7 @@ async function logInMember (req, res, next) {
     }  catch (error) {
         return responceError(res, errorMessage.saveError);
     } finally {
-
+        res.end();
     }
 }
 
@@ -150,4 +174,5 @@ module.exports = {
     registerMember,
     getProfileMember,
     logInMember,
+    updateMember,
 }

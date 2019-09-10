@@ -1,9 +1,12 @@
 const con = require('../configdb/config')
+const db = require('../configdb/configDB');
 const Helper = require('../lib/Helper')
 //MOMENT TIME
 const moment = require('moment')
 const errorMessage = require('../lib/errorMessage');
 const successMessage = require('../lib/successMessage');
+const Response = require('../lib/Reposnce');
+const helper = require('../lib/Helper');
 
 function responeSuccess(res, message, get) {
   res.send({
@@ -41,15 +44,16 @@ const Seller = {
       await con.pool.query('BEGIN')
       const rowBankNew = await con.pool.query(insertBank, valueBank)
       const rowPromptpayNew = await con.pool.query(insertPromptpay, valuePromptpay)
-      const insertSeller = `INSERT INTO seller(active,datemodify,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,photo,bankid,promptpayid) 
-      VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) returning sellerid`
-      const val = `{${req.files.map((item) => item.filename).join()}}`
-      const picture = []
-      picture.push(val)
-      const value = [activeStatus, today, shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, taxid, picture, rowBankNew.rows[0].bankid, rowPromptpayNew.rows[0].promptpayid]
-      const result = await con.pool.query(insertSeller, value)
+      const insertSeller = `INSERT INTO seller(active,datemodify,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,bankid,promptpayid) 
+      VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning sellerid`
+
+      // const val = `{${req.files.map((item) => item.filename).join()}}`
+      // const picture = []
+      // picture.push(val)
+
+      const value = [activeStatus, today, shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, taxid, rowBankNew.rows[0].bankid, rowPromptpayNew.rows[0].promptpayid]
+      await con.pool.query(insertSeller, value)
       await con.pool.query('COMMIT')
-      const token = Helper.Helper.generateToken(result.rows[0].sellerid);
       return responeSuccess(res, successMessage.success);
     } catch (error) {
       if (error.routine === '_bt_check_unique') {
@@ -85,12 +89,14 @@ const Seller = {
         return res.status(400).send({ 'message': 'Missing value4' });
       }
       const token = Helper.Helper.generateToken(rows[0].sellerid);
-      const response = {
-        status: "200",
-        message: "success",
-        result: token
+      // console.log(rows);
+      // console.log(rows[0]);
+      const tranfrom = {
+        sellerid: rows[0].sellerid
       }
-      return res.status(200).send(response);
+      return Response.resSuccuessToken(res, successMessage.success, tranfrom, token);
+      // return res.status(200).send(response);
+
     } catch (error) {
       const response = {
         status: "400",
@@ -156,6 +162,53 @@ const Seller = {
 
     } finally {
       throw error
+    }
+  },
+
+  // customer-profile
+  async updateSeller(req, res, next) {
+    const { shopname, address, subdistrict, district, province, zipcode, phone, email, password, bankname, accountname, accountnumber, promptpayname, promptpaynumber, } = req.body
+    const { headers } = req;
+    const subtoken = headers.authorization.split(' ');
+    const token = subtoken[1];
+    const decode = helper.Helper.verifyToken(token);
+
+    const hashPassword = helper.Helper.hashPassword(password);
+
+    // PICTURE
+    const val = `{${req.files.map((item) => item.filename).join()}}`
+    const picture = []
+    picture.push(val)
+
+    const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
+
+    const sql = `select * from seller where sellerid = $1`
+    const values = [decode.data]
+    const { rows } = await db.query(sql, values);
+
+    // SELLER
+    const sqlSeller = `update seller set sellername = $1, address = $2, subdistrict = $3, district = $4, zipcode = $5, province = $6, phonenumber = $7, email = $8, sellerpassword = $9 , photo = $10, datemodify = $11 where sellerid = $12 `
+    const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, picture, date, decode.data]
+    // BANK
+    const sqlBank = `update bank set datemodify = $1, bankname = $2, bankaccountname = $3, banknumber = $4 where bankid = $5`
+    const valuebank = [date, bankname, accountname, accountnumber, rows[0].bankid]
+    // PROMPTPAY
+    const sqlPromptpay = `update promptpay set datemodify = $1, promptpayname = $2, promptpaynumber = $3 where promptpayid = $4`
+    const valuePrompay = [date, promptpayname, promptpaynumber, rows[0].promptpayid]
+
+    try {
+      await db.query(sqlSeller, valueSeller);
+
+      await db.query(sqlBank, valuebank);
+
+      await db.query(sqlPromptpay, valuePrompay);
+
+      return Response.resSuccess(res, successMessage.upload);
+
+    } catch (error) {
+      return Response.resError(res, errorMessage.saveError);
+    } finally {
+      res.end();
     }
   }
 }

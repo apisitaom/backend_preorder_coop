@@ -20,12 +20,12 @@ router.get('/get',seller.getall)
 
 //REGISTER-SALER    
 router.post('/register',img.upload,seller.insert)
-
+router.put('/edit',img.upload,seller.updateSeller)
 //LOGIN-SALER
 router.post('/login',seller.login)
 
 //ADD PRODUCT-SALER
-router.post('/optionvalue',optionvalue.optionValue.insert)
+router.post('/optionvalue',img.upload,optionvalue.optionValue.insert)
 
 //PRODUCT(popup)-SALER-GET
 router.get('/popup/:id',product.Product.getPopup)
