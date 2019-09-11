@@ -5,48 +5,16 @@ const errorMessage = require('../lib/errorMessage');
 const helper = require('../lib/Helper');
 const Responce = require('../lib/Reposnce');
 
-function responceSuccess (res, message, datas, tokens){
-    res.send({
-        code: 200,
-        msg: message,
-        data: datas,
-        token: tokens
-    });
-}
-
-function responceError (res, message, datas){
-    res.send({
-        code: 500,
-        msg: message,
-        data: datas
-    });
-}
-
-function responceErrReq (res, message, datas){
-    res.send({
-        code: 400,
-        msg: message,
-        data: datas
-    });
-}
-
-// Promise Actino
-// async function memberAction (userid) {
-//     const sql = '';
-//     return new Promise ((resolve, reject) => {
-//         const { rows } = await db.query();
-//     })
-// }
-
 async function registerMember (req, res, next) {
     const { customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email , picture, password} = req.body;
     if (!customerfirstname || !customerlastname || !sex || !email) {
-        return responceErrReq(res, errorMessage.paramsNotMatch);
+        return Responce.resError(res, errorMessage.paramsNotMatch);
     }
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     const active = true;
     const hashPassword = helper.Helper.hashPassword(password);
     const sql = `INSERT INTO member (createdate, active, datemodify, firstname, lastname, gender, brithday, addressuser, subdistrict, disstrict, province, zipcode, photo, email, phone, passworduser) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`
+    
     // const val = `{${req.files.map((item) => item.filename).join()}}`
     // const picture = []
     // picture.push(val)
@@ -55,11 +23,11 @@ async function registerMember (req, res, next) {
     
     try {
         const { rows } = await db.query(sql, values);
-        return responceSuccess(res, successMessage.success, rows);
+        return Responce.resSuccess(res, successMessage.success, rows);
     } catch (error) {
-        return responceError(res, errorMessage.saveError);
+        return Responce.resError(res, errorMessage.saveError);
     } finally {
-        
+        res.end();
     }
 }
 
@@ -70,9 +38,6 @@ async function getProfileMember (req, res, next) {
     const decode = helper.Helper.verifyToken(token);
     const sql = `select firstname, lastname, gender, brithday, addressuser, subdistrict, disstrict, province, zipcode, photo, email, phone from member where userid = $1`
     const value = [decode.data.id];
-    //JWT
-    // console.log(decode.data);
-    // console.log(req);
     try {
         const { rows } = await db.query(sql, value);
         const tranfom = {
@@ -89,29 +54,19 @@ async function getProfileMember (req, res, next) {
             email: rows[0].email,
             picture: rows[0].photo,
         }
-        return responceSuccess(res, successMessage.save, tranfom);
+        return Responce.resSuccess(res, successMessage.success, tranfom);
     } catch (error) {
-        return responceError(res, errorMessage.saveError);
+        return Responce.resError(res, errorMessage.saveError);
     } finally {
         res.end();
     }
 }
-
-// UPDATE table_name  
-// SET column1 = value1, column2 = value2...., columnN = valueN  
-// WHERE [condition];  
-
-
-// userid|createdate | active |  datemodify |firstname |lastname | gender |brithday | addressuser 
-// | subdistrict | disstrict | province | zipcode|photo|email|phone|passworduser 
 async function updateMember (req, res, next) {
     const {customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, password} = req.body
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-
-    console.log(req);
 
     const val = `{${req.files.map((item) => item.filename).join()}}`
     const picture = []
@@ -126,8 +81,8 @@ async function updateMember (req, res, next) {
         await db.query(sql, value);
         return Responce.resSuccess(res, successMessage.upload);
     } catch (error){
-        throw error
-        // return Responce.resError(res, errorMessage.saveError);
+        // throw error
+        return Responce.resError(res, errorMessage.saveError);
     } finally {
         res.end();
     }
@@ -137,20 +92,17 @@ async function updateMember (req, res, next) {
 async function logInMember (req, res, next) {
     const { email, password } = req.body;  
     if (!email || !password) {
-        return responceErrReq(res, errorMessage.paramsNotMatch);
+        return Responce.resError(res, errorMessage.paramsNotMatch);
     }
-    // if (helper.Helper.isValidEmail(email)) {
-    //     return responceError(res, errorMessage.saveError);
-    // }
     const sql = 'SELECT * FROM member WHERE email = $1';
 
     try {
         const { rows } = await db.query(sql, [req.body.email]);
         if (!rows[0]) {
-            return responceError(res, errorMessage.saveError);
+            return Responce.resSuccess(res, errorMessage.saveError);
         }
         if (!helper.Helper.comparePassword(rows[0].passworduser, req.body.password)) {
-            return responceErrReq(res, errorMessage.paramsNotMatch);
+            return Responce.resError(res, errorMessage.paramsNotMatch);
         } 
         const tranfrom = {
             id: rows[0].userid,
@@ -162,9 +114,9 @@ async function logInMember (req, res, next) {
             lastname: rows[0].lastname,
         }
         const token = helper.Helper.generateToken(tranfrom);
-        return responceSuccess(res, successMessage.success, mergedata, token);
+        return Responce.resSuccuessToken(res, successMessage.success, mergedata, token);
     }  catch (error) {
-        return responceError(res, errorMessage.saveError);
+        return Responce.resError(res, errorMessage.saveError);
     } finally {
         res.end();
     }

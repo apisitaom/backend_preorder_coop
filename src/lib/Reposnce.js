@@ -15,7 +15,7 @@ async function resError(res, message, get) {
     });
 }
 
-async function resSuccuessToken (res, message, datas, tokens){
+async function resSuccuessToken(res, message, datas, tokens) {
     res.send({
         code: 200,
         msg: message,

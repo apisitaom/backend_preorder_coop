@@ -60,7 +60,6 @@ const Seller = {
     if (!helper.Helper.isValidEmail(req.body.email)) {
       return res.status(400).send({ 'message': 'Missing value2' });
     }
-    console.log('login seller')
     const text = 'SELECT * FROM seller WHERE email = $1';
     try {
       const { rows } = await db.query(text, [req.body.email]);
@@ -109,7 +108,6 @@ const Seller = {
                 inner join promptpay on seller.promptpayid = promptpay.promptpayid where seller.sellerid = $1`
     try {
       const { rows } = await db.query(sql, [req.params.id])
-      console.log('get shopinfo-saler')
       const response = {
         shopname: rows[0].sellername,
         address: rows[0].address,
@@ -136,7 +134,6 @@ const Seller = {
 
     const sql = `select member.firstname, member.lastname,orderproduct.createdate from orderproduct full join orderproduct on member.userid = orderproduct.userid; `
 
-    console.log('orderlist-seller')
 
     try {
 

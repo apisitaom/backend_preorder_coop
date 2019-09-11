@@ -212,6 +212,8 @@ create table OrderDetail(
     active              boolean,
     datemodify          timestamp,    
     amount              integer  ,
+    address             varchar(500),
+    phone               varchar(20),
     
     orderId             uuid  ,
     proOpId               uuid  ,
