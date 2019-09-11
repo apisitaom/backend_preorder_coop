@@ -12,7 +12,7 @@ function generateToken(datas) {
   const token = jwt.sign({
     data: datas
   },
-    process.env.SECRET, { expiresIn: '24h' }
+    process.env.SECRET, { expiresIn: '7d' }
   );
 
   return token;
