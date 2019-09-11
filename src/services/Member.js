@@ -72,10 +72,9 @@ async function updateMember (req, res, next) {
     const val = `{${req.files.map((item) => item.filename).join()}}`
     const picture = []
     picture.push(val)
-
     const sql = `update member set firstname = $1, lastname = $2, gender = $3, brithday = $4, addressuser = $5,
     subdistrict = $6, disstrict = $7, province = $8, zipcode = $9, phone = $10, email = $11, photo = $12 where userid = $13`
-    const value = [customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, picture,decode.data.id];
+    const value = [customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, req.files[0].filename,decode.data.id];
     try {
         await db.query(sql, value);
         return Responce.resSuccess(res, successMessage.upload);
@@ -98,7 +97,7 @@ async function logInMember (req, res, next) {
     try {
         const { rows } = await db.query(sql, [req.body.email]);
         if (!rows[0]) {
-            return Responce.resSuccess(res, errorMessage.saveError);
+            return Responce.resError(res, errorMessage.saveError);
         }
         if (!helper.Helper.comparePassword(rows[0].passworduser, req.body.password)) {
             return Responce.resError(res, errorMessage.paramsNotMatch);
