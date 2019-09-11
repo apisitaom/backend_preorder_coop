@@ -122,7 +122,7 @@ async function insertProductHomepage (req, res, next) {
     }
 }
 
-async function cartCustomer(req, res, next) {
+async function getCartCustomer(req, res, next) {
     const sql = `select * from product full join productoption on product.proid = productoption.proid`
     //Member Table
     const psql = `select * from member`
@@ -137,10 +137,24 @@ async function cartCustomer(req, res, next) {
         res.end();
     }
 }
+async function cartCustomer(req, res, next){
+    const {productname, picture} = req.body
+    const sql = ``
+    const value = []
+
+    try{
+
+        return responce.resSuccess(res, successMessage.success);
+    } catch (error) {
+        throw error
+    } finally {
+        res.end();
+    }
+}
 
 module.exports = {
     Product,
-    cartCustomer,
+    getCartCustomer,
     homepageCustomer,
     insertProductHomepage,
 }

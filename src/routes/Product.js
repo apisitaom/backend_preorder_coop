@@ -5,7 +5,7 @@ router.get('/', (req, res, next)=>{
     res.json('PRODUCT ROUTER')
 });
 
-router.get('/list', product.cartCustomer);
+// router.get('/list', product.cartCustomer);
 
 router.get('/lists', product.homepageCustomer);
 

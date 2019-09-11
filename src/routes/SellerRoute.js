@@ -49,4 +49,6 @@ router.post('/orders/:id', order.Order.getOrderDetail)
 
 //======================Chapter 2 ======================//
 
+router.get('/lists',seller.shopCustomer);
+
 module.exports = router

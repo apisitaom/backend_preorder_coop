@@ -70,7 +70,8 @@ const Seller = {
       }
       const token = helper.Helper.generateToken(rows[0].sellerid);
       const tranfrom = {
-        sellerid: rows[0].sellerid
+        sellerid: rows[0].sellerid,
+        shopname: rows[0].sellername,
       }
       return Response.resSuccuessToken(res, successMessage.success, tranfrom, token);
     } catch (error) {
@@ -184,6 +185,34 @@ const Seller = {
       return Response.resError(res, errorMessage.saveError);
     } finally {
       res.end();
+    }
+  },
+  async shopCustomer(req, res, next){
+    
+    const { headers } = req;
+    const subtoken = headers.authorization.split(' ');
+    const token = subtoken[1];
+    const decode = helper.Helper.verifyToken(token);
+    console.log(decode.data);
+
+    // const sql = `select * from seller where sellerid = $1`
+    // const values = [decode.data]
+    // const { rows } = await db.query(sql, values);
+
+    const sql = `select * from product full join seller on seller.sellerid = product.sellerid
+    full join productoption on productoption.proid = product.proid full join eventdetail on eventdetail.proopid = productoption.proid 
+    full join eventproduct on eventproduct.eventid = eventdetail.eventid`
+    const value = [decode.data]
+
+    try {
+      const { rows } = await db.query(sql);
+
+      return Response.resSuccess(res, successMessage.success, rows);
+    } catch (error){
+      throw error
+      // return Response.resSuccess(res, successMessage.success);
+    } finally {
+
     }
   }
 }
