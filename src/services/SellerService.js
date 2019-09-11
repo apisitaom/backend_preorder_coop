@@ -21,7 +21,6 @@ const Seller = {
     const today = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
     const valuePromptpay = [today, activeStatus, today, promptpayname, promptpaynumber]
     const valueBank = [today, activeStatus, today, bankname, accountname, accountnumber]
-    console.log('register seller')
     try {
       await db.query('BEGIN')
       const rowBankNew = await db.query(insertBank, valueBank)
@@ -70,14 +69,10 @@ const Seller = {
         return res.status(400).send({ 'message': 'Missing value4' });
       }
       const token = helper.Helper.generateToken(rows[0].sellerid);
-      // console.log(rows);
-      // console.log(rows[0]);
       const tranfrom = {
         sellerid: rows[0].sellerid
       }
       return Response.resSuccuessToken(res, successMessage.success, tranfrom, token);
-      // return res.status(200).send(response);
-
     } catch (error) {
       const response = {
         status: "400",
