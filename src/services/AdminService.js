@@ -1,9 +1,6 @@
-const con = require('../configdb/config')
 const Helper = require('../lib/Helper')
 const moment = require('moment')
 const db = require('../configdb/configDB');
-//BACKLIST FOR LOGUT JWT TOKEN 
-const blacklist = require('express-jwt-blacklist-updated');
 
 const Admin = {
     //LOGIN
@@ -84,16 +81,6 @@ const Admin = {
             return res.status(400).send(error);
         }
     },
-    //LOGOUT
-    // async logOut (req,res){
-    //     await  blacklist.revoke(req.headers.authorization)
-    //     return res.json({success : true,'message':'login success'}).status(200)
-    // },
-
-    //  //LOGOUT BY REFLESH TOKEN
-    //  async logout(req,res){
-    //     console.log(makeRefreshToken(200))
-    // },
     
      //RANDOM REFRESH TOKEN 
     async makeRefreshToken(length){
@@ -105,11 +92,8 @@ const Admin = {
             result += characters.charAt(Math.floor(Math.random() * charactersLength));
         }
         return result; 
-    }
-
-    
+    } 
 }
-
 
 module.exports = {Admin}
 
