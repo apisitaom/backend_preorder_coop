@@ -6,6 +6,7 @@ const errorMessage = require('../lib/errorMessage');
 
 const optionValue = {
     async insert (req,res){
+        console.log(req.body);
         const {picture,productname,detail,sellerid} = req.body
         const optionJson = JSON.parse(req.body.option)
         const today = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');

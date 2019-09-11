@@ -22,7 +22,7 @@ const Seller = {
     const valuePromptpay = [today, activeStatus, today, promptpayname, promptpaynumber]
     const valueBank = [today, activeStatus, today, bankname, accountname, accountnumber]
     try {
-      await db.query('BEGIN')
+      await db.query('BEGIN');
       const rowBankNew = await db.query(insertBank, valueBank)
       const rowPromptpayNew = await db.query(insertPromptpay, valuePromptpay)
       const insertSeller = `INSERT INTO seller(active,datemodify,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,bankid,promptpayid) 

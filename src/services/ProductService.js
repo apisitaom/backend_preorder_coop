@@ -12,7 +12,6 @@ const Product = {
         from product inner join productoption on product.proid = productoption.proid where product.proid = $1`;
         try {
             const { rows } = await db.query(getPopup, [req.params.id]);
-            console.log(rows);
             return Responce.resSuccess(res, successMessage.success, rows);
         } catch (error) {
             return Responce.resError(res, errorMessage.saveError);
