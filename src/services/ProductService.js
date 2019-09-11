@@ -1,7 +1,7 @@
 const db = require('../configdb/configDB');
 const errorMessage = require('../lib/errorMessage');
 const successMessage = require('../lib/successMessage');
-const responce = require('../lib/Reposnce');
+const Responce = require('../lib/Reposnce');
 const helper = require('../lib/Helper');
 
 const Product = {
@@ -10,9 +10,9 @@ const Product = {
         from product inner join productoption on product.proid = productoption.proid where product.proid = $1`;
         try {
             const { rows } = await db.query(getPopup, [req.params.id]);
-            return responce.resSuccess(res, successMessage.success, rows);
+            return Responce.resSuccess(res, successMessage.success, rows);
         } catch (error) {
-            return responce.resError(res, errorMessage.saveError);
+            return Responce.resError(res, errorMessage.saveError);
         }
     },
     async getMaxMin(req, res) {
@@ -55,9 +55,9 @@ const Product = {
                 }
                 sumValue.push(allValue)
             }
-            return responce(res, successMessage.success, sumValue);
+            return Responce(res, successMessage.success, sumValue);
         } catch (error) {
-            return  responce.resError(res, errorMessage.saveError);
+            return  Responce.resError(res, errorMessage.saveError);
         }
     }
 }
@@ -73,9 +73,9 @@ async function homepageCustomer(req, res, next) {
     `
     try {
         const { rows } = await db.query(sql);
-        return responce.resSuccess(res, successMessage.success, rows);
+        return Responce.resSuccess(res, successMessage.success, rows);
     } catch (error) {
-        return responce.resError(res, errorMessage.saveError, );
+        return Responce.resError(res, errorMessage.saveError, );
     } finally {
         res.end();
     }
@@ -112,11 +112,11 @@ async function insertProductHomepage (req, res, next) {
         
         await db.query('COMMIT');
 
-        return responce.resSuccess(res, successMessage.success);
+        return Responce.resSuccess(res, successMessage.success);
     } catch (error) {
         // throw error
         await db.query('REVOKE');
-        return responce.resError(res, errorMessage.saveError);
+        return Responce.resError(res, errorMessage.saveError);
     } finally {
         res.end();
     }
@@ -129,9 +129,9 @@ async function getCartCustomer(req, res, next) {
     try {
         const { rows } = await db.query(sql);
         await db.query(psql);
-        return responce.resSuccess(res, successMessage.success, rows);
+        return Responce.resSuccess(res, successMessage.success, rows);
     } catch (error) {
-        return responce.resError(res, errorMessage.saveError);
+        return Responce.resError(res, errorMessage.saveError);
     } finally {
         // throw error
         res.end();
@@ -144,7 +144,7 @@ async function cartCustomer(req, res, next){
 
     try{
 
-        return responce.resSuccess(res, successMessage.success);
+        return Responce.resSuccess(res, successMessage.success);
     } catch (error) {
         throw error
     } finally {
@@ -152,10 +152,36 @@ async function cartCustomer(req, res, next){
     }
 }
 
+async function shopCustomer(req, res, next){
+    
+    const { headers } = req;
+    const subtoken = headers.authorization.split(' ');
+    const token = subtoken[1];
+    const decode = helper.Helper.verifyToken(token);
+
+    const sql = `select product.photo, product.proname, seller.address, seller.subdistrict, seller.district, seller.zipcode, seller.province,
+    seller.phonenumber, seller.email, seller.photo, eventproduct.timestart, eventproduct.timeend, eventproduct.timeend,
+    productoption.sku, productoption.price, productoption.includingvat, productoption.optionvalue  from product full join seller on seller.sellerid = product.sellerid
+    full join productoption on productoption.proid = product.proid full join eventdetail on eventdetail.proopid = productoption.proid 
+    full join eventproduct on eventproduct.eventid = eventdetail.eventid where seller.sellerid = $1`
+    const value = [decode.data]
+    try {
+      const { rows } = await db.query(sql, value);
+
+      return Responce.resSuccess(res, successMessage.success, rows);
+    } catch (error){
+    //   throw error
+      return Response.resSuccess(res, successMessage.success);
+    } finally {
+
+    }
+  }
+
 module.exports = {
     Product,
     getCartCustomer,
     homepageCustomer,
     insertProductHomepage,
+    shopCustomer
 }
 

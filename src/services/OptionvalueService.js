@@ -4,7 +4,7 @@ const moment = require('moment')
 //INSERT ASYNC
 const optionValue = {
     async insert (req,res){
-        console.log(req);
+        // console.log(req);
         console.log('*(&@Y$&*!@Y$Y!@(*$*!@(*')
         console.log(req.body)
         console.log('*(&@Y$&*!@Y$Y!@(*$*!@(*')

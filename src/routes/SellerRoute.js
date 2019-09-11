@@ -20,7 +20,7 @@ router.get('/get',seller.getall)
 
 //REGISTER-SALER    
 router.post('/register',img.upload,seller.insert)
-router.put('/edit',img.upload,seller.updateSeller)
+router.post('/edit',img.upload,seller.updateSeller)
 //LOGIN-SALER
 router.post('/login',seller.login)
 
@@ -49,6 +49,6 @@ router.post('/orders/:id', order.Order.getOrderDetail)
 
 //======================Chapter 2 ======================//
 
-router.get('/lists',seller.shopCustomer);
+// router.get('/lists',seller.shopCustomer);
 
 module.exports = router

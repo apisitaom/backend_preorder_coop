@@ -8,7 +8,7 @@ router.get('/', (req, res, next)=>{
 // Profile-customer
 router.post('/add',img.upload, member.registerMember);
 router.get('/lists', member.getProfileMember);
-router.put('/edit',img.upload,member.updateMember);
+router.post('/edit',img.upload,member.updateMember);
 // login-custimer
 router.post('/login',member.logInMember);
 

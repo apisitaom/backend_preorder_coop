@@ -8,6 +8,7 @@ const sellerRoute = require('./routes/SellerRoute')
 const adminRoute = require('./routes/AdminRoute')
 const productRoute = require('./routes/Product');
 const memberRoute = require('./routes/Member');
+
 const app = express()
 const port = process.env.PORT || 4000
 
@@ -17,9 +18,6 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(express.static('public'))
 
 app.use((err, req, res, next) => {
-    // const clientIp = reqip.getClientIp(req); 
-    // let currentDatetime = new Date()
-    // let formattedDate = currentDatetime.getFullYear() + "-" + (currentDatetime.getMonth() + 1) + "-" + currentDatetime.getDate() + " " + currentDatetime.getHours() + ":" + currentDatetime.getMinutes() + ":" + currentDatetime.getSeconds() 
     console.log(`${req.path}` + ` <> ${req.ip}` + ` <> ${req.method}`)
     next()
 })

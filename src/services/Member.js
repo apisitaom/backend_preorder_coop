@@ -36,7 +36,7 @@ async function getProfileMember (req, res, next) {
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-    const sql = `select firstname, lastname, gender, brithday, addressuser, subdistrict, disstrict, province, zipcode, photo, email, phone from member where userid = $1`
+    const sql = `select firstname, lastname, gender, brithday, addressuser, subdistrict, disstrict, province, zipcode, photo, email, phone, passworduser from member where userid = $1`
     const value = [decode.data.id];
     try {
         const { rows } = await db.query(sql, value);
@@ -53,6 +53,7 @@ async function getProfileMember (req, res, next) {
             phonenumber: rows[0].phone,
             email: rows[0].email,
             picture: rows[0].photo,
+            password: rows[0].passworduser,
         }
         return Responce.resSuccess(res, successMessage.success, tranfom);
     } catch (error) {
@@ -62,7 +63,7 @@ async function getProfileMember (req, res, next) {
     }
 }
 async function updateMember (req, res, next) {
-    const {customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, password} = req.body
+    const {customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email} = req.body
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
@@ -72,11 +73,9 @@ async function updateMember (req, res, next) {
     const picture = []
     picture.push(val)
 
-    const hashPassword = helper.Helper.hashPassword(password);
-
     const sql = `update member set firstname = $1, lastname = $2, gender = $3, brithday = $4, addressuser = $5,
-    subdistrict = $6, disstrict = $7, province = $8, zipcode = $9, phone = $10, email = $11, photo = $12, passworduser = $13 where userid = $14`
-    const value = [customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, picture,hashPassword,decode.data.id];
+    subdistrict = $6, disstrict = $7, province = $8, zipcode = $9, phone = $10, email = $11, photo = $12 where userid = $13`
+    const value = [customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, picture,decode.data.id];
     try {
         await db.query(sql, value);
         return Responce.resSuccess(res, successMessage.upload);

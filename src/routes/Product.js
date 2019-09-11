@@ -11,4 +11,6 @@ router.get('/lists', product.homepageCustomer);
 
 router.post('/add', product.insertProductHomepage);
 
+router.get('/list', product.shopCustomer);
+
 module.exports = router
