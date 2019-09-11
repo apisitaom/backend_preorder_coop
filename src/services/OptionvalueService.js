@@ -10,7 +10,7 @@ const optionValue = {
         const {picture,productname,detail,sellerid} = req.body
         const optionJson = JSON.parse(req.body.option)
         const today = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-        const active = true
+        const active = true;
         const insertProduct = 'INSERT INTO product(active,datemodify,proname,prodetail,photo,sellerid) VALUES($1,$2,$3,$4,$5,$6) returning proid'
         const valueProduct = [active, today, productname, detail, req.files[0].filename, sellerid]
         try{
