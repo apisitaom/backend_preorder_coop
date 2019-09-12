@@ -35,7 +35,7 @@ const Seller = {
       // const picture = []
       // picture.push(val)
       console.log(req.files[0].filename);
-      const value = [activeStatus, today, shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, taxid, rowBankNew.rows[0].bankid, rowPromptpayNew.rows[0].promptpayid,req.files[0].filename]
+      const value = [activeStatus, today, shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, taxid, rowBankNew.rows[0].bankid, rowPromptpayNew.rows[0].promptpayid, req.files[0].filename]
       await db.query(insertSeller, value);
       await db.query('COMMIT')
       return Response.resSuccess(res, successMessage.success);
@@ -50,14 +50,11 @@ const Seller = {
       throw error
     }
   },
-  //LOGIN
   async login(req, res) {
     if (!req.body.email || !req.body.password) {
-      // return res.status(400).send({ 'message': 'Missing value1' })
       return Response.resError(res, errorMessage.saveError);
     }
     if (!helper.Helper.isValidEmail(req.body.email)) {
-      // return res.status(400).send({ 'message': 'Missing value2' });
       return Response.resError(res, errorMessage.saveError);
     }
     const text = 'SELECT * FROM seller WHERE email = $1';
@@ -65,10 +62,8 @@ const Seller = {
       const { rows } = await db.query(text, [req.body.email]);
       if (!rows[0]) {
         return Response.resError(res, errorMessage.saveError);
-        // return res.status(400).send({ 'message': 'Missing value3' });
       }
       if (!helper.Helper.comparePassword(rows[0].sellerpassword, req.body.password)) {
-        // return res.status(400).send({ 'message': 'Missing value4' });
         return Response.resError(res, errorMessage.saveError);
       }
       const mergedata = {

@@ -6,10 +6,8 @@ const helper = require('../lib/Helper');
 
 const Product = {
     async getPopup(req, res) {
-        console.log(req.params);
-        console.log(req.body);
         const getPopup = `select product.photo,product.proname,productoption.price,productoption.optionvalue
-        from product inner join productoption on product.proid = productoption.proid where product.proid = $1`;
+        from product full join productoption on product.proid = productoption.proid  where product.proid = $1`;
         try {
             const { rows } = await db.query(getPopup, [req.params.id]);
             return Responce.resSuccess(res, successMessage.success, rows);
@@ -140,7 +138,7 @@ async function getCartCustomer(req, res, next) {
 }
 // cart-customer
 async function cartCustomer(req, res, next) {
-    const { productname, address, phonenumber, countdowntime } = req.body
+    const { productname, address, phonenumber, countdowntime, amount } = req.body
     const optionJson = JSON.parse(req.body.option)
 
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
@@ -155,37 +153,51 @@ async function cartCustomer(req, res, next) {
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
+    console.log(decode.data.id);
     // PRODUCT 
-    const sqlProduct = ``
-    const valueProduct = [];
+    const sqlProduct = `insert into product (active, proname, photo, userid) values ($1, $2, $3, $4) returning proid`
+    const valueProduct = [active, productname, pictures, decode.data.id];
     // EVENT PRODUCT
-    const sqlEventProduct = ``
-    const valueEventProduct = [];
+    const sqlEventProduct = `insert into eventproduct (active, countdowntime) values ($1, $2) returning eventid`
+    const valueEventProduct = [active, countdowntime];
     // PRODUCT OPTION
-    const insertProductoption = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid,includingvat) VALUES($1,$2,$3,$4,$5,$6,$7)'
-    optionJson.forEach(async (element, index) => {
+    const insertProductoption = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid,includingvat) VALUES($1,$2,$3,$4,$5,$6,$7) returning proopid'
+    optionJson.forEach(async (element, index) => {                                                         // edit product ID
         const valuePOp = [active, today, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, returnProduct.rows[0].proid,optionJson[index].vat]
         await db.query(insertProductoption, valuePOp);
-    });
+    }); // rowBankNew.rows[0].bankid
     //EVENT DETIAL
-    const sqlEventDetail = ``
-    const valueEventDetail = [];
+    const sqlEventDetail = `insert into eventdetail (eventid, proopid) values ($1, $2);`
+    const valueEventDetail = [eventproduct.rows[0].eventid,product.rows[0].proid]; // use in "try"
     // SHIPPING  
     const shipstatusid = '322cbbd2-2676-42a1-babc-3a976a3439bd'; // กำลังส่งรายการการสั่งซื้อไปที่ผู้ขาย
-    const sqlShipping = ``
-    const valueShipping = [];
+    const sqlShipping = `insert into shipping (active, shipstatusid) values ($1, $2) returning shipid`
+    const valueShipping = [active, shipstatusid];
     // PAYMENT  
     const paystatusid = '28e98270-c833-4f9d-a4ec-f5c1ca127a5e'; // ต้องชำระ
-    const sqlPayment = ``
-    const valuePayment = [];
-    // EVENT PRODUCT 
-    const sqlEventProduct = ``
-    const valueEventProduct = [];
+    const sqlPayment = `insert into payment (active, paystatusid )values ($1, $2) returning payid`
+    const valuePayment = [active, paystatusid];
+    // ORDER PRODUCT
+    const sqlOrderProduct = `insert into orderproduct (active, userid, payid, shipid, eventid) values ($1, $2, $3, $4, $5)`
+    const valueOrderProduct = [active, decode.data.id, payment.rows[0].payid, shipping.rows[0].shipid, eventproduct.rows[0].eventid]; // use in "try"  
+    // ORDER DETAIL
+    const sqlOrderDetail = `insert into orderdetail (active, amount, address, phone, orderid, proopid) values ($1, $2, $3, $4, $5, $6)`
+    const valueOrderDetail = [active, amount, address, phonenumber, orderproduct.rows[0].orderid, productoption.rows[0].proopid]; // use in "try"
+
     try{
+        const {product} = await db.query();
+        const {eventproduct} = await db.query();
+        const {productoption} = await db.query();
+        const {eventdetail} = await  db.query();
+        const {shipping} = await db.query();
+        const {payment} = await db.query();
+        const {orderproduct} = await db.query();
+        const {orderdetail} = await db.query();
 
         return Responce.resSuccess(res, successMessage.success);
     } catch (error) {
         throw error
+        // return Responce.resError(res, errorMessage.saveError);
     } finally {
         res.end();
     }
