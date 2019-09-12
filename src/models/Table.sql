@@ -99,7 +99,7 @@ create table Seller(
     email               varchar(255) UNIQUE,
     sellerPassword      varchar(60)  not null,
     taxId               varchar(60)  ,
-    photo               text [],
+    photo               varchar(60),
 
     bankId              uuid   REFERENCES Bank(bankId),
     promptpayId         uuid   REFERENCES Promptpay (promptpayId)
@@ -139,7 +139,7 @@ create table Product(
     datemodify          timestamp,
     proName             varchar(50)  ,
     proDetail           varchar(50)  ,
-    photo               varchar(255)  ,
+    photo               text [] ,
 
     sellerId            uuid  ,
     userid              uuid ,
@@ -211,7 +211,7 @@ create table OrderDetail(
     createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,    
-    amount              integer  ,
+    amount              integer,
     address             varchar(500),
     phone               varchar(20),
     
