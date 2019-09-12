@@ -7,11 +7,14 @@ const helper = require('../lib/Helper');
 
 const Seller = {
   async insert(req, res) {
+    console.log(req.body);
     if (!req.body.email || !req.body.password) {
-      return res.status(400).send({ 'message': 'missing values email or password' });
+      // return res.status(400).send({ 'message': 'missing values email or password' });
+      return Response.resError(res, errorMessage.paramsNotMatch);
     }
     if (!helper.Helper.isValidEmail(req.body.email)) {
-      return res.status(400).send({ 'message': 'missing pattern email' });
+      // return res.status(400).send({ 'message': 'missing pattern email' });
+      return Response.resError(res, errorMessage.paramsNotMatch);
     }
     const { shopname, address, subdistrict, district, province, zipcode, phone, email, password, taxid, bankname, accountname, accountnumber, promptpayname, promptpaynumber } = req.body
     const insertBank = 'INSERT INTO bank(createdate,active,datemodify,bankname,bankaccountname,banknumber) VALUES($1,$2,$3,$4,$5,$6) returning bankid'
@@ -25,26 +28,22 @@ const Seller = {
       await db.query('BEGIN');
       const rowBankNew = await db.query(insertBank, valueBank)
       const rowPromptpayNew = await db.query(insertPromptpay, valuePromptpay)
-      const insertSeller = `INSERT INTO seller(active,datemodify,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,bankid,promptpayid) 
-      VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning sellerid`
+      const insertSeller = `INSERT INTO seller(active,datemodify,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,bankid,promptpayid, photo) 
+      VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) returning sellerid`
 
       // const val = `{${req.files.map((item) => item.filename).join()}}`
       // const picture = []
       // picture.push(val)
-
-      const value = [activeStatus, today, shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, taxid, rowBankNew.rows[0].bankid, rowPromptpayNew.rows[0].promptpayid]
-      await db.query(insertSeller, value)
+      console.log(req.files[0].filename);
+      const value = [activeStatus, today, shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, taxid, rowBankNew.rows[0].bankid, rowPromptpayNew.rows[0].promptpayid,req.files[0].filename]
+      await db.query(insertSeller, value);
       await db.query('COMMIT')
       return Response.resSuccess(res, successMessage.success);
     } catch (error) {
       if (error.routine === '_bt_check_unique') {
         return Response.resError(res, errorMessage.saveError);
       }
-      const response = {
-        status: "400",
-        message: "error"
-      }
-      return res.send(response)
+      return Response.resError(res, errorMessage.saveError);
     }
     finally {
       res.end()
@@ -54,19 +53,23 @@ const Seller = {
   //LOGIN
   async login(req, res) {
     if (!req.body.email || !req.body.password) {
-      return res.status(400).send({ 'message': 'Missing value1' })
+      // return res.status(400).send({ 'message': 'Missing value1' })
+      return Response.resError(res, errorMessage.saveError);
     }
     if (!helper.Helper.isValidEmail(req.body.email)) {
-      return res.status(400).send({ 'message': 'Missing value2' });
+      // return res.status(400).send({ 'message': 'Missing value2' });
+      return Response.resError(res, errorMessage.saveError);
     }
     const text = 'SELECT * FROM seller WHERE email = $1';
     try {
       const { rows } = await db.query(text, [req.body.email]);
       if (!rows[0]) {
-        return res.status(400).send({ 'message': 'Missing value3' });
+        return Response.resError(res, errorMessage.saveError);
+        // return res.status(400).send({ 'message': 'Missing value3' });
       }
       if (!helper.Helper.comparePassword(rows[0].sellerpassword, req.body.password)) {
-        return res.status(400).send({ 'message': 'Missing value4' });
+        // return res.status(400).send({ 'message': 'Missing value4' });
+        return Response.resError(res, errorMessage.saveError);
       }
       const mergedata = {
         sellerid: rows[0].sellerid,
@@ -83,21 +86,8 @@ const Seller = {
         status: "400",
         message: "error"
       }
-      return res.status(400).send(response, { 'message': 'error' });
-    }
-  },
-  async getall(req, res) {
-    const sql = 'select * from seller'
-
-    try {
-      const { rows } = await db.query(sql)
-      return res.status(200).send(rows)
-    } catch (error) {
-      const response = {
-        status: "400",
-        message: "error"
-      }
-      return res.status(400).send(response)
+      // return res.status(400).send(response, { 'message': 'error' });
+      return Response.resError(res, errorMessage.saveError);
     }
   },
   //SHOPINFO-SALER
@@ -108,7 +98,7 @@ const Seller = {
                 inner join promptpay on seller.promptpayid = promptpay.promptpayid where seller.sellerid = $1`
     try {
       const { rows } = await db.query(sql, [req.params.id])
-      const response = {
+      const tranfrom = {
         shopname: rows[0].sellername,
         address: rows[0].address,
         subdistrict: rows[0].subdistrict,
@@ -125,9 +115,11 @@ const Seller = {
         promptpayname: rows[0].promptpayname,
         promptpaynumber: rows[0].promptpaynumber,
       }
-      return res.status(200).send(response)
+      // return res.status(200).send(response)
+      return Response.resSuccess(res, successMessage.success, tranfrom);
     } catch (error) {
-      return res.status(400).send({ 'message': 'error' })
+      // return res.status(400).send({ 'message': 'error' })
+      return Response.resError(res, errorMessage.saveError);
     }
   },
   async orderlist_saler(req, res) {
@@ -184,9 +176,10 @@ const Seller = {
       return Response.resSuccess(res, successMessage.upload);
 
     } catch (error) {
-      throw error
-      // return Response.resError(res, errorMessage.saveError);
+      // throw error
+      return Response.resError(res, errorMessage.saveError);
     } finally {
+
       res.end();
     }
   }

@@ -125,9 +125,8 @@ async function insertProductHomepage (req, res, next) {
 }
 // cart-customer
 async function getCartCustomer(req, res, next) {
-    const sql = `select * from product full join productoption on product.proid = productoption.proid`
-    //Member Table
-    const psql = `select * from member`
+    const sql = ``
+    const value = []
     try {
         const { rows } = await db.query(sql);
         await db.query(psql);
@@ -141,17 +140,47 @@ async function getCartCustomer(req, res, next) {
 }
 // cart-customer
 async function cartCustomer(req, res, next) {
-    const {productname, picture} = req.body
-    
-    //shipping status paystatusid
-    // 322cbbd2-2676-42a1-babc-3a976a3439bd
+    const { productname, address, phonenumber, countdowntime } = req.body
+    const optionJson = JSON.parse(req.body.option)
 
-    //payment status paystatusid
-    // 28e98270-c833-4f9d-a4ec-f5c1ca127a5e
+    const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+    const active = true;
 
-    const sql = ``
-    const value = []
+    const val = `{${req.files.map((item) => item.filename).join()}}`
+    const pictures = []
+    pictures.push(val);
 
+    // MEMBER
+    const { headers } = req;
+    const subtoken = headers.authorization.split(' ');
+    const token = subtoken[1];
+    const decode = helper.Helper.verifyToken(token);
+    // PRODUCT 
+    const sqlProduct = ``
+    const valueProduct = [];
+    // EVENT PRODUCT
+    const sqlEventProduct = ``
+    const valueEventProduct = [];
+    // PRODUCT OPTION
+    const insertProductoption = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid,includingvat) VALUES($1,$2,$3,$4,$5,$6,$7)'
+    optionJson.forEach(async (element, index) => {
+        const valuePOp = [active, today, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, returnProduct.rows[0].proid,optionJson[index].vat]
+        await db.query(insertProductoption, valuePOp);
+    });
+    //EVENT DETIAL
+    const sqlEventDetail = ``
+    const valueEventDetail = [];
+    // SHIPPING  
+    const shipstatusid = '322cbbd2-2676-42a1-babc-3a976a3439bd'; // กำลังส่งรายการการสั่งซื้อไปที่ผู้ขาย
+    const sqlShipping = ``
+    const valueShipping = [];
+    // PAYMENT  
+    const paystatusid = '28e98270-c833-4f9d-a4ec-f5c1ca127a5e'; // ต้องชำระ
+    const sqlPayment = ``
+    const valuePayment = [];
+    // EVENT PRODUCT 
+    const sqlEventProduct = ``
+    const valueEventProduct = [];
     try{
 
         return Responce.resSuccess(res, successMessage.success);

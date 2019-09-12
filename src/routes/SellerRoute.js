@@ -15,8 +15,6 @@ const order = require('../services/OrderService')
 router.get('/',(req,res)=>{
     res.json('SELLER ROUTER')
 })
-//TEST GET SELLER
-router.get('/get',seller.getall)
 
 //REGISTER-SALER    
 router.post('/register',img.upload,seller.insert)
