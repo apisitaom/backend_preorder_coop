@@ -36,7 +36,7 @@ async function getProfileMember (req, res, next) {
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-    const sql = `select firstname, lastname, gender, brithday, addressuser, subdistrict, disstrict, province, zipcode, photo, email, phone, passworduser from member where userid = $1`
+    const sql = `select firstname, lastname, gender, brithday, addressuser, subdistrict, disstrict, province, zipcode, photo, email, phone from member where userid = $1`
     const value = [decode.data.id];
     try {
         const { rows } = await db.query(sql, value);
@@ -52,17 +52,17 @@ async function getProfileMember (req, res, next) {
             zipcode: rows[0].zipcode,
             phonenumber: rows[0].phone,
             email: rows[0].email,
-            picture: rows[0].photo,
-            password: rows[0].passworduser,
+            picture: rows[0].photo,       
         }
         return Responce.resSuccess(res, successMessage.success, tranfom);
     } catch (error) {
         return Responce.resError(res, errorMessage.saveError);
     } finally {
         res.end();
-    }
+    }   
 }
 async function updateMember (req, res, next) {
+    console.log(req.body);
     const {customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email} = req.body
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');

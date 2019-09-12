@@ -13,4 +13,7 @@ router.post('/add', product.insertProductHomepage);
 
 router.get('/list', product.shopCustomer);
 
+//productDetail-Customeer
+router.get('/list/:id', product.getProduct);
+
 module.exports = router

@@ -178,12 +178,32 @@ async function shopCustomer(req, res, next){
 
     }
   }
+//   productDetail-customer
+  async function getProduct (req, res, next) {
+      const {id} = req.params
+      const sql = `select product.proname, product.photo, eventproduct.timestart, eventproduct.timeend, eventproduct.countdowntime, productoption.sku, productoption.price, productoption.includingvat, productoption.optionvalue from product full join productoption on productoption.proid = product.proid
+      full join eventdetail on eventdetail.proopid = productoption.proid full join eventproduct on eventproduct.eventid = eventdetail.eventid where product.active = true and product.proid = $1`
+      const value = [id];
+
+      try {
+
+        const { rows } = await db.query(sql, value);
+        return Responce.resSuccess(res, successMessage.success, rows);
+      } catch (error) {
+        // throw error
+        return Responce.resError(res, errorMessage.saveError);
+      } finally {
+        res.end();
+      }
+
+  }
 
 module.exports = {
     Product,
     getCartCustomer,
     homepageCustomer,
     insertProductHomepage,
-    shopCustomer
+    shopCustomer,
+    getProduct
 }
 
