@@ -1,29 +1,42 @@
-const Helper = require('../lib/Helper')
+// const Helper = require('../lib/Helper')
 const moment = require('moment')
 const db = require('../configdb/configDB');
+const successMessage = require('../lib/successMessage');
+const errorMessage = require('../lib/errorMessage');
+const Responce = require('../lib/Reposnce');
+const helper = require('../lib/Helper');
 
 const Admin = {
     //LOGIN
     async login(req,res){
      if(!req.body.email || !req.body.password){
-         return res.status(400).send({'message':'Missing value1'})
+        //  return res.status(400).send({'message':'Missing value1'})
+        return Responce.resError(res, errorMessage.saveError);
      }
-     if(!Helper.Helper.isValidEmail(req.body.email)){
-         return res.status(400).send({'message':'Missing value2'});
+     if(!helper.Helper.isValidEmail(req.body.email)){
+       return Responce.resError(res, errorMessage.saveError);
+        //  return res.status(400).send({'message':'Missing value2'});
      }
      const text = 'SELECT * FROM admin WHERE email = $1';
      try{
         const { rows } = await db.query(text,[req.body.email]);
         if(!rows[0]){
-            return res.status(400).send({'message':'Missing value3'});
+          return Responce.resError(res, errorMessage.saveError);
+            // return res.status(400).send({'message':'Missing value3'});
         }
-        if (!Helper.Helper.comparePassword(rows[0].password, req.body.password)){
-            return res.status(400).send({'message':'Missing value4'});
+        if (!helper.Helper.comparePassword(rows[0].password, req.body.password)){
+            // return res.status(400).send({'message':'Missing value4'});
+            return Responce.resError(res, errorMessage.saveError);
         }
-        const token = Helper.Helper.generateToken(rows[0].id);
-        return res.status(200).send({token});
+        const tranfrom = {
+          id: rows[0].id
+        }
+        const token = helper.Helper.generateToken(tranfrom);
+        // return res.status(200).send({token});
+        return Responce.resSuccess(res, successMessage.success, token);
      }catch(error){
-         return res.status(400).send(error,{'message':'error'});
+        return Responce.resError(res, errorMessage.saveError); 
+        //  return res.status(400).send(error,{'message':'error'});
      }
     },
     //GET ALL USER
@@ -43,10 +56,10 @@ const Admin = {
         if (!req.body.email || !req.body.password) {
           return res.status(400).send({'message': 'Some values are missing'});
         }
-        if (!Helper.Helper.isValidEmail(req.body.email)) {
+        if (!helper.Helper.isValidEmail(req.body.email)) {
           return res.status(400).send({ 'message': 'Please enter a valid email address' });
         }
-        const hashPassword = Helper.Helper.hashPassword(req.body.password);
+        const hashPassword = helper.Helper.hashPassword(req.body.password);
     
         const createQuery = `INSERT INTO
           admin( email, password, created_date, modified_date)
@@ -61,7 +74,7 @@ const Admin = {
     
         try {
           const { rows } = await db.query(createQuery, values);
-          const token = Helper.Helper.generateToken(rows[0].id);
+          const token = helper.Helper.generateToken(rows[0].id);
           return res.status(201).send({ token });
         } catch(error) {
           if (error.routine === '_bt_check_unique') {

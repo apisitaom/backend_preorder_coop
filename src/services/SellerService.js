@@ -68,12 +68,16 @@ const Seller = {
       if (!helper.Helper.comparePassword(rows[0].sellerpassword, req.body.password)) {
         return res.status(400).send({ 'message': 'Missing value4' });
       }
-      const token = helper.Helper.generateToken(rows[0].sellerid);
-      const tranfrom = {
+      const mergedata = {
         sellerid: rows[0].sellerid,
         shopname: rows[0].sellername,
       }
-      return Response.resSuccuessToken(res, successMessage.success, tranfrom, token);
+      const tranfrom = {
+        id: rows[0].sellerid
+      }
+      const token = helper.Helper.generateToken(tranfrom);
+
+      return Response.resSuccuessToken(res, successMessage.success, mergedata, token);
     } catch (error) {
       const response = {
         status: "400",
@@ -157,14 +161,12 @@ const Seller = {
     picture.push(val)
 
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
-
     const sql = `select * from seller where sellerid = $1`
-    const values = [decode.data]
+    const values = [decode.data.id]
     const { rows } = await db.query(sql, values);
-
     // SELLER
     const sqlSeller = `update seller set sellername = $1, address = $2, subdistrict = $3, district = $4, zipcode = $5, province = $6, phonenumber = $7, email = $8, sellerpassword = $9 , photo = $10, datemodify = $11 where sellerid = $12 `
-    const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, picture, date, decode.data]
+    const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, picture, date, decode.data.id]
     // BANK
     const sqlBank = `update bank set datemodify = $1, bankname = $2, bankaccountname = $3, banknumber = $4 where bankid = $5`
     const valuebank = [date, bankname, accountname, accountnumber, rows[0].bankid]
@@ -182,7 +184,8 @@ const Seller = {
       return Response.resSuccess(res, successMessage.upload);
 
     } catch (error) {
-      return Response.resError(res, errorMessage.saveError);
+      throw error
+      // return Response.resError(res, errorMessage.saveError);
     } finally {
       res.end();
     }

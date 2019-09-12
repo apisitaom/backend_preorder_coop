@@ -123,7 +123,7 @@ async function insertProductHomepage (req, res, next) {
         res.end();
     }
 }
-
+// cart-customer
 async function getCartCustomer(req, res, next) {
     const sql = `select * from product full join productoption on product.proid = productoption.proid`
     //Member Table
@@ -139,8 +139,16 @@ async function getCartCustomer(req, res, next) {
         res.end();
     }
 }
-async function cartCustomer(req, res, next){
+// cart-customer
+async function cartCustomer(req, res, next) {
     const {productname, picture} = req.body
+    
+    //shipping status paystatusid
+    // 322cbbd2-2676-42a1-babc-3a976a3439bd
+
+    //payment status paystatusid
+    // 28e98270-c833-4f9d-a4ec-f5c1ca127a5e
+
     const sql = ``
     const value = []
 
@@ -154,7 +162,7 @@ async function cartCustomer(req, res, next){
     }
 }
 
-async function shopCustomer(req, res, next){
+async function shopCustomer(req, res, next) {
     
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
