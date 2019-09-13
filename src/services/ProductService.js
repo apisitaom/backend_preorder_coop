@@ -27,12 +27,29 @@ function responeError(res, message, get) {
 const Product = {
     async getPopup(req, res) {
 
-        const getPopup = `select product.photo,product.proname,productoption.price,productoption.optionvalue
+        const getPopup = `select product.prodetail, product.photo,product.proname,productoption.price,productoption.sku,productoption.includingvat,productoption.optionvalue
         from product inner join productoption on product.proid = productoption.proid where product.proid = $1`;
         try {
             const { rows } = await con.pool.query(getPopup, [req.params.id]);
-            console.log('get popup data')
-            return res.status(200).send({ 'message': 'get popup success', rows });
+            let objOption = {}
+            let arrOption = []
+            rows.forEach((element, index) => {
+                objOption = {
+                    optionvalue: element.optionvalue,
+                    sku: element.sku,
+                    price: element.price,
+                    vat: element.includingvat
+                }
+                arrOption.push(objOption)
+            });
+            console.log(arrOption)
+            let result = {
+                proname: rows[0].proname,
+                photo: rows[0].photo,
+                detail: rows[0].prodetail,
+                options: arrOption
+            }
+            return res.status(200).send({ 'message': 'get popup success', result });
         } catch (error) {
             return res.status(400).send({ 'message': 'error' });
         }
@@ -47,7 +64,8 @@ const Product = {
                                     SELECT DISTINCT 
                                     MIN (price) 
                                     FROM productoption 
-                                    WHERE proid  = $1)`
+                                    WHERE proid  = $1)
+                                    AND pro.proid = $2`
             const selectMax = `SELECT pro.proid,pro.proname,proop.price 
                                     FROM product pro 
                                     FULL JOIN productoption proop 
@@ -56,28 +74,25 @@ const Product = {
                                     SELECT DISTINCT 
                                     MAX (price) 
                                     FROM productoption 
-                                    WHERE proid  = $1)`
-            const selectProduct = 'select proid,proname from product'
-            const result = await con.pool.query(selectProduct)
-            let sumValue = []
-            let price, allValue
-            for (let i = 0; i < (result.rows).length; i++) {
-                const id = result.rows[i].proid
-                const queryMax = await con.pool.query(selectMax, [id])
-                const queryMin = await con.pool.query(selectMin, [id])
-                const max = queryMax.rows[i].price
-                const min = queryMin.rows[i].price
-                const proName = result.rows[i].proname
-                price = min + ' - ' + max
-                allValue = {
-                    order: i + 1,
-                    proid: id,
-                    proname: proName,
-                    price: price
+                                    WHERE proid  = $1)
+                                AND pro.proid = $2`
+                                    
+            const selectProduct = 'select proid from product where sellerid = $1'
+            const { rows } = await con.pool.query(selectProduct, [req.params.id])
+            let arr = []
+            for (let i = 0; i < rows.length; i++) {
+                const id = rows[i].proid
+                const min = await con.pool.query(selectMin, [id, id])
+                const max = await con.pool.query(selectMax, [id, id])
+                obj = {
+                    id: min.rows[0].proid,
+                    proname: min.rows[0].proname,
+                    priceMin: min.rows[0].price,
+                    priceMax: max.rows[0].price
                 }
-                sumValue.push(allValue)
+                arr.push(obj)
             }
-            return res.status(200).send(sumValue)
+            return res.status(200).send(arr)
         } catch (error) {
             console.log(error)
         }
