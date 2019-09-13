@@ -5,10 +5,10 @@ const successMessage = require('../lib/successMessage');
 const errorMessage = require('../lib/errorMessage');
 const Responce = require('../lib/Reposnce');
 const helper = require('../lib/Helper');
+const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 
-const Admin = {
     //LOGIN
-    async login(req,res){
+    async function login(req,res){
      if(!req.body.email || !req.body.password){
         return Responce.resError(res, errorMessage.saveError);
      }
@@ -24,34 +24,24 @@ const Admin = {
         if (!helper.Helper.comparePassword(rows[0].password, req.body.password)){
             return Responce.resError(res, errorMessage.saveError);
         }
+        const mergedata = {
+          email: rows[0].email
+        }
         const tranfrom = {
           id: rows[0].id
         }
         const token = helper.Helper.generateToken(tranfrom);
-        return Responce.resSuccess(res, successMessage.success, token);
+        return Responce.resSuccuessToken(res, successMessage.success,mergedata , token);
      }catch(error){
         return Responce.resError(res, errorMessage.saveError); 
      }
-    },
-    //GET ALL USER
-        async getUserData (req,res){
-        const findAllQuery = 'select * from admin';
-
-        try{
-        const { rows } = await db.query(findAllQuery);
-        console.log('Get Admin-data');
-            return res.status(200).send({rows});
-        }catch(error){
-            return res.status(400).send(error);
-        }
-    },
-    //CREATE USER
-    async createAdmin(req, res) {
+    }
+    async function add(req, res) {
         if (!req.body.email || !req.body.password) {
-          return res.status(400).send({'message': 'Some values are missing'});
+          return Responce.resError(res, errorMessage.saveError);
         }
         if (!helper.Helper.isValidEmail(req.body.email)) {
-          return res.status(400).send({ 'message': 'Please enter a valid email address' });
+          return Responce.resError(res, errorMessage.saveError);
         }
         const hashPassword = helper.Helper.hashPassword(req.body.password);
     
@@ -62,46 +52,25 @@ const Admin = {
         const values = [
           req.body.email,
           hashPassword,
-          moment(new Date()),
-          moment(new Date())
+          date,
+          date
         ];
     
         try {
-          const { rows } = await db.query(createQuery, values);
-          const token = helper.Helper.generateToken(rows[0].id);
-          return res.status(201).send({ token });
+          await db.query(createQuery, values);
+
+          return Responce.resSuccess(res, successMessage.success);
         } catch(error) {
           if (error.routine === '_bt_check_unique') {
-            return res.status(400).send({ 'message': 'User with that EMAIL already exist' })
+            return Responce.resError(res, errorMessage.emailInvalid);
           }
-          return res.status(400).send(error);
+          return Responce.resError(res, errorMessage.saveError);
         }
-      },
-    //GET ONE
-    async getUserOneData (req,res){
-        const findAllQuery = 'select * from admin where id = $1';
-        try{
-        const { rows } = await db.query(findAllQuery,[req.params.id]);
-        console.log('Get Admin-data');
-            return res.status(200).send({rows});
-        }catch(error){
-            return res.status(400).send(error);
-        }
-    },
-    
-     //RANDOM REFRESH TOKEN 
-    async makeRefreshToken(length){
-        var result = '';
-        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        var charactersLength = characters.length;
+      } 
 
-        for(let i=0;i<length;i++){
-            result += characters.charAt(Math.floor(Math.random() * charactersLength));
-        }
-        return result; 
-    } 
+module.exports = {
+  login,
+  add
 }
-
-module.exports = {Admin}
 
 

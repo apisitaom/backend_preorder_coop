@@ -6,10 +6,7 @@ router.get('/',(req,res)=>{
     res.json('ADMIN ROUTER')
 })
 
-//LOGIN ADMIN
-router.post('/login',admin.Admin.login)
-
-//REGISTER ADMIN
-router.post('/register',admin.Admin.createAdmin)
+router.post('/add', admin.add);
+router.post('/login', admin.login);
 
 module.exports = router

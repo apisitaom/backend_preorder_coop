@@ -4,7 +4,7 @@
 --ADMIN
 create table admin (
     id                  uuid primary key         default gen_random_uuid(),
-    email               varchar(128) not null,
+    email               varchar(128) not null UNIQUE,
     password            varchar(128) not null,
     created_date        timestamp default now(),
     modified_date       timestamp

@@ -124,11 +124,19 @@ async function insertProductHomepage (req, res, next) {
 }
 // cart-customer
 async function getCartCustomer(req, res, next) {
-    const sql = ``
+    // const sql = `select product.proname, product.photo, eventproduct.timestart,
+    // eventproduct.timeend, eventproduct.countdowntime, productoption.proopid,
+    // productoption.optionvalue,  productoption.price, seller.sellername from productoption 
+    // full join product on product.proid = productoption.proid 
+    // full join eventdetail on eventdetail.eventid = productoption.proid
+    // full join eventproduct on eventproduct.eventid = eventdetail.eventid
+    // full join seller on seller.sellerid = product.sellerid;
+    // `
+    const sql = `select * from product member full join `
     const value = []
     try {
         const { rows } = await db.query(sql);
-        await db.query(psql);
+        await db.query(sql);
         return Responce.resSuccess(res, successMessage.success, rows);
     } catch (error) {
         return Responce.resError(res, errorMessage.saveError);
