@@ -10,33 +10,27 @@ const Admin = {
     //LOGIN
     async login(req,res){
      if(!req.body.email || !req.body.password){
-        //  return res.status(400).send({'message':'Missing value1'})
         return Responce.resError(res, errorMessage.saveError);
      }
      if(!helper.Helper.isValidEmail(req.body.email)){
        return Responce.resError(res, errorMessage.saveError);
-        //  return res.status(400).send({'message':'Missing value2'});
      }
      const text = 'SELECT * FROM admin WHERE email = $1';
      try{
         const { rows } = await db.query(text,[req.body.email]);
         if(!rows[0]){
           return Responce.resError(res, errorMessage.saveError);
-            // return res.status(400).send({'message':'Missing value3'});
         }
         if (!helper.Helper.comparePassword(rows[0].password, req.body.password)){
-            // return res.status(400).send({'message':'Missing value4'});
             return Responce.resError(res, errorMessage.saveError);
         }
         const tranfrom = {
           id: rows[0].id
         }
         const token = helper.Helper.generateToken(tranfrom);
-        // return res.status(200).send({token});
         return Responce.resSuccess(res, successMessage.success, token);
      }catch(error){
         return Responce.resError(res, errorMessage.saveError); 
-        //  return res.status(400).send(error,{'message':'error'});
      }
     },
     //GET ALL USER

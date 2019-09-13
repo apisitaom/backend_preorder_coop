@@ -3,6 +3,7 @@ const errorMessage = require('../lib/errorMessage');
 const successMessage = require('../lib/successMessage');
 const Responce = require('../lib/Reposnce');
 const helper = require('../lib/Helper');
+const moment = require('moment')
 
 const Product = {
     async getPopup(req, res) {
@@ -153,22 +154,15 @@ async function cartCustomer(req, res, next) {
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-    console.log(decode.data.id);
     // PRODUCT 
     const sqlProduct = `insert into product (active, proname, photo, userid) values ($1, $2, $3, $4) returning proid`
     const valueProduct = [active, productname, pictures, decode.data.id];
     // EVENT PRODUCT
     const sqlEventProduct = `insert into eventproduct (active, countdowntime) values ($1, $2) returning eventid`
-    const valueEventProduct = [active, countdowntime];
-    // PRODUCT OPTION
-    const insertProductoption = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid,includingvat) VALUES($1,$2,$3,$4,$5,$6,$7) returning proopid'
-    optionJson.forEach(async (element, index) => {                                                         // edit product ID
-        const valuePOp = [active, today, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, returnProduct.rows[0].proid,optionJson[index].vat]
-        await db.query(insertProductoption, valuePOp);
-    }); // rowBankNew.rows[0].bankid
+    const valueEventProduct = [active, date]; // I change count downtime is timestamp!
+    
     //EVENT DETIAL
     const sqlEventDetail = `insert into eventdetail (eventid, proopid) values ($1, $2);`
-    const valueEventDetail = [eventproduct.rows[0].eventid,product.rows[0].proid]; // use in "try"
     // SHIPPING  
     const shipstatusid = '322cbbd2-2676-42a1-babc-3a976a3439bd'; // กำลังส่งรายการการสั่งซื้อไปที่ผู้ขาย
     const sqlShipping = `insert into shipping (active, shipstatusid) values ($1, $2) returning shipid`
@@ -178,26 +172,32 @@ async function cartCustomer(req, res, next) {
     const sqlPayment = `insert into payment (active, paystatusid )values ($1, $2) returning payid`
     const valuePayment = [active, paystatusid];
     // ORDER PRODUCT
-    const sqlOrderProduct = `insert into orderproduct (active, userid, payid, shipid, eventid) values ($1, $2, $3, $4, $5)`
-    const valueOrderProduct = [active, decode.data.id, payment.rows[0].payid, shipping.rows[0].shipid, eventproduct.rows[0].eventid]; // use in "try"  
+    const sqlOrderProduct = `insert into orderproduct (active, userid, payid, shipid, eventid) values ($1, $2, $3, $4, $5) returning orderid`
     // ORDER DETAIL
-    const sqlOrderDetail = `insert into orderdetail (active, amount, address, phone, orderid, proopid) values ($1, $2, $3, $4, $5, $6)`
-    const valueOrderDetail = [active, amount, address, phonenumber, orderproduct.rows[0].orderid, productoption.rows[0].proopid]; // use in "try"
-
+    const sqlOrderDetail = `insert into orderdetail (active, amount, address, phonenumber, orderid, proopid) values ($1, $2, $3, $4, $5, $6)`
     try{
-        const {product} = await db.query();
-        const {eventproduct} = await db.query();
-        const {productoption} = await db.query();
-        const {eventdetail} = await  db.query();
-        const {shipping} = await db.query();
-        const {payment} = await db.query();
-        const {orderproduct} = await db.query();
-        const {orderdetail} = await db.query();
 
-        return Responce.resSuccess(res, successMessage.success);
+        const product = await db.query(sqlProduct, valueProduct);
+    const eventproduct = await db.query(sqlEventProduct, valueEventProduct);
+
+    const sqlProductoption = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid,includingvat) VALUES($1,$2,$3,$4,$5,$6,$7) returning proopid'
+    optionJson.forEach(async (element, index) => {                                                         // edit product ID
+        const valueProductoption = [active, date, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, product.rows[0].proid,optionJson[index].vat]
+        productoption = await db.query(sqlProductoption, valueProductoption);
+
+        const valueEventDetail = [eventproduct.rows[0].eventid,productoption.rows[0].proopid]; // use in "try"
+        const eventdetail = await  db.query(sqlEventDetail, valueEventDetail);
+        const shipping = await db.query(sqlShipping, valueShipping);
+        const payment = await db.query(sqlPayment, valuePayment);
+
+        const valueOrderProduct = [active, decode.data.id, payment.rows[0].payid, shipping.rows[0].shipid, eventproduct.rows[0].eventid]; // use in "try"  
+        const orderproduct = await db.query(sqlOrderProduct, valueOrderProduct);
+        const valueOrderDetail = [active, amount, address, phonenumber, orderproduct.rows[0].orderid, productoption.rows[0].proopid]; // use in "try"
+        const orderdetail = await db.query(sqlOrderDetail, valueOrderDetail);
+    });
+    return Responce.resSuccess(res, successMessage.success);
     } catch (error) {
-        throw error
-        // return Responce.resError(res, errorMessage.saveError);
+        return Responce.resError(res, errorMessage.saveError);
     } finally {
         res.end();
     }
@@ -253,6 +253,7 @@ module.exports = {
     homepageCustomer,
     insertProductHomepage,
     shopCustomer,
-    getProduct
+    getProduct,
+    cartCustomer
 }
 

@@ -214,7 +214,8 @@ create table OrderDetail(
     amount              integer,
     address             varchar(500),
     phone               varchar(20),
-    
+    phoneNumber         varchar(100),
+
     orderId             uuid  ,
     proOpId               uuid  ,
     FOREIGN KEY (orderId) REFERENCES OrderProduct(orderId),
