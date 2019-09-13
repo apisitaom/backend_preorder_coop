@@ -124,24 +124,38 @@ async function insertProductHomepage (req, res, next) {
 }
 // cart-customer
 async function getCartCustomer(req, res, next) {
-    // const sql = `select product.proname, product.photo, eventproduct.timestart,
-    // eventproduct.timeend, eventproduct.countdowntime, productoption.proopid,
-    // productoption.optionvalue,  productoption.price, seller.sellername from productoption 
-    // full join product on product.proid = productoption.proid 
-    // full join eventdetail on eventdetail.eventid = productoption.proid
-    // full join eventproduct on eventproduct.eventid = eventdetail.eventid
-    // full join seller on seller.sellerid = product.sellerid;
-    // `
-    const sql = `select * from product member full join `
-    const value = []
+
+    const { headers } = req;
+    const subtoken = headers.authorization.split(' ');
+    const token = subtoken[1];
+    const decode = helper.Helper.verifyToken(token);
+    console.log(decode.data);
+
+    const sql = `select product.proname, product.photo, productoption.sku,
+    productoption.price, productoption.includingvat, productoption.optionvalue,
+    orderdetail.amount, orderdetail.address, orderdetail.phonenumber,
+    shippingstatus.shippingstatusname, paymentstatus.statusname,
+    eventproduct.countdowntime
+    from product member 
+    full join orderproduct on orderproduct.userid = member.userid 
+    full join shipping on shipping.shipid = orderproduct.shipid 
+    full join shippingstatus on shippingstatus.shipstatusid = shipping.shipstatusid 
+    full join payment on payment.payid = orderproduct.payid 
+    full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
+    full join orderdetail on  orderdetail.orderid = orderproduct.orderid 
+    full join productoption on productoption.proopid = orderdetail.proopid
+    full join product on product.proid = productoption.proid
+    full join eventdetail on eventdetail.proopid = productoption.proopid
+    full join eventproduct on eventproduct.eventid = eventdetail.eventid 
+    where member.userid = $1`
+    const value = [decode.data.id]
     try {
-        const { rows } = await db.query(sql);
-        await db.query(sql);
+        const { rows } = await db.query(sql, value);
         return Responce.resSuccess(res, successMessage.success, rows);
     } catch (error) {
-        return Responce.resError(res, errorMessage.saveError);
+        throw error
+        // return Responce.resError(res, errorMessage.saveError);
     } finally {
-        // throw error
         res.end();
     }
 }
@@ -252,7 +266,19 @@ async function shopCustomer(req, res, next) {
       } finally {
         res.end();
       }
+  }
 
+  async function orderCustomer(req, res, next) {
+    const sql = ``
+    const value = [];
+
+    try {
+        return Responce.resSuccess(res, successMessage.success);
+    } catch (error) {
+        return Responce.resError(res, errorMessage.saveError);
+    } finally {
+        res.end();
+    }
   }
 
 module.exports = {

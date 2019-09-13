@@ -19,4 +19,6 @@ router.get('/list/:id', product.getProduct);
 
 router.post('/buy',img.upload, product.cartCustomer);
 
+router.get('/pay',product.getCartCustomer);
+
 module.exports = router

@@ -23,7 +23,7 @@ async function userVerifyToken(req, res, next) {
     req.user = { id: decode.data.id };
     next();
   } catch (error) {
-    return res.status(400).send(error);
+    return Responce.resError(res, errorMessage.saveError);
   } 
 }
 //เปลี่ยน decode ก่อน
@@ -46,7 +46,7 @@ async function adminVerifyToken(req, res, next){
     req.user = { id: decode.data.id };
     next();
   } catch (error) {
-    return res.status(400).send(error);
+    return Responce.resError(res, errorMessage.saveError);
   }
 
 }
@@ -70,7 +70,7 @@ const { headers } = req;
     req.user = { id: decode.data.id };
     next();
   } catch (error) {
-    return res.status(400).send(error);
+    return Responce.resError(res, errorMessage.saveError);
   }
 }
 
