@@ -7,7 +7,6 @@ const helper = require('../lib/Helper');
 
 const Seller = {
   async insert(req, res) {
-    console.log(req.body);
     if (!req.body.email || !req.body.password) {
       return Response.resError(res, errorMessage.paramsNotMatch);
     }
@@ -71,18 +70,19 @@ const Seller = {
 
       return Response.resSuccuessToken(res, successMessage.success, mergedata, token);
     } catch (error) {
-      const response = {
-        status: "400",
-        message: "error"
-      }
       return Response.resError(res, errorMessage.saveError);
     }
   },
   async shopinfo(req, res) {
-    const sql = `select seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode
-                ,seller.province,seller.phonenumber,seller.email,seller.photo,bank.bankname,bank.bankaccountname,bank.banknumber,
-                promptpay.promptpayname,promptpay.promptpaynumber from seller inner join bank on seller.bankid = bank.bankid 
-                inner join promptpay on seller.promptpayid = promptpay.promptpayid where seller.sellerid = $1`
+    const sql = `select 
+    seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode,
+    seller.province,seller.phonenumber,seller.email,seller.photo,
+    bank.bankname,bank.bankaccountname,bank.banknumber,
+    promptpay.promptpayname,promptpay.promptpaynumber 
+    from seller 
+    inner join bank on seller.bankid = bank.bankid 
+    inner join promptpay on seller.promptpayid = promptpay.promptpayid 
+    where seller.sellerid = $1`
     try {
       const { rows } = await db.query(sql, [req.params.id])
       const tranfrom = {
@@ -110,7 +110,6 @@ const Seller = {
   async orderlist_saler(req, res) {
 
     const sql = `select member.firstname, member.lastname,orderproduct.createdate from orderproduct full join orderproduct on member.userid = orderproduct.userid; `
-
 
     try {
 

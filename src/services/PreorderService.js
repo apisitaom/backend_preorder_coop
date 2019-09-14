@@ -1,5 +1,10 @@
-const moment = require('moment')
 const db = require('../configdb/configDB');
+const errorMessage = require('../lib/errorMessage');
+const successMessage = require('../lib/successMessage');
+const Responce = require('../lib/Reposnce');
+const helper = require('../lib/Helper');
+const moment = require('moment');
+
 const Preorder = {
     async getProduct (req, res) {
         const selectAll = 'SELECT proid,proname FROM product WHERE sellerid = $1'
@@ -14,30 +19,39 @@ const Preorder = {
                 }
                 resp.push(obj)
             }
-            const results = {
-                status : "200",
-                message : "seccess",
-                result : resp
-            }
-            return res.status(200).send(results)
+            // const results = {
+            //     status : "200",
+            //     message : "seccess",
+            //     result : resp
+            // }
+            // return res.status(200).send(results)
+            return Responce.resSuccess(res, successMessage.success, resp);
         } catch (error) {
-            const results = {
-                status : "400",
-                message : "error"
-            }
-            return res.status(400).send(results)
-            console.log(error)
+            // const results = {
+            //     status : "400",
+            //     message : "error"
+            // }
+            // return res.status(400).send(results)
+            return Responce.resError(res, errorMessage.saveError);
+        } finally {
+            res.end();
         }
     },
     async getProductDetail (req, res) {
         const key = req.params.id
-        const selectOne =   `SELECT proopid,sku,price,optionvalue from productoption
-                            WHERE proid = $1`
+        const selectOne =   `SELECT 
+                    proopid,sku,price,optionvalue 
+                    from productoption
+                    WHERE proid = $1`
         try { 
             const result = await db.query(selectOne,[key])
-            return res.status(200).send(result.rows)
+            // return res.status(200).send(result.rows)
+            return Responce.resSuccess(res, successMessage.success, result.rows);
         } catch (error) {   
-            console.log(error)
+            // console.log(error)
+            return Responce.resError(res, errorMessage.saveError);
+        } finally {
+            res.end();
         }
     },
     async insertPreorder (req, res) {
@@ -58,9 +72,13 @@ const Preorder = {
                 await db.query(queryEventDetail, valueEventDetail)
             }
             await db.query('COMMIT')
-            return res.status(200).send({'message':'insert success'});
+            // return res.status(200).send({'message':'insert success'});
+            return Responce.resSuccess(res, successMessage.success);
         } catch (error) {
-            console.log(error)
+            // console.log(error)
+            return Responce.resError(res, errorMessage.saveError);
+        } finally {
+            res.end();
         }
     }
 }
