@@ -1,4 +1,3 @@
-// const Helper = require('../lib/Helper')
 const moment = require('moment')
 const db = require('../configdb/configDB');
 const successMessage = require('../lib/successMessage');

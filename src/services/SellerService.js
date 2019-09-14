@@ -9,11 +9,9 @@ const Seller = {
   async insert(req, res) {
     console.log(req.body);
     if (!req.body.email || !req.body.password) {
-      // return res.status(400).send({ 'message': 'missing values email or password' });
       return Response.resError(res, errorMessage.paramsNotMatch);
     }
     if (!helper.Helper.isValidEmail(req.body.email)) {
-      // return res.status(400).send({ 'message': 'missing pattern email' });
       return Response.resError(res, errorMessage.paramsNotMatch);
     }
     const { shopname, address, subdistrict, district, province, zipcode, phone, email, password, taxid, bankname, accountname, accountnumber, promptpayname, promptpaynumber } = req.body
@@ -30,11 +28,8 @@ const Seller = {
       const rowPromptpayNew = await db.query(insertPromptpay, valuePromptpay)
       const insertSeller = `INSERT INTO seller(active,datemodify,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,bankid,promptpayid, photo) 
       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) returning sellerid`
-
-      // const val = `{${req.files.map((item) => item.filename).join()}}`
-      // const picture = []
-      // picture.push(val)
-      console.log(req.files[0].filename);
+      console.log('BANK :',rowBankNew.rows[0].bankid);
+      console.log('PROMPTPAY : ',rowPromptpayNew.rows[0].promptpayid);
       const value = [activeStatus, today, shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, taxid, rowBankNew.rows[0].bankid, rowPromptpayNew.rows[0].promptpayid, req.files[0].filename]
       await db.query(insertSeller, value);
       await db.query('COMMIT')
@@ -44,8 +39,7 @@ const Seller = {
         return Response.resError(res, errorMessage.saveError);
       }
       return Response.resError(res, errorMessage.saveError);
-    }
-    finally {
+    } finally {
       res.end()
       throw error
     }
@@ -81,11 +75,9 @@ const Seller = {
         status: "400",
         message: "error"
       }
-      // return res.status(400).send(response, { 'message': 'error' });
       return Response.resError(res, errorMessage.saveError);
     }
   },
-  //SHOPINFO-SALER
   async shopinfo(req, res) {
     const sql = `select seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode
                 ,seller.province,seller.phonenumber,seller.email,seller.photo,bank.bankname,bank.bankaccountname,bank.banknumber,
@@ -110,10 +102,8 @@ const Seller = {
         promptpayname: rows[0].promptpayname,
         promptpaynumber: rows[0].promptpaynumber,
       }
-      // return res.status(200).send(response)
       return Response.resSuccess(res, successMessage.success, tranfrom);
     } catch (error) {
-      // return res.status(400).send({ 'message': 'error' })
       return Response.resError(res, errorMessage.saveError);
     }
   },
@@ -131,7 +121,6 @@ const Seller = {
     }
   },
 
-  // customer-profile
   async updateSeller(req, res, next) {
 
     const { shopname, address, subdistrict, district, province, zipcode, phone, email, password, bankname, accountname, accountnumber, promptpayname, promptpaynumber, } = req.body
@@ -143,7 +132,7 @@ const Seller = {
     const hashPassword = helper.Helper.hashPassword(password);
 
     // PICTURE
-    const val = `{${req.files.map((item) => item.filename).join()}}`
+    const val = `${req.files.map((item) => item.filename)}`
     const picture = []
     picture.push(val)
 
@@ -152,8 +141,10 @@ const Seller = {
     const values = [decode.data.id]
     const { rows } = await db.query(sql, values);
     // SELLER
+    console.log(req.files);
+    console.log(req.files[0].filename);
     const sqlSeller = `update seller set sellername = $1, address = $2, subdistrict = $3, district = $4, zipcode = $5, province = $6, phonenumber = $7, email = $8, sellerpassword = $9 , photo = $10, datemodify = $11 where sellerid = $12 `
-    const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, picture, date, decode.data.id]
+    const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, req.files[0].filename, date, decode.data.id]
     // BANK
     const sqlBank = `update bank set datemodify = $1, bankname = $2, bankaccountname = $3, banknumber = $4 where bankid = $5`
     const valuebank = [date, bankname, accountname, accountnumber, rows[0].bankid]
@@ -171,10 +162,8 @@ const Seller = {
       return Response.resSuccess(res, successMessage.upload);
 
     } catch (error) {
-      // throw error
       return Response.resError(res, errorMessage.saveError);
     } finally {
-
       res.end();
     }
   }
