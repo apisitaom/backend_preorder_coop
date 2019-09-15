@@ -26,7 +26,6 @@ async function registerMember (req, res, next) {
         res.end();
     }
 }
-
 async function getProfileMember (req, res, next) {
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
@@ -58,7 +57,6 @@ async function getProfileMember (req, res, next) {
     }   
 }
 async function updateMember (req, res, next) {
-    console.log(req.body);
     const {customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email} = req.body
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
@@ -72,21 +70,17 @@ async function updateMember (req, res, next) {
         await db.query(sql, value);
         return Responce.resSuccess(res, successMessage.upload);
     } catch (error){
-        // throw error
         return Responce.resError(res, errorMessage.saveError);
     } finally {
         res.end();
     }
-
 }
-
 async function logInMember (req, res, next) {
     const { email, password } = req.body;  
     if (!email || !password) {
         return Responce.resError(res, errorMessage.paramsNotMatch);
     }
     const sql = 'SELECT * FROM member WHERE email = $1';
-
     try {
         const { rows } = await db.query(sql, [req.body.email]);
         if (!rows[0]) {
@@ -112,7 +106,6 @@ async function logInMember (req, res, next) {
         res.end();
     }
 }
-
 async function getPaymentCustomer (req, res, next) {
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
@@ -129,12 +122,10 @@ async function getPaymentCustomer (req, res, next) {
     full join product on product.proid =  productoption.proid
     where member.userid = $1`
     const value = [decode.data.id]
-
     try {
         const { rows } = await db.query(sql, value  );
         return Responce.resSuccess(res, successMessage.success, rows);
     } catch (error) {
-        // throw error
         return Responce.resError(res, errorMessage.saveError);
     } finally {
         res.end();
@@ -152,13 +143,11 @@ async function paymentCustomer (req, res, next) {
         await db.query(sql, value);
         return Responce.resSuccess(res, successMessage.success);
     } catch (error) {
-        // throw error
         return Responce.resError(res, errorMessage.saveError);
     } finally {
         res.end();
     }
 }
-
 
 module.exports = {
     registerMember,

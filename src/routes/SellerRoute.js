@@ -1,52 +1,24 @@
-const router = require('express').Router()
-//SELLER
-const seller = require('../services/Seller')
-//LIB IMAGE
-const img  =require('../lib/ImageUpload')
-//OPTION VALUE
-const optionvalue = require('../services/Optionvalue')
-//PEODUCT
-const product = require('../services/Product')
-//PROORDER
-const preorder = require('../services/Preorder')
-//ORDER
-const order = require('../services/Order')
+const router = require('express').Router();
+const seller = require('../services/Seller');
+const img  =require('../lib/ImageUpload');
+const optionvalue = require('../services/Optionvalue');
+const product = require('../services/Product');
+const preorder = require('../services/Preorder');
+const order = require('../services/Order');
 
-router.get('/',(req,res)=>{
-    res.json('SELLER ROUTER')
-})
+router.get('/',(req,res)=>{res.json('SELLER ROUTER')});
 
-//REGISTER-SALER    
-router.post('/register',img.upload,seller.insert)
-router.post('/edit',img.upload,seller.updateSeller)
-//LOGIN-SALER
-router.post('/login',seller.login)
+router.post('/register',img.upload,seller.insert);
+router.post('/edit',img.upload,seller.updateSeller);
+router.post('/login',seller.login);
+router.post('/optionvalue',img.upload,optionvalue.optionValue.insert);
+router.post('/preorder',preorder.Preorder.insertPreorder);
+router.post('/orders/:id', order.Order.getOrderDetail);
 
-//ADD PRODUCT-SALER
-router.post('/optionvalue',img.upload,optionvalue.optionValue.insert)
-
-//PRODUCT(popup)-SALER-GET
-router.get('/popup/:id',product.Product.getPopup)
-
-//PRODUCTS LIST SELLER
-router.get('/products/:id', preorder.Preorder.getProduct)
-
-//SHOPINFO-SALER
-router.get('/shopinfo/:id',seller.shopinfo)
-
-//ORDERLIST-SALER
-router.post('/orderlistsaler',seller.orderlist_saler)
-
-//PREORDER
-router.get('/preorder',preorder.Preorder.getProduct)
-router.get('/preorder/:id',preorder.Preorder.getProductDetail)
-router.post('/preorder',preorder.Preorder.insertPreorder)
-
-//ORDER
-router.post('/orders/:id', order.Order.getOrderDetail)
-
-//======================Chapter 2 ======================//
-
-// router.get('/lists',seller.shopCustomer);
+router.get('/popup/:id',product.Product.getPopup);
+router.get('/products/:id', preorder.Preorder.getProduct);
+router.get('/shopinfo/:id',seller.shopinfo);
+router.get('/preorder',preorder.Preorder.getProduct);
+router.get('/preorder/:id',preorder.Preorder.getProductDetail);
 
 module.exports = router;

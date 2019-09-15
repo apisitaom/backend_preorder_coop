@@ -6,7 +6,6 @@ const Responce = require('../lib/Reposnce');
 const helper = require('../lib/Helper');
 const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
 
-    //LOGIN
     async function login(req,res){
      if(!req.body.email || !req.body.password){
         return Responce.resError(res, errorMessage.saveError);
@@ -43,7 +42,6 @@ const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
           return Responce.resError(res, errorMessage.saveError);
         }
         const hashPassword = helper.Helper.hashPassword(req.body.password);
-    
         const createQuery = `INSERT INTO
           admin( email, password, created_date, modified_date)
           VALUES( $1, $2, $3, $4)
@@ -54,7 +52,6 @@ const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
           date,
           date
         ];
-    
         try {
           await db.query(createQuery, values);
 

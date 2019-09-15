@@ -45,19 +45,11 @@ const Order = {
                 } 
                 resp.push(value)             
             }
-            const response = {
-                status : "200",
-                message : "success",
-                result : resp
-            }
-            return res.status(200).send(response)
+            return Responce.resSuccess(res, successMessage.success, resp);
         } catch (error) {
-            const response = {
-                status : "400",
-                message : "error"
-            }
-            res.status(400).send(response)
-            console.log(error)
+            return Responce.resError(res, errorMessage.saveError);
+        } finally {
+            res.end();
         }
     }
 }

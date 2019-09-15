@@ -255,7 +255,7 @@ async function shopCustomer(req, res, next) {
         const { rows } = await db.query(sql, value);
         return Responce.resSuccess(res, successMessage.success, rows);
     } catch (error) {
-        return Response.resSuccess(res, successMessage.success);
+        return Responce.resSuccess(res, successMessage.success);
     } finally {
         res.end();
     }
@@ -276,32 +276,6 @@ async function getProduct(req, res, next) {
         return Responce.resSuccess(res, successMessage.success, rows);
     } catch (error) {
         return Responce.resError(res, errorMessage.saveError);
-    } finally {
-        res.end();
-    }
-}
-
-async function orderCustomer(req, res, next) {
-
-    // PRODUCT
-    const sqlProduct = ``
-    const valueProduct = [];
-    // PRODUCT OPTION
-    const sqlProductoption = ``
-    const valueProductoption = []
-    // ORDER PRODUCT
-    const sqlOrderproduct = ``
-    const valueOrderproduct = []
-    // ORDER DETAIL
-    const sqlOrderdetail = ``
-    const valueOrderdetail = []
-
-    try {
-
-        return Responce.resSuccess(res, successMessage.success);
-    } catch (error) {
-        throw error
-        // return Responce.resError(res, errorMessage.saveError);
     } finally {
         res.end();
     }

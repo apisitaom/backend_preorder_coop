@@ -27,8 +27,6 @@ const Seller = {
       const rowPromptpayNew = await db.query(insertPromptpay, valuePromptpay)
       const insertSeller = `INSERT INTO seller(active,datemodify,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,bankid,promptpayid, photo) 
       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) returning sellerid`
-      console.log('BANK :',rowBankNew.rows[0].bankid);
-      console.log('PROMPTPAY : ',rowPromptpayNew.rows[0].promptpayid);
       const value = [activeStatus, today, shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, taxid, rowBankNew.rows[0].bankid, rowPromptpayNew.rows[0].promptpayid, req.files[0].filename]
       await db.query(insertSeller, value);
       await db.query('COMMIT')
@@ -74,6 +72,14 @@ const Seller = {
     }
   },
   async shopinfo(req, res) {
+
+    // const { headers } = req;
+    // const subtoken = headers.authorization.split(' ');
+    // const token = subtoken[1];
+    // const decode = helper.Helper.verifyToken(token);
+
+    // console.log(decode.data.id);
+
     const sql = `select 
     seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode,
     seller.province,seller.phonenumber,seller.email,seller.photo,
@@ -107,18 +113,6 @@ const Seller = {
       return Response.resError(res, errorMessage.saveError);
     }
   },
-  async orderlist_saler(req, res) {
-
-    const sql = `select member.firstname, member.lastname,orderproduct.createdate from orderproduct full join orderproduct on member.userid = orderproduct.userid; `
-
-    try {
-
-    } catch (error) {
-
-    } finally {
-      throw error
-    }
-  },
 
   async updateSeller(req, res, next) {
 
@@ -140,8 +134,6 @@ const Seller = {
     const values = [decode.data.id]
     const { rows } = await db.query(sql, values);
     // SELLER
-    console.log(req.files);
-    console.log(req.files[0].filename);
     const sqlSeller = `update seller set sellername = $1, address = $2, subdistrict = $3, district = $4, zipcode = $5, province = $6, phonenumber = $7, email = $8, sellerpassword = $9 , photo = $10, datemodify = $11 where sellerid = $12 `
     const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, req.files[0].filename, date, decode.data.id]
     // BANK

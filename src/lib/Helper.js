@@ -1,5 +1,5 @@
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 function verifyToken(token) {
   const decode = jwt.verify(token, process.env.SECRET || 'Apisit0857646956');

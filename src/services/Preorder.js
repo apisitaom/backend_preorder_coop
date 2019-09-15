@@ -19,19 +19,8 @@ const Preorder = {
                 }
                 resp.push(obj)
             }
-            // const results = {
-            //     status : "200",
-            //     message : "seccess",
-            //     result : resp
-            // }
-            // return res.status(200).send(results)
             return Responce.resSuccess(res, successMessage.success, resp);
         } catch (error) {
-            // const results = {
-            //     status : "400",
-            //     message : "error"
-            // }
-            // return res.status(400).send(results)
             return Responce.resError(res, errorMessage.saveError);
         } finally {
             res.end();
@@ -45,10 +34,8 @@ const Preorder = {
                     WHERE proid = $1`
         try { 
             const result = await db.query(selectOne,[key])
-            // return res.status(200).send(result.rows)
             return Responce.resSuccess(res, successMessage.success, result.rows);
         } catch (error) {   
-            // console.log(error)
             return Responce.resError(res, errorMessage.saveError);
         } finally {
             res.end();
@@ -72,10 +59,8 @@ const Preorder = {
                 await db.query(queryEventDetail, valueEventDetail)
             }
             await db.query('COMMIT')
-            // return res.status(200).send({'message':'insert success'});
             return Responce.resSuccess(res, successMessage.success);
         } catch (error) {
-            // console.log(error)
             return Responce.resError(res, errorMessage.saveError);
         } finally {
             res.end();
