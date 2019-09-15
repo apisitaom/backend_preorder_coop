@@ -21,4 +21,4 @@ router.post('/buy',img.upload, product.cartCustomer);
 
 router.get('/pay',product.getCartCustomer);
 
-module.exports = router
+module.exports = router;

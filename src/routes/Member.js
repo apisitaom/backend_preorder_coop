@@ -15,4 +15,7 @@ router.post('/edit',img.upload,member.updateMember);
 // login-custimer
 router.post('/login',member.logInMember);
 
+router.get('/pay', member.getPaymentCustomer);
+router.post('/pay',img.upload, member.paymentCustomer);
+
 module.exports = router;

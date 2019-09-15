@@ -49,4 +49,4 @@ router.post('/orders/:id', order.Order.getOrderDetail)
 
 // router.get('/lists',seller.shopCustomer);
 
-module.exports = router
+module.exports = router;

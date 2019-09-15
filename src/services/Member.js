@@ -15,10 +15,6 @@ async function registerMember (req, res, next) {
     const hashPassword = helper.Helper.hashPassword(password);
     const sql = `INSERT INTO member (createdate, active, datemodify, firstname, lastname, gender, brithday, addressuser, subdistrict, disstrict, province, zipcode, photo, email, phone, passworduser) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`
     
-    // const val = `{${req.files.map((item) => item.filename).join()}}`
-    // const picture = []
-    // picture.push(val)
-
     const values = [date, active, date, customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, picture, email, phonenumber, hashPassword];
     
     try {
@@ -120,9 +116,58 @@ async function logInMember (req, res, next) {
     }
 }
 
+async function getPaymentCustomer (req, res, next) {
+    const { headers } = req;
+    const subtoken = headers.authorization.split(' ');
+    const token = subtoken[1];
+    const decode = helper.Helper.verifyToken(token);
+
+    const sql = `select 
+    product.photo, product.prodetail, product.proname,
+    productoption.sku, productoption.price,productoption.optionvalue
+    from orderproduct 
+    full join member on member.userid = orderproduct.userid
+    full join orderdetail on orderdetail.orderid = orderproduct.orderid
+    full join productoption on productoption.proopid = orderdetail.proopid
+    full join product on product.proid =  productoption.proid
+    where member.userid = $1`
+    const value = [decode.data.id]
+
+    try {
+        const { rows } = await db.query(sql, value  );
+        return Responce.resSuccess(res, successMessage.success, rows);
+    } catch (error) {
+        // throw error
+        return Responce.resError(res, errorMessage.saveError);
+    } finally {
+        res.end();
+    }
+}
+async function paymentCustomer (req, res, next) {
+    const {total} = req.body
+    const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+    const paymentstatusid = 'd3025aa5-2444-4184-99cd-7e2b2bc744c5'; // ชำระเเล้ว
+    const active = true;
+    const sql = `insert into payment (active, datemodify, summary, slip, paystatusid) values  ($1, $2, $3, $4, $5)`
+    const value = [active, date, total, req.files[0].filename, paymentstatusid];
+
+    try {
+        await db.query(sql, value);
+        return Responce.resSuccess(res, successMessage.success);
+    } catch (error) {
+        // throw error
+        return Responce.resError(res, errorMessage.saveError);
+    } finally {
+        res.end();
+    }
+}
+
+
 module.exports = {
     registerMember,
     getProfileMember,
     logInMember,
     updateMember,
+    getPaymentCustomer,
+    paymentCustomer
 }

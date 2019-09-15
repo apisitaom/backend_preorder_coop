@@ -9,4 +9,4 @@ router.get('/',(req,res)=>{
 router.post('/add', admin.add);
 router.post('/login', admin.login);
 
-module.exports = router
+module.exports = router;
