@@ -7,7 +7,6 @@ const preorder = require('../services/Preorder');
 const order = require('../services/Order');
 
 router.get('/',(req,res)=>{res.json('SELLER ROUTER')});
-
 router.post('/register',img.upload,seller.insert);
 router.post('/edit',img.upload,seller.updateSeller);
 router.post('/login',seller.login);

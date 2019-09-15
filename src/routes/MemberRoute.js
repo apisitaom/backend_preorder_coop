@@ -4,7 +4,6 @@ const img = require('../lib/ImageUpload');
 const auth = require('../lib/Auth');
 
 router.get('/', (req, res, next)=>{res.json('MEMBER ROUTER')});
- 
 router.get('/lists',auth.userVerifyToken ,member.getProfileMember);
 router.get('/pay', member.getPaymentCustomer);
 
