@@ -1,16 +1,16 @@
 const router = require('express').Router()
 //SELLER
-const seller = require('../services/SellerService')
+const seller = require('../services/Seller')
 //LIB IMAGE
 const img  =require('../lib/ImageUpload')
 //OPTION VALUE
-const optionvalue = require('../services/OptionvalueService')
+const optionvalue = require('../services/Optionvalue')
 //PEODUCT
-const product = require('../services/ProductService')
+const product = require('../services/Product')
 //PROORDER
-const preorder = require('../services/PreorderService')
+const preorder = require('../services/Preorder')
 //ORDER
-const order = require('../services/OrderService')
+const order = require('../services/Order')
 
 router.get('/',(req,res)=>{
     res.json('SELLER ROUTER')

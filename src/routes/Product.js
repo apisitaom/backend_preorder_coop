@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const product = require('../services/ProductService');
+const product = require('../services/Product');
 const img = require('../lib/ImageUpload');
 
 router.get('/', (req, res, next)=>{
