@@ -14,7 +14,7 @@ async function registerMember (req, res, next) {
     const active = true;
     const hashPassword = helper.Helper.hashPassword(password);
     const sql = `INSERT INTO member (createdate, active, datemodify, firstname, lastname, gender, brithday, addressuser, subdistrict, disstrict, province, zipcode, photo, email, phone, passworduser) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`
-    
+
     const values = [date, active, date, customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, picture, email, phonenumber, hashPassword];
     
     try {
@@ -65,9 +65,6 @@ async function updateMember (req, res, next) {
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
 
-    const val = `{${req.files.map((item) => item.filename).join()}}`
-    const picture = []
-    picture.push(val)
     const sql = `update member set firstname = $1, lastname = $2, gender = $3, brithday = $4, addressuser = $5,
     subdistrict = $6, disstrict = $7, province = $8, zipcode = $9, phone = $10, email = $11, photo = $12 where userid = $13`
     const value = [customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, req.files[0].filename,decode.data.id];
