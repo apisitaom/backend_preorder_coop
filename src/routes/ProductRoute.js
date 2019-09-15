@@ -4,7 +4,6 @@ const img = require('../lib/ImageUpload');
 
 router.get('/', (req, res, next)=>{res.json('PRODUCT ROUTER')});
 
-
 router.get('/lists', product.homepageCustomer);
 router.get('/pay',product.getCartCustomer);
 router.get('/list', product.shopCustomer);
