@@ -73,12 +73,12 @@ const Seller = {
   },
   async shopinfo(req, res) {
 
-    // const { headers } = req;
-    // const subtoken = headers.authorization.split(' ');
-    // const token = subtoken[1];
-    // const decode = helper.Helper.verifyToken(token);
+    const { headers } = req;
+    const subtoken = headers.authorization.split(' ');
+    const token = subtoken[1];
+    const decode = helper.Helper.verifyToken(token);
 
-    // console.log(decode.data.id);
+    console.log(decode.data.id);
 
     const sql = `select 
     seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode,
@@ -90,7 +90,7 @@ const Seller = {
     inner join promptpay on seller.promptpayid = promptpay.promptpayid 
     where seller.sellerid = $1`
     try {
-      const { rows } = await db.query(sql, [req.params.id])
+      const { rows } = await db.query(sql, [decode.data.id]);
       const tranfrom = {
         shopname: rows[0].sellername,
         address: rows[0].address,
@@ -123,7 +123,6 @@ const Seller = {
     const decode = helper.Helper.verifyToken(token);
 
     const hashPassword = helper.Helper.hashPassword(password);
-
     // PICTURE
     const val = `${req.files.map((item) => item.filename)}`
     const picture = []
@@ -160,4 +159,4 @@ const Seller = {
   }
 }
 
-module.exports = Seller
+module.exports = Seller;

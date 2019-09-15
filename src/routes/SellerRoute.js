@@ -17,7 +17,7 @@ router.post('/orders/:id', order.Order.getOrderDetail);
 
 router.get('/popup/:id',product.Product.getPopup);
 router.get('/products/:id', preorder.Preorder.getProduct);
-router.get('/shopinfo/:id',seller.shopinfo);
+router.get('/list',seller.shopinfo);
 router.get('/preorder',preorder.Preorder.getProduct);
 router.get('/preorder/:id',preorder.Preorder.getProductDetail);
 
