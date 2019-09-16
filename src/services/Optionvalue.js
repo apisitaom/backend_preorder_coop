@@ -19,7 +19,7 @@ const optionValue = {
         const valueProduct = [active, today, productname, detail, data, sellerid]
         try{
             const returnProduct = await db.query(insertProduct,valueProduct)
-            const insertPOp = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid,includingvat) VALUES($1,$2,$3,$4,$5,$6,$7)'
+            const insertPOp = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid,includingvat) VALUES($1,$2,$3,$4,$5,$6,$7) returning proopid'
             optionJson.forEach(async (element, index) => {
                 const valuePOp = [active, today, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, returnProduct.rows[0].proid,optionJson[index].vat]
                 await db.query(insertPOp, valuePOp);

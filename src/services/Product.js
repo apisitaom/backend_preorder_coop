@@ -208,21 +208,20 @@ async function cartCustomer(req, res, next) {
 
             const product = await db.query(sqlProduct, valueProduct);
             const eventproduct = await db.query(sqlEventProduct, valueEventProduct);
-
             const sqlProductoption = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid,includingvat) VALUES($1,$2,$3,$4,$5,$6,$7) returning proopid'
             optionJson.forEach(async (element, index) => {                                                         // edit product ID
             const valueProductoption = [active, date, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, product.rows[0].proid, optionJson[index].vat]
-            productoption = await db.query(sqlProductoption, valueProductoption);
-
+            const productoption = await db.query(sqlProductoption, valueProductoption);
             const valueEventDetail = [eventproduct.rows[0].eventid, productoption.rows[0].proopid]; // use in "try"
             await db.query(sqlEventDetail, valueEventDetail);
             const shipping = await db.query(sqlShipping, valueShipping);
             const payment = await db.query(sqlPayment, valuePayment);
-
             const valueOrderProduct = [active, decode.data.id, payment.rows[0].payid, shipping.rows[0].shipid, eventproduct.rows[0].eventid]; // use in "try"  
             const orderproduct = await db.query(sqlOrderProduct, valueOrderProduct);
-            const valueOrderDetail = [active, amount, address, phonenumber, orderproduct.rows[0].orderid, productoption.rows[0].proopid]; // use in "try"
-            await db.query(sqlOrderDetail, valueOrderDetail);
+            productoption.rows.map(index => {
+                const valueOrderDetail = [active, amount, address, phonenumber, orderproduct.rows[0].orderid, index.proopid]; // use in "try"
+                db.query(sqlOrderDetail, valueOrderDetail);
+            })
         });
         return Responce.resSuccess(res, successMessage.success);
     } catch (error) {
