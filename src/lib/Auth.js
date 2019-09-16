@@ -74,7 +74,6 @@ const { headers } = req;
   }
 }
 
-
 module.exports = {
   userVerifyToken,
   adminVerifyToken,

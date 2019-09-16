@@ -11,7 +11,7 @@ const Product = {
         const getPopup = `select 
         product.photo,product.proname, product.prodetail,
         productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue
-        from product 
+        from product
         inner join productoption on product.proid = productoption.proid 
         where product.proid = $1`;
         try {
