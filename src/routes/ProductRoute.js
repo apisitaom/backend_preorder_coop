@@ -10,5 +10,6 @@ router.get('/list/:id', product.getProduct);
 
 router.post('/add', product.insertProductHomepage);
 router.post('/buy',img.upload, product.cartCustomer);
+router.post('/adds', product.preOrder);
 
 module.exports = router;

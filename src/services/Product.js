@@ -172,7 +172,7 @@ async function getCartCustomer(req, res, next) {
 }
 async function cartCustomer(req, res, next) {
     const { productname, address, phonenumber, countdowntime, amount } = req.body
-    const optionJson = JSON.parse(req.body.option)
+    const optionJson = JSON.parse(req.body.option);
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     const active = true;
     let data = req.files.map((item, index) => item.filename)
@@ -282,6 +282,36 @@ async function getProduct(req, res, next) {
     }
 }
 
+async function preOrder( req, res, next){
+    const {productid, date, time, hour, amount} = req.body;
+    const optionJson = JSON.parse(req.body.option);
+    const active = true;
+    //หาเวลาสิ้นสุดของการ Pre-order
+    const days = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+    const dates = date +' '+ time;
+    // 2019-09-16 13:10:10
+    const ends = moment(dates).format('YYYY-MM-DD HH:mm:ss');
+    const end = moment(ends).add(hour, 'h');
+    try {
+        optionJson.forEach(async (element, index) => {                  //start      //end
+        const sqlProductoption = `insert into productoption (active, createdate, datemodify, sku, price, optionvalue,includingvat, proid) values ($1, $2, $3, $4, $5, $6, $7, $8) returning proopid `;
+        const sqlOrderdetail = `insert into orderdetail (active, amount, proopid) values ($1, $2, $3)`;
+        const valueProductoption = [active, days, new Date(end.toString()), optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, optionJson[index].vat, productid];
+        const productoption = await db.query (sqlProductoption, valueProductoption);
+        productoption.rows.map(index => {
+            const valueOrderdeail = [active, amount, index.proopid];
+            db.query(sqlOrderdetail, valueOrderdeail);
+        })
+    });
+        return Responce.resSuccess(res, successMessage.success);
+    } catch (error) {
+        throw error
+        // return Responce.resError(res, errorMessage.saveError);
+    } finally {
+        res.end();
+    }
+}
+
 module.exports = {
     Product,
     getCartCustomer,
@@ -289,6 +319,7 @@ module.exports = {
     insertProductHomepage,
     shopCustomer,
     getProduct,
-    cartCustomer
+    cartCustomer,
+    preOrder
 }
 
