@@ -117,9 +117,6 @@ const Seller = {
 
     const hashPassword = helper.Helper.hashPassword(password);
     // PICTURE
-    const val = `${req.files.map((item) => item.filename)}`
-    const picture = []
-    picture.push(val)
 
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
     const sql = `select * from seller where sellerid = $1`
@@ -137,13 +134,9 @@ const Seller = {
 
     try {
       await db.query(sqlSeller, valueSeller);
-
       await db.query(sqlBank, valuebank);
-
       await db.query(sqlPromptpay, valuePrompay);
-
       return Response.resSuccess(res, successMessage.upload);
-
     } catch (error) {
       return Response.resError(res, errorMessage.saveError);
     } finally {
