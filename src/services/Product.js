@@ -289,7 +289,6 @@ async function preOrder( req, res, next){
     //หาเวลาสิ้นสุดของการ Pre-order
     const days = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     const dates = date +' '+ time;
-    // 2019-09-16 13:10:10
     const ends = moment(dates).format('YYYY-MM-DD HH:mm:ss');
     const end = moment(ends).add(hour, 'h');
     try {
@@ -298,15 +297,16 @@ async function preOrder( req, res, next){
         const sqlOrderdetail = `insert into orderdetail (active, amount, proopid) values ($1, $2, $3)`;
         const valueProductoption = [active, days, new Date(end.toString()), optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, optionJson[index].vat, productid];
         const productoption = await db.query (sqlProductoption, valueProductoption);
-        productoption.rows.map(index => {
-            const valueOrderdeail = [active, amount, index.proopid];
+        productoption.rows.map(indexs => {
+            optionJson.forEach(async (element, index) => { 
+            const valueOrderdeail = [active, optionJson[index].amount, indexs.proopid];
             db.query(sqlOrderdetail, valueOrderdeail);
+            })
         })
     });
         return Responce.resSuccess(res, successMessage.success);
     } catch (error) {
-        throw error
-        // return Responce.resError(res, errorMessage.saveError);
+        return Responce.resError(res, errorMessage.saveError);
     } finally {
         res.end();
     }
