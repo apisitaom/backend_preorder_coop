@@ -79,6 +79,8 @@ const Product = {
             return Responce(res, successMessage.success, sumValue);
         } catch (error) {
             return Responce.resError(res, errorMessage.saveError);
+        } finally {
+            res.end();
         }
     }
 }

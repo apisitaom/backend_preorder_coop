@@ -73,13 +73,6 @@ const Seller = {
   },
   async shopinfo(req, res) {
 
-    const { headers } = req;
-    const subtoken = headers.authorization.split(' ');
-    const token = subtoken[1];
-    const decode = helper.Helper.verifyToken(token);
-
-    console.log(decode.data.id);
-
     const sql = `select 
     seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode,
     seller.province,seller.phonenumber,seller.email,seller.photo,
@@ -90,7 +83,7 @@ const Seller = {
     inner join promptpay on seller.promptpayid = promptpay.promptpayid 
     where seller.sellerid = $1`
     try {
-      const { rows } = await db.query(sql, [decode.data.id]);
+      const { rows } = await db.query(sql, [req.params.id]);
       const tranfrom = {
         shopname: rows[0].sellername,
         address: rows[0].address,
