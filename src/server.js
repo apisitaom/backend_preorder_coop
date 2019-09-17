@@ -18,7 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 app.use((req, res, next) => {
-    console.log(`serve on path ${req.method} ${req.path}`);
+    console.log(`serve on path ${req.ip} ${req.method} ${req.path}`);
     next();
   });
 

@@ -6,24 +6,24 @@ const moment = require('moment');
 
 const Preorder = {
     async getProduct (req, res) {
-        const selectAll = `select 
-        *
+        const sql = `select 
+        product.proid, product.proname
         from productoption
         full join product on product.proid = productoption.proid
         where 
-        sellerid = $1 and productoption.types ='order'`
-        let resp = []
+        sellerid = $1 and productoption.types ='order' group by product.proid`
+        let responce = []
         try {
-            const value = await db.query(selectAll,[req.params.id]);
+            const value = await db.query(sql, [req.params.id]);
             for ( let i = 0; i < (value.rows).length; i++) {
-                let obj = {
+                let data = {
                     order : i+1,
                     productid : value.rows[i].proid,
                     productname : value.rows[i].proname
                 }
-                resp.push(obj)
+                responce.push(data)
             }
-            return Responce.resSuccess(res, successMessage.success, resp);
+            return Responce.resSuccess(res,successMessage.success, responce);
         } catch (error) {
             return Responce.resError(res, errorMessage.saveError);
         } finally {
@@ -32,11 +32,11 @@ const Preorder = {
     },
     async getProductPreorder (req,res, next) {
         const sql = `select 
-        *
+        product.proid, product.proname
         from productoption
         full join product on product.proid = productoption.proid
         where 
-        sellerid = $1 and productoption.types ='preorder'`
+        sellerid = $1 and productoption.types ='preorder' group by product.proid`
         let responce = []
         try {
             const value = await db.query(sql, [req.params.id]);

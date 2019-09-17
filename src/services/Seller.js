@@ -107,7 +107,6 @@ const Seller = {
   },
 
   async updateSeller(req, res, next) {
-
     const { shopname, address, subdistrict, district, province, zipcode, phone, email, password, bankname, accountname, accountnumber, promptpayname, promptpaynumber, } = req.body
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
@@ -115,24 +114,26 @@ const Seller = {
     const decode = helper.Helper.verifyToken(token);
 
     const hashPassword = helper.Helper.hashPassword(password);
-    // PICTURE
-
+    
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
     const sql = `select * from seller where sellerid = $1`
     const values = [decode.data.id]
     const { rows } = await db.query(sql, values);
-    // SELLER
-    const sqlSeller = `update seller set sellername = $1, address = $2, subdistrict = $3, district = $4, zipcode = $5, province = $6, phonenumber = $7, email = $8, sellerpassword = $9 , photo = $10, datemodify = $11 where sellerid = $12 `
-    const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, req.files[0].filename, date, decode.data.id]
-    // BANK
     const sqlBank = `update bank set datemodify = $1, bankname = $2, bankaccountname = $3, banknumber = $4 where bankid = $5`
     const valuebank = [date, bankname, accountname, accountnumber, rows[0].bankid]
-    // PROMPTPAY
     const sqlPromptpay = `update promptpay set datemodify = $1, promptpayname = $2, promptpaynumber = $3 where promptpayid = $4`
     const valuePrompay = [date, promptpayname, promptpaynumber, rows[0].promptpayid]
 
     try {
-      await db.query(sqlSeller, valueSeller);
+      if (req.files === null || req.files === [] || req.files[0] === undefined) {
+        const sqlSeller = `update seller set sellername = $1, address = $2, subdistrict = $3, district = $4, zipcode = $5, province = $6, phonenumber = $7, email = $8, sellerpassword = $9 , datemodify = $10 where sellerid = $11 `
+        const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, date, decode.data.id]    
+        await db.query(sqlSeller, valueSeller);
+      } else {
+        const sqlSeller = `update seller set sellername = $1, address = $2, subdistrict = $3, district = $4, zipcode = $5, province = $6, phonenumber = $7, email = $8, sellerpassword = $9 , photo = $10, datemodify = $11 where sellerid = $12 `
+        const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, req.files[0].filename, date, decode.data.id] 
+        await db.query(sqlSeller, valueSeller);
+      }
       await db.query(sqlBank, valuebank);
       await db.query(sqlPromptpay, valuePrompay);
       return Response.resSuccess(res, successMessage.upload);

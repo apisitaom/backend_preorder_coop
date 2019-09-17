@@ -62,19 +62,19 @@ async function updateMember (req, res, next) {
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-    // เปลี่ยนเเปลงรูป
-    const sql = `update member set firstname = $1, lastname = $2, gender = $3, brithday = $4, addressuser = $5,
-    subdistrict = $6, disstrict = $7, province = $8, zipcode = $9, phone = $10, email = $11, photo = $12 where userid = $13`
-    const value = [customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, req.files[0].filename,decode.data.id];
-    // ไม่เปลี่ยนเเปลงรูป
-    const sqls = `update member set firstname = $1, lastname = $2, gender = $3, brithday = $4, addressuser = $5,
-    subdistrict = $6, disstrict = $7, province = $8, zipcode = $9, phone = $10, email = $11 where userid = $12`
-    const values = [customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, decode.data.id];
-
+    
     try {
-        if (req.files === [] || req.files === null || req.files === undefined) {
+        if (req.files === null || req.files === [] || req.files[0] === undefined) {
+            const sqls = `update member set firstname = $1, lastname = $2, gender = $3, brithday = $4, addressuser = $5,
+            subdistrict = $6, disstrict = $7, province = $8, zipcode = $9, phone = $10, email = $11 where userid = $12`
+            const values = [customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, decode.data.id];
+        
             await db.query(sqls, values);
         } else {
+            const sql = `update member set firstname = $1, lastname = $2, gender = $3, brithday = $4, addressuser = $5,
+            subdistrict = $6, disstrict = $7, province = $8, zipcode = $9, phone = $10, email = $11, photo = $12 where userid = $13`
+            const value = [customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, req.files[0].filename,decode.data.id];
+    
         await db.query(sql, value);
         }
         return Responce.resSuccess(res, successMessage.upload);
@@ -143,7 +143,7 @@ async function getPaymentCustomer (req, res, next) {
 async function paymentCustomer (req, res, next) {
     const {total} = req.body
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-    const paymentstatusid = 'd3025aa5-2444-4184-99cd-7e2b2bc744c5'; // ชำระเเล้ว
+    const paymentstatusid = '641f8c00-1ec7-4a79-be69-b48a5716a496'; // ชำระเเล้ว
     const active = true;
     const sql = `insert into payment (active, datemodify, summary, slip, paystatusid) values  ($1, $2, $3, $4, $5)`
     const value = [active, date, total, req.files[0].filename, paymentstatusid];
