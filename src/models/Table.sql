@@ -158,6 +158,8 @@ create table ProductOption(
     price               float,
     includingvat        float,
     optionvalue         json[],
+        --กำหนดว่าสินค้าเป็น pre_order หรือไม่
+    types            varchar(60),
 
     proId               uuid ,
     FOREIGN key (proId) REFERENCES Product (proId)

@@ -72,7 +72,6 @@ const Seller = {
     }
   },
   async shopinfo(req, res) {
-
     const sql = `select 
     seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode,
     seller.province,seller.phonenumber,seller.email,seller.photo,

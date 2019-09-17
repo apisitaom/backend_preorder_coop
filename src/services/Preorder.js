@@ -51,13 +51,13 @@ const Preorder = {
             let b = moment(dStart)
             let countdown = a.diff(b)
             const valueEvent = [active, today, dStart, dEnd, countdown]
-            await db.query('BEGIN')
+            await db.query('BEGIN');
             const result = await db.query(queryEvent, valueEvent)
             for (let i = 0; i < (option).length; i++) {
                 const valueEventDetail = [option[i].amount, result.rows[0].eventid, option[i].id]
                 await db.query(queryEventDetail, valueEventDetail)
             }
-            await db.query('COMMIT')
+            await db.query('COMMIT');
             return Responce.resSuccess(res, successMessage.success);
         } catch (error) {
             return Responce.resError(res, errorMessage.saveError);

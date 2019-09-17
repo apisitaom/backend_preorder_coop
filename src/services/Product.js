@@ -86,16 +86,20 @@ const Product = {
 }
 
 async function homepageCustomer(req, res, next) {
-    const sql = `select product.proname, product.photo, eventproduct.timestart,
-    eventproduct.timeend, eventproduct.countdowntime, productoption.proopid,
-    productoption.optionvalue,  productoption.price, seller.sellername from productoption 
-    full join product on product.proid = productoption.proid 
-    full join eventdetail on eventdetail.eventid = productoption.proid
+    const sql = `select productoption.sku, productoption.price,
+    productoption.includingvat, productoption.optionvalue,
+    product.photo, product.proname,product.prodetail,
+    eventdetail.totalproduct, eventproduct.timestart,eventproduct.timeend
+    from productoption 
+    full join product on product.proid = productoption.proid
+    full join eventdetail on eventdetail.proopid = productoption.proopid
     full join eventproduct on eventproduct.eventid = eventdetail.eventid
-    full join seller on seller.sellerid = product.sellerid;
-    `
+    where productoption.types ='preorder'`
     try {
         const { rows } = await db.query(sql);
+        rows.map(index => {
+            index.timeend = moment(index.timeend).add(7, 'h');
+        })
         return Responce.resSuccess(res, successMessage.success, rows);
     } catch (error) {
         return Responce.resError(res, errorMessage.saveError);
@@ -193,11 +197,11 @@ async function cartCustomer(req, res, next) {
     //EVENT DETIAL
     const sqlEventDetail = `insert into eventdetail (eventid, proopid) values ($1, $2);`
     // SHIPPING  
-    const shipstatusid = '3c105190-0279-407e-a358-42231e67773d'; // กำลังส่งรายการการสั่งซื้อไปที่ผู้ขาย
+    const shipstatusid = '8281b638-f615-42fe-bb24-79889675016a'; // กำลังส่งรายการการสั่งซื้อไปที่ผู้ขาย
     const sqlShipping = `insert into shipping (active, shipstatusid) values ($1, $2) returning shipid`
     const valueShipping = [active, shipstatusid];
     // PAYMENT  
-    const paystatusid = 'bbb0c84d-20e4-405c-bac0-261dc4247505'; // ต้องชำระ
+    const paystatusid = 'a200f736-7282-446b-85e1-eec6fb15da3f'; // ต้องชำระ
     const sqlPayment = `insert into payment (active, paystatusid )values ($1, $2) returning payid`
     const valuePayment = [active, paystatusid];
     // ORDER PRODUCT
@@ -283,8 +287,7 @@ async function getProduct(req, res, next) {
 }
 
 async function preOrder( req, res, next){
-    console.log(req.body);
-    const {productid, date, time, hour, amount} = req.body;
+    const {productid, date, time, hour} = req.body;
     const optionJson = JSON.parse(req.body.option);
     const active = true;
     //หาเวลาสิ้นสุดของการ Pre-order
@@ -292,16 +295,22 @@ async function preOrder( req, res, next){
     const dates = date +' '+ time;
     const ends = moment(dates).format('YYYY-MM-DD HH:mm:ss');
     const end = moment(ends).add(hour, 'h');
+    const types = 'preorder';
     try {
-        optionJson.forEach(async (element, index) => {                  //start      //end
-        const sqlProductoption = `insert into productoption (active, createdate, datemodify, sku, price, optionvalue,includingvat, proid) values ($1, $2, $3, $4, $5, $6, $7, $8) returning proopid `;
-        const sqlOrderdetail = `insert into orderdetail (active, amount, proopid) values ($1, $2, $3)`;
-        const valueProductoption = [active, days, new Date(end.toString()), optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, optionJson[index].vat, productid];
+        optionJson.forEach(async (element, index) => {                
+        const sqlProductoption = `insert into productoption (active, sku, price, optionvalue,includingvat, proid, types) values ($1, $2, $3, $4, $5, $6, $7) returning proopid `;
+        const valueProductoption = [active, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, optionJson[index].vat, productid, types];
         const productoption = await db.query (sqlProductoption, valueProductoption);
+        const sqlEventproduct = `insert into eventproduct(active, timestart, timeend) values ($1, $2, $3) returning eventid`;
+        const valueEventproduct = [active, days, new Date(end.toString())];
+        const eventproduct = await db.query(sqlEventproduct, valueEventproduct);
+        const sqlEventdetail =`insert into eventdetail ( totalproduct,eventid, proopid) values ($1, $2, $3)`
         productoption.rows.map(indexs => {
-            optionJson.forEach(async (element, index) => { 
-            const valueOrderdeail = [active, optionJson[index].amount, indexs.proopid];
-            db.query(sqlOrderdetail, valueOrderdeail);
+            eventproduct.rows.map(indes => {
+                optionJson.forEach(async (element, index) => { 
+                const valueEventdetail = [ optionJson[index].amount, indes.eventid, indexs.proopid];
+                db.query(sqlEventdetail, valueEventdetail);
+                })
             })
         })
     });
