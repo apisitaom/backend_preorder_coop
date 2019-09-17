@@ -57,19 +57,26 @@ async function getProfileMember (req, res, next) {
     }   
 }
 async function updateMember (req, res, next) {
-    // console.log(req.body);
-    // console.log(req.files);
     const {customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email} = req.body
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-
+    // เปลี่ยนเเปลงรูป
     const sql = `update member set firstname = $1, lastname = $2, gender = $3, brithday = $4, addressuser = $5,
     subdistrict = $6, disstrict = $7, province = $8, zipcode = $9, phone = $10, email = $11, photo = $12 where userid = $13`
     const value = [customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, req.files[0].filename,decode.data.id];
+    // ไม่เปลี่ยนเเปลงรูป
+    const sqls = `update member set firstname = $1, lastname = $2, gender = $3, brithday = $4, addressuser = $5,
+    subdistrict = $6, disstrict = $7, province = $8, zipcode = $9, phone = $10, email = $11 where userid = $12`
+    const values = [customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, decode.data.id];
+
     try {
+        if (req.files === [] || req.files === null || req.files === undefined) {
+            await db.query(sqls, values);
+        } else {
         await db.query(sql, value);
+        }
         return Responce.resSuccess(res, successMessage.upload);
     } catch (error){
         return Responce.resError(res, errorMessage.saveError);

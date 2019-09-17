@@ -283,6 +283,7 @@ async function getProduct(req, res, next) {
 }
 
 async function preOrder( req, res, next){
+    console.log(req.body);
     const {productid, date, time, hour, amount} = req.body;
     const optionJson = JSON.parse(req.body.option);
     const active = true;
