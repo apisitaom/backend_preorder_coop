@@ -95,8 +95,10 @@ async function homepageCustomer(req, res, next) {
     full join product on product.proid = productoption.proid
     full join eventdetail on eventdetail.proopid = productoption.proopid
     full join eventproduct on eventproduct.eventid = eventdetail.eventid
-    where productoption.types ='preorder'`
+    where productoption.types ='preorder' `
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+    const products = [];
+
     try {
         const { rows } = await db.query(sql);
         const data = rows.map(index => {
@@ -109,12 +111,12 @@ async function homepageCustomer(req, res, next) {
 
             const startTime = index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');
             if (endTime > date && date > startTime) {
-            return index;
+                products.push(index);
             } else {
-                return false;
+                return delete index;
             }
         });
-        return Responce.resSuccess(res, successMessage.success, data);
+        return Responce.resSuccess(res, successMessage.success, products);
     } catch (error) {
         return Responce.resError(res, errorMessage.saveError);
     } finally {
