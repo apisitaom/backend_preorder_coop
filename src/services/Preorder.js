@@ -6,10 +6,15 @@ const moment = require('moment');
 
 const Preorder = {
     async getProduct (req, res) {
-        const selectAll = 'SELECT proid,proname FROM product WHERE sellerid = $1'
+        const selectAll = `select 
+        *
+        from productoption
+        full join product on product.proid = productoption.proid
+        where 
+        sellerid = $1 and productoption.types ='order'`
         let resp = []
         try {
-            const value = await db.query(selectAll,[req.params.id])
+            const value = await db.query(selectAll,[req.params.id]);
             for ( let i = 0; i < (value.rows).length; i++) {
                 let obj = {
                     order : i+1,
@@ -25,9 +30,34 @@ const Preorder = {
             res.end();
         }
     },
+    async getProductPreorder (req,res, next) {
+        const sql = `select 
+        *
+        from productoption
+        full join product on product.proid = productoption.proid
+        where 
+        sellerid = $1 and productoption.types ='preorder'`
+        let responce = []
+        try {
+            const value = await db.query(sql, [req.params.id]);
+            for ( let i = 0; i < (value.rows).length; i++) {
+                let data = {
+                    order : i+1,
+                    productid : value.rows[i].proid,
+                    productname : value.rows[i].proname
+                }
+                responce.push(data)
+            }
+            return Responce.resSuccess(res,successMessage.success, responce);
+        } catch (error) {
+            return Responce.resError(res, errorMessage.saveError);
+        } finally {
+            res.end();
+        }
+    },
     async getProductDetail (req, res) {
         const key = req.params.id
-        const selectOne =   `SELECT 
+        const selectOne =   `select 
                     proopid,sku,price,optionvalue 
                     from productoption
                     WHERE proid = $1`
