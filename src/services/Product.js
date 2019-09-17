@@ -96,15 +96,25 @@ async function homepageCustomer(req, res, next) {
     full join eventdetail on eventdetail.proopid = productoption.proopid
     full join eventproduct on eventproduct.eventid = eventdetail.eventid
     where productoption.types ='preorder'`
+    const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     try {
-        const { rows } = await db.query(sql, );
-        console.log(rows);
-        console.log(moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'));
-        
-        rows.map(index => {
+        const { rows } = await db.query(sql);
+        const data = rows.map(index => {
             index.timeend = moment(index.timeend).add(7, 'h');
-        })
-        return Responce.resSuccess(res, successMessage.success, rows);
+            index.timeend = moment(index.timeend).format('YYYY-MM-DD HH:mm:ss');
+            index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');
+
+            const addTime = index.timeend = moment(index.timeend).add(7, 'h');
+            const endTime = index.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
+
+            const startTime = index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');
+            if (endTime > date && date > startTime) {
+            return index;
+            } else {
+                return false;
+            }
+        });
+        return Responce.resSuccess(res, successMessage.success, data);
     } catch (error) {
         return Responce.resError(res, errorMessage.saveError);
     } finally {
