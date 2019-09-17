@@ -8,6 +8,7 @@ const sellerRoute = require('./routes/SellerRoute');
 const adminRoute = require('./routes/AdminRoute');
 const productRoute = require('./routes/ProductRoute');
 const memberRoute = require('./routes/MemberRoute');
+const paymentRoute = require('./routes/PaymentRoute');
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -31,6 +32,7 @@ app.use('/seller', sellerRoute);
 app.use('/admin', adminRoute);
 app.use('/product', productRoute);
 app.use('/member', memberRoute);
+app.use('/payment', paymentRoute);
 //IMAGE
 app.use('/images', express.static(path.join(__dirname + '/../public/uploads')));
 

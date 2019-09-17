@@ -193,7 +193,7 @@ async function cartCustomer(req, res, next) {
     const optionJson = JSON.parse(req.body.option);
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     const active = true;
-    let data = req.files.map((item, index) => item.filename)
+    let data = req.files.map((item, index) => item.filename);
     const picture = [];
     picture.push(data);
     // MEMBER
@@ -206,7 +206,7 @@ async function cartCustomer(req, res, next) {
     const valueProduct = [active, productname, data, decode.data.id];
     // EVENT PRODUCT
     const sqlEventProduct = `insert into eventproduct (active, countdowntime) values ($1, $2) returning eventid`
-    const valueEventProduct = [active, date]; // I change count downtime is timestamp!
+    const valueEventProduct = [active, countdowntime]; // I change count downtime is timestamp!
 
     //EVENT DETIAL
     const sqlEventDetail = `insert into eventdetail (eventid, proopid) values ($1, $2);`
@@ -343,6 +343,7 @@ async function preOrder( req, res, next){
         res.end();
     }
 }
+
 
 module.exports = {
     Product,
