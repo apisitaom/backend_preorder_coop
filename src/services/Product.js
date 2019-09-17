@@ -33,8 +33,7 @@ const Product = {
             }
             return Responce.resSuccess(res, successMessage.success, tranfrom);
         } catch (error) {
-            throw error
-            // return Responce.resError(res, errorMessage.saveError);
+            return Responce.resError(res, errorMessage.saveError);
         }
     },
     async getMaxMin(req, res) {
@@ -98,10 +97,9 @@ async function homepageCustomer(req, res, next) {
     where productoption.types ='preorder' `
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     const products = [];
-
     try {
         const { rows } = await db.query(sql);
-        const data = rows.map(index => {
+        rows.map(index => {
             index.timeend = moment(index.timeend).add(7, 'h');
             index.timeend = moment(index.timeend).format('YYYY-MM-DD HH:mm:ss');
             index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');

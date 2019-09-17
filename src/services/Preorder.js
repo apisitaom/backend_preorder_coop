@@ -35,6 +35,8 @@ const Preorder = {
         product.proid, product.proname
         from productoption
         full join product on product.proid = productoption.proid
+        full join eventdetail on eventdetail.proopid = productoption.proid
+        full join eventproduct on eventproduct.eventid = eventdetail.eventid
         where 
         sellerid = $1 and productoption.types ='preorder' group by product.proid`
         let responce = []
