@@ -17,10 +17,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-app.use((err, req, res, next) => {
-    console.log(`${req.path}` + ` <> ${req.ip}` + ` <> ${req.method}`)
+app.use((req, res, next) => {
+    console.log(`serve on path ${req.method} ${req.path}`);
     next();
-});
+  });
 
 app.get('/', (req, res) => {
     res.json({ info: `welcome  to project start on ${port}` })

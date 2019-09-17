@@ -57,6 +57,8 @@ async function getProfileMember (req, res, next) {
     }   
 }
 async function updateMember (req, res, next) {
+    // console.log(req.body);
+    // console.log(req.files);
     const {customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email} = req.body
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
