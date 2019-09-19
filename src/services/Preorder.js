@@ -31,26 +31,18 @@ const Preorder = {
         }
     },
     async getProductPreorder (req,res, next) {
-        const sql = `select 
-        product.proid, product.proname
-        from productoption
+        const sql = `select
+        *
+        from productoption 
         full join product on product.proid = productoption.proid
-        full join eventdetail on eventdetail.proopid = productoption.proid
+        full join eventdetail on eventdetail.proopid = productoption.proopid
         full join eventproduct on eventproduct.eventid = eventdetail.eventid
-        where 
-        sellerid = $1 and productoption.types ='preorder' group by product.proid`
-        let responce = []
+        where productoption.types ='preorder' and product.sellerid = $1`
+        let responce = [];
         try {
             const value = await db.query(sql, [req.params.id]);
-            for ( let i = 0; i < (value.rows).length; i++) {
-                let data = {
-                    order : i+1,
-                    productid : value.rows[i].proid,
-                    productname : value.rows[i].proname
-                }
-                responce.push(data)
-            }
-            return Responce.resSuccess(res,successMessage.success, responce);
+            console.log(value.rowCount);
+            return Responce.resSuccess(res,successMessage.success, value.rows);
         } catch (error) {
             return Responce.resError(res, errorMessage.saveError);
         } finally {

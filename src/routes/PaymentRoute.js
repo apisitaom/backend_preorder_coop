@@ -6,4 +6,4 @@ const payment = require('../services/payment');
 router.get('/', (req, res, next)=>{res.json('PAYMENT ROUTER')});
 router.get('/lists',auth.userVerifyToken, payment.getPayment);
 
-module.exports = router;
+module.exports = router;``
