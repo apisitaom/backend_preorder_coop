@@ -31,18 +31,46 @@ const Preorder = {
         }
     },
     async getProductPreorder (req,res, next) {
+        // product.proname, product.prodetail,product.photo
         const sql = `select
-        product.proid
-        from productoption 
-        full join product on product.proid = productoption.proid
-        where productoption.types ='preorder' and product.sellerid = $1 group by product.proid`
-        let responce = [];
+        product.proid,product.proname, product.photo,
+        productoption.sku, productoption.price, productoption.includingvat,productoption.optionvalue,
+        eventproduct.timestart,eventproduct.timeend,
+        eventdetail.totalproduct
+        from productoption
+        inner join product on product.proid = productoption.proid
+        inner join eventdetail on eventdetail.proopid = productoption.proopid
+        inner join eventproduct on eventproduct.eventid = eventdetail.eventid
+        where productoption.types ='preorder' and product.sellerid = $1 order by product.proid`
+        const detail = [];
+        const status = '';
+        const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
         try {
             const value = await db.query(sql, [req.params.id]);
+            // index.timeend = moment(index.timeend).format('YYYY-MM-DD HH:mm:ss');
+            console.log(value.rows);
+            value.rows.map(async(element, index)=> {
+                
+                let data = {
+                    proname: value.rows[index].proname,
+                    datestart: moment(value.rows[index].timestart).format('YYYY-MM-DD HH:mm:ss'),
+                    dateend: moment(value.rows[index].timeend).format('YYYY-MM-DD HH:mm:ss'),
+                    hour: moment(value.rows[index].timeend).format('HH'),
+                    time: moment(value.rows[index].timeend).format('HH:mm:ss'),
+                    sku: value.rows[index].sku,
+                    amount: value.rows[index].totalproduct,
+                    vat: value.rows[index].includingvat,
+                    price: value.rows[index].price,
+                    optionvalue: value.rows[index].optionvalue
+                }
+                detail.push(data);
+                return value.rows[index].sku;
+            });
             console.log(value.rowCount);
-            return Responce.resSuccess(res,successMessage.success, value.rows);
+            return Responce.resSuccess(res,successMessage.success, detail);
         } catch (error) {
-            return Responce.resError(res, errorMessage.saveError);
+            throw error
+            // return Responce.resError(res, errorMessage.saveError);
         } finally {
             res.end();
         }

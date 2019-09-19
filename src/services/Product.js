@@ -107,7 +107,7 @@ async function homepageCustomer(req, res, next) {
             index.timeend = moment(index.timeend).format('YYYY-MM-DD HH:mm:ss');
             index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');
 
-            const addTime = index.timeend = moment(index.timeend).add(7, 'h');
+            const addTime = index.timeend = moment(index.timeend).subtract(7, 'h');
             const endTime = index.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
 
             const startTime = index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');
@@ -188,6 +188,37 @@ async function getCartCustomer(req, res, next) {
         res.end();
     }
 }
+async function getOnlyCart(req, res, next) {
+    const { headers } = req;
+    const subtoken = headers.authorization.split(' ');
+    const token = subtoken[1];
+    const decode = helper.Helper.verifyToken(token);
+    const sql = `select 
+    product.proname, product.photo,
+    orderdetail.address, orderdetail.phonenumber,
+    eventproduct.countdowntime,
+    productoption.sku, productoption.price, productoption.includingvat, productoption.optionvalue
+    from orderproduct 
+    full join member on member.userid = orderproduct.userid
+    full join orderdetail on orderdetail.orderid = orderproduct.orderid
+    full join productoption on productoption.proopid = orderdetail.proopid
+    full join shipping on shipping.shipid = orderproduct.shipid
+    full join payment on payment.payid = orderproduct.payid
+    full join product on product.proid =  productoption.proid
+    full join eventdetail on  eventdetail.proopid = productoption.proopid
+    full join eventproduct on eventproduct.eventid = eventdetail.eventid
+    where member.userid = $1 and orderproduct.orderid = $2`
+    const value = [decode.data.id];
+    //!(@*$(*!@&$*(!@&*$(&!@*($&(!@*&$*(!@*($&!@*($&(!@&$*(@!*(&$(*!@&*$@!&())))))))))))))
+    try {
+        const { rows } = await db.query(sql, value);
+        return Responce.resSuccess(res, successMessage.success, rows);
+    } catch (error) {
+        return Responce.resError(res, errorMessage.saveError);
+    } finally {
+        res.end();
+    }
+}
 async function cartCustomer(req, res, next) {
     const { productname, address, phonenumber, countdowntime, amount , sellerid} = req.body
     const optionJson = JSON.parse(req.body.option);
@@ -211,13 +242,11 @@ async function cartCustomer(req, res, next) {
     //EVENT DETIAL
     const sqlEventDetail = `insert into eventdetail (eventid, proopid) values ($1, $2);`
     // SHIPPING  
-    const shipstatusid = '8281b638-f615-42fe-bb24-79889675016a'; // กำลังส่งรายการการสั่งซื้อไปที่ผู้ขาย
-    const sqlShipping = `insert into shipping (active, shipstatusid) values ($1, $2) returning shipid`
-    const valueShipping = [active, shipstatusid];
+    const sqlShipping = `insert into shipping (active) values ($1) returning shipid`
+    const valueShipping = [active];
     // PAYMENT  
-    const paystatusid = 'a200f736-7282-446b-85e1-eec6fb15da3f'; // ต้องชำระ
-    const sqlPayment = `insert into payment (active, paystatusid )values ($1, $2) returning payid`
-    const valuePayment = [active, paystatusid];
+    const sqlPayment = `insert into payment (active )values ($1) returning payid`
+    const valuePayment = [active];
     // ORDER PRODUCT
     const sqlOrderProduct = `insert into orderproduct (active, userid, payid, shipid, eventid) values ($1, $2, $3, $4, $5) returning orderid`
     // ORDER DETAIL
