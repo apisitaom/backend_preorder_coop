@@ -14,7 +14,6 @@ const optionValue = {
         let data = req.files.map( (item, index) =>  item.filename )
         const picture = [];
         picture.push(data);
-
         const insertProduct = 'INSERT INTO product(active,datemodify,proname,prodetail,photo,sellerid) VALUES($1,$2,$3,$4,$5,$6) returning proid'
         const valueProduct = [active, today, productname, detail, data, sellerid]
         try{

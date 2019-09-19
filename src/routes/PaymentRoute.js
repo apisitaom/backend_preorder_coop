@@ -4,6 +4,8 @@ const auth = require('../lib/Auth');
 const payment = require('../services/payment');
 
 router.get('/', (req, res, next)=>{res.json('PAYMENT ROUTER')});
-router.get('/lists',auth.userVerifyToken, payment.getPayment);
+router.get('/lists',auth.userVerifyToken ,payment.getPay);
 
-module.exports = router;``
+router.post('/add',img.upload, payment.payment);
+
+module.exports = router;

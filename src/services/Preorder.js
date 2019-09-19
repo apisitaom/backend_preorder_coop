@@ -32,12 +32,10 @@ const Preorder = {
     },
     async getProductPreorder (req,res, next) {
         const sql = `select
-        *
+        product.proid
         from productoption 
         full join product on product.proid = productoption.proid
-        full join eventdetail on eventdetail.proopid = productoption.proopid
-        full join eventproduct on eventproduct.eventid = eventdetail.eventid
-        where productoption.types ='preorder' and product.sellerid = $1`
+        where productoption.types ='preorder' and product.sellerid = $1 group by product.proid`
         let responce = [];
         try {
             const value = await db.query(sql, [req.params.id]);

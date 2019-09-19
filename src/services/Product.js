@@ -86,15 +86,18 @@ const Product = {
 }
 
 async function homepageCustomer(req, res, next) {
-    const sql = `select productoption.sku, productoption.price,
+    const sql = `select 
+    product.proid,productoption.sku, productoption.price,
     productoption.includingvat, productoption.optionvalue,
     product.photo, product.proname,product.prodetail,
-    eventdetail.totalproduct, eventproduct.timestart,eventproduct.timeend
+    eventdetail.totalproduct, eventproduct.timestart,eventproduct.timeend,
+    seller.sellerid
     from productoption 
     full join product on product.proid = productoption.proid
     full join eventdetail on eventdetail.proopid = productoption.proopid
     full join eventproduct on eventproduct.eventid = eventdetail.eventid
-    where productoption.types ='preorder' `
+    full join seller on seller.sellerid = product.sellerid 
+    where productoption.types ='preorder'`
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     const products = [];
     try {
@@ -152,12 +155,10 @@ async function insertProductHomepage(req, res, next) {
     }
 }
 async function getCartCustomer(req, res, next) {
-
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-
     const sql = `select 
     product.proname, product.photo,
     orderdetail.address, orderdetail.phonenumber,
@@ -177,7 +178,6 @@ async function getCartCustomer(req, res, next) {
     full join eventdetail on  eventdetail.proopid = productoption.proopid
     full join eventproduct on eventproduct.eventid = eventdetail.eventid
     where member.userid = $1`
-
     const value = [decode.data.id];
     try {
         const { rows } = await db.query(sql, value);
@@ -189,7 +189,7 @@ async function getCartCustomer(req, res, next) {
     }
 }
 async function cartCustomer(req, res, next) {
-    const { productname, address, phonenumber, countdowntime, amount } = req.body
+    const { productname, address, phonenumber, countdowntime, amount , sellerid} = req.body
     const optionJson = JSON.parse(req.body.option);
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     const active = true;
@@ -202,8 +202,8 @@ async function cartCustomer(req, res, next) {
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
     // PRODUCT 
-    const sqlProduct = `insert into product (active, proname, photo, userid) values ($1, $2, $3, $4) returning proid`
-    const valueProduct = [active, productname, data, decode.data.id];
+    const sqlProduct = `insert into product (active, proname, photo, userid, sellerid) values ($1, $2, $3, $4, $5) returning proid`
+    const valueProduct = [active, productname, data, decode.data.id, sellerid];
     // EVENT PRODUCT
     const sqlEventProduct = `insert into eventproduct (active, countdowntime) values ($1, $2) returning eventid`
     const valueEventProduct = [active, countdowntime]; // I change count downtime is timestamp!
@@ -248,14 +248,11 @@ async function cartCustomer(req, res, next) {
         res.end();
     }
 }
-
 async function shopCustomer(req, res, next) {
-
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-
     const sql = `select 
     product.photo, product.proname, 
     seller.address, seller.subdistrict, seller.district, seller.zipcode, 
@@ -343,7 +340,6 @@ async function preOrder( req, res, next){
         res.end();
     }
 }
-
 
 module.exports = {
     Product,
