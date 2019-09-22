@@ -107,7 +107,7 @@ async function homepageCustomer(req, res, next) {
             index.timeend = moment(index.timeend).format('YYYY-MM-DD HH:mm:ss');
             index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');
 
-            const addTime = index.timeend = moment(index.timeend).subtract(7, 'h');
+            const addTime = index.timeend = moment(index.timeend).add(7, 'h');
             const endTime = index.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
 
             const startTime = index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');
@@ -160,10 +160,9 @@ async function getCartCustomer(req, res, next) {
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
     const sql = `select 
+    orderproduct.orderid,
     product.proname, product.photo,
     orderdetail.address, orderdetail.phonenumber,
-    shippingstatus.shippingstatusname,
-    paymentstatus.statusname,
     eventproduct.countdowntime,
     productoption.sku, productoption.price, productoption.includingvat, productoption.optionvalue
     from orderproduct 
@@ -171,45 +170,12 @@ async function getCartCustomer(req, res, next) {
     full join orderdetail on orderdetail.orderid = orderproduct.orderid
     full join productoption on productoption.proopid = orderdetail.proopid
     full join shipping on shipping.shipid = orderproduct.shipid
-    full join shippingstatus on shippingstatus.shipstatusid = shipping.shipstatusid
     full join payment on payment.payid = orderproduct.payid
-    full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
     full join product on product.proid =  productoption.proid
     full join eventdetail on  eventdetail.proopid = productoption.proopid
     full join eventproduct on eventproduct.eventid = eventdetail.eventid
     where member.userid = $1`
     const value = [decode.data.id];
-    try {
-        const { rows } = await db.query(sql, value);
-        return Responce.resSuccess(res, successMessage.success, rows);
-    } catch (error) {
-        return Responce.resError(res, errorMessage.saveError);
-    } finally {
-        res.end();
-    }
-}
-async function getOnlyCart(req, res, next) {
-    const { headers } = req;
-    const subtoken = headers.authorization.split(' ');
-    const token = subtoken[1];
-    const decode = helper.Helper.verifyToken(token);
-    const sql = `select 
-    product.proname, product.photo,
-    orderdetail.address, orderdetail.phonenumber,
-    eventproduct.countdowntime,
-    productoption.sku, productoption.price, productoption.includingvat, productoption.optionvalue
-    from orderproduct 
-    full join member on member.userid = orderproduct.userid
-    full join orderdetail on orderdetail.orderid = orderproduct.orderid
-    full join productoption on productoption.proopid = orderdetail.proopid
-    full join shipping on shipping.shipid = orderproduct.shipid
-    full join payment on payment.payid = orderproduct.payid
-    full join product on product.proid =  productoption.proid
-    full join eventdetail on  eventdetail.proopid = productoption.proopid
-    full join eventproduct on eventproduct.eventid = eventdetail.eventid
-    where member.userid = $1 and orderproduct.orderid = $2`
-    const value = [decode.data.id];
-    //!(@*$(*!@&$*(!@&*$(&!@*($&(!@*&$*(!@*($&!@*($&(!@&$*(@!*(&$(*!@&*$@!&())))))))))))))
     try {
         const { rows } = await db.query(sql, value);
         return Responce.resSuccess(res, successMessage.success, rows);
@@ -252,7 +218,6 @@ async function cartCustomer(req, res, next) {
     // ORDER DETAIL
     const sqlOrderDetail = `insert into orderdetail (active, amount, address, phonenumber, orderid, proopid) values ($1, $2, $3, $4, $5, $6)`
     try {
-
             const product = await db.query(sqlProduct, valueProduct);
             const eventproduct = await db.query(sqlEventProduct, valueEventProduct);
             const sqlProductoption = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid,includingvat) VALUES($1,$2,$3,$4,$5,$6,$7) returning proopid'
@@ -305,26 +270,39 @@ async function shopCustomer(req, res, next) {
         res.end();
     }
 }
-async function getProduct(req, res, next) {
-    const { id } = req.params
-    const sql = `select product.proname, product.photo, 
-    eventproduct.timestart, eventproduct.timeend, eventproduct.countdowntime, 
-    productoption.sku, productoption.price, productoption.includingvat, productoption.optionvalue 
-    from product 
-    full join productoption on productoption.proid = product.proid
-    full join eventdetail on eventdetail.proopid = productoption.proid 
-    full join eventproduct on eventproduct.eventid = eventdetail.eventid 
-    where product.active = true and product.proid = $1`
-    const value = [id];
-    try {
-        const { rows } = await db.query(sql, value);
-        return Responce.resSuccess(res, successMessage.success, rows);
-    } catch (error) {
-        return Responce.resError(res, errorMessage.saveError);
-    } finally {
-        res.end();
+async function getProduct(req, res) {
+        const detail = []
+        const getPopup = `select 
+        product.proid,product.photo,product.proname, product.prodetail,
+        productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue,
+        seller.sellername
+        from product
+        inner join productoption on product.proid = productoption.proid
+        full join seller on seller.sellerid = product.sellerid 
+        where product.proid = $1` ;
+        try {
+            const { rows } = await db.query(getPopup, [req.params.id]);
+            for (let i = 0; i < rows.length; i++) {
+                let obj = {
+                    'price': rows[i].price,
+                    'optionvalue': rows[i].optionvalue,
+                    'sku': rows[i].sku,
+                    'vat': rows[i].includingvat
+                }
+                detail.push(obj)
+            }
+            const tranfrom = {
+                sellername: rows[0].sellername,
+                photo: rows[0].photo,
+                proname: rows[0].proname,
+                detail: rows[0].prodetail,
+                results: detail
+            }
+            return Responce.resSuccess(res, successMessage.success, tranfrom);
+        } catch (error) {
+            return Responce.resError(res, errorMessage.saveError);
+        }
     }
-}
 
 async function preOrder( req, res, next){
     const {productid, date, time, hour} = req.body;

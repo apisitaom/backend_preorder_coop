@@ -33,7 +33,7 @@ const Preorder = {
     async getProductPreorder (req,res, next) {
         // product.proname, product.prodetail,product.photo
         const sql = `select
-        product.proid,product.proname, product.photo,
+        product.proid,product.proid,product.proname, product.photo,
         productoption.sku, productoption.price, productoption.includingvat,productoption.optionvalue,
         eventproduct.timestart,eventproduct.timeend,
         eventdetail.totalproduct
@@ -52,6 +52,7 @@ const Preorder = {
             value.rows.map(async(element, index)=> {
                 
                 let data = {
+                    productid : value.rows[index].proid,
                     proname: value.rows[index].proname,
                     datestart: moment(value.rows[index].timestart).format('YYYY-MM-DD HH:mm:ss'),
                     dateend: moment(value.rows[index].timeend).format('YYYY-MM-DD HH:mm:ss'),
@@ -66,11 +67,9 @@ const Preorder = {
                 detail.push(data);
                 return value.rows[index].sku;
             });
-            console.log(value.rowCount);
             return Responce.resSuccess(res,successMessage.success, detail);
         } catch (error) {
-            throw error
-            // return Responce.resError(res, errorMessage.saveError);
+            return Responce.resError(res, errorMessage.saveError);
         } finally {
             res.end();
         }
