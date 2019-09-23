@@ -5,77 +5,30 @@ const Responce = require('../lib/Reposnce');
 const moment = require('moment');
 const helper = require('../lib/Helper');
 
-// async function getPay (req, res, next) {
-//     const { headers } = req;
-//     const subtoken = headers.authorization.split(' ');
-//     const token = subtoken[1];
-//     const decode = helper.Helper.verifyToken(token);
-//     const sql = `select 
-//     product.photo, product.prodetail, product.proname,
-//     productoption.sku, productoption.price,productoption.optionvalue
-//     from orderproduct 
-//     full join member on member.userid = orderproduct.userid
-//     full join orderdetail on orderdetail.orderid = orderproduct.orderid
-//     full join productoption on productoption.proopid = orderdetail.proopid
-//     full join product on product.proid =  productoption.proid
-//     where member.userid = $1`
-//     const value = [decode.data.id]
-//     try {
-//         const { rows } = await db.query(sql, value  );
-//         return Responce.resSuccess(res, successMessage.success, rows);
-//     } catch (error) {
-//         return Responce.resError(res, errorMessage.saveError);
-//     } finally {
-//         res.end();
-//     }
-// }
-
 async function getPay (req, res, next) {
-    const sql = `select * from product`
-        const getPopup = `select 
-        product.proid,product.photo,product.proname, product.prodetail,
-        productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue
-        from product
-        inner join productoption on product.proid = productoption.proid 
-        where product.proid = $1` ;
-        let tranfrom = [];
-        const detail = []
-        let obj = [];
-        let responce = [];
-        try {
-            const product = await db.query(sql);
-            for (let j = 0;j< product.rowCount; j++) {
-            const { rows } = await db.query(getPopup, [product.rows[j].proid]);
-            for (let i = 0; i < rows.length; i++) {
-                obj = {
-                    'price': rows[i].price,
-                    'optionvalue': rows[i].optionvalue,
-                    'sku': rows[i].sku,
-                    'vat': rows[i].includingvat
-                }
-                responce.push(obj);
-            }
-            tranfrom = {
-                proid: product.rows[j].proid,
-                proname: product.rows[j].proname,
-                detail: product.rows[j].prodetail,
-                results: responce[j]
-            }
-            detail.push(tranfrom);
-        }
-        return Responce.resSuccess(res, successMessage.success, detail);
+    const { headers } = req;
+    const subtoken = headers.authorization.split(' ');
+    const token = subtoken[1];
+    const decode = helper.Helper.verifyToken(token);
+    const sql = `select 
+    product.photo, product.prodetail, product.proname,
+    productoption.sku, productoption.price,productoption.optionvalue
+    from orderproduct 
+    full join member on member.userid = orderproduct.userid
+    full join orderdetail on orderdetail.orderid = orderproduct.orderid
+    full join productoption on productoption.proopid = orderdetail.proopid
+    full join product on product.proid =  productoption.proid
+    where member.userid = $1`
+    const value = [decode.data.id]
+    try {
+        const { rows } = await db.query(sql, value  );
+        return Responce.resSuccess(res, successMessage.success, rows);
     } catch (error) {
         return Responce.resError(res, errorMessage.saveError);
     } finally {
         res.end();
     }
 }
-
-
-
-
-
-
 //payment ต่อจาก cart/add
 async function payment (req, res, next) {
     const {total, day, time, sellerid, } = req.body;  

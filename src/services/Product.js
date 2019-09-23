@@ -86,43 +86,35 @@ const Product = {
 }
 
 async function homepageCustomer(req, res, next) {
-    const sql = `select 
-    product.proid,productoption.sku, productoption.price,
-    productoption.includingvat, productoption.optionvalue,
-    product.photo, product.proname,product.prodetail,
-    eventdetail.totalproduct, eventproduct.timestart,eventproduct.timeend,
-    seller.sellerid
-    from productoption 
-    full join product on product.proid = productoption.proid
-    full join eventdetail on eventdetail.proopid = productoption.proopid
-    full join eventproduct on eventproduct.eventid = eventdetail.eventid
-    full join seller on seller.sellerid = product.sellerid 
-    where productoption.types ='preorder'`
-    const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-    const products = [];
+    const sql = `select proid,active,proname,prodetail,photo,sellerid from product where active = true`
     try {
-        const { rows } = await db.query(sql);
-        rows.map(index => {
-            index.timeend = moment(index.timeend).add(7, 'h');
-            index.timeend = moment(index.timeend).format('YYYY-MM-DD HH:mm:ss');
-            index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');
-
-            const addTime = index.timeend = moment(index.timeend).add(7, 'h');
-            const endTime = index.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
-
-            const startTime = index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');
-            if (endTime > date && date > startTime) {
-                products.push(index);
-            } else {
-                return delete index;
+        const product = await db.query(sql);
+        const tranfrom = await Promise.all(product.rows.map(async(item) => {
+        const option = await getOption(item.proid);
+            return {
+                productid: item.proid,
+                productname: item.proname,
+                productdetail: item.prodetail,
+                result: option
             }
-        });
-        return Responce.resSuccess(res, successMessage.success, products);
+        }));
+        return Responce.resSuccess(res, successMessage.success, tranfrom);
     } catch (error) {
         return Responce.resError(res, errorMessage.saveError);
     } finally {
         res.end();
     }
+}
+async function getOption (productid) {
+    const sql = `select sku,price,includingvat,optionvalue from productoption where proid = $1 and types = 'preorder'`
+    return new Promise(async(resolve , reject) => {
+        try {
+            const { rows } = await db.query(sql, [productid]);
+            resolve(rows);
+        } catch (error) {
+            reject(error)
+        }
+    });
 }
 
 async function insertProductHomepage(req, res, next) {
