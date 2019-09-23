@@ -139,10 +139,9 @@ async function homepageCustomer(req, res, next) {
             }
         });
     }
-
 async function insertProductHomepage(req, res, next) {
 
-    const { amount, userid, proopid } = req.body
+    const { amount, userid, proopid } = req.body;
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
@@ -153,7 +152,6 @@ async function insertProductHomepage(req, res, next) {
     const valuesOrderProduct = [active, userid];
     const sqlOrderDetail = `insert into orderdetail (active, amount, proopid, orderid) values ($1, $2, $3, $4)`
     try {
-
         await db.query('BEGIN');
         // ORDER PRODUCT
         const orderproduct = await db.query(sqlOrderProduct, valuesOrderProduct);
