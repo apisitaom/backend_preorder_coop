@@ -187,7 +187,8 @@ CREATE TABLE public.payment (
     datemodify timestamp without time zone,
     slip character varying(255),
     summary double precision,
-    paystatusid uuid
+    paystatusid uuid,
+    datepayment timestamp without time zone
 );
 
 
@@ -240,7 +241,8 @@ CREATE TABLE public.productoption (
     price double precision,
     includingvat double precision,
     optionvalue json[],
-    proid uuid
+    proid uuid,
+    types character varying(60)
 );
 
 
