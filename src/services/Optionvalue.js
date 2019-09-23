@@ -7,12 +7,6 @@ const helper = require('../lib/Helper');
 
 const optionValue = {
     async insert (req,res){
-
-        // const { headers } = req;
-        // const subtoken = headers.authorization.split(' ');
-        // const token = subtoken[1];
-        // const decode = helper.Helper.verifyToken(token);
-
         const {productname,detail,sellerid} = req.body
         const optionJson = JSON.parse(req.body.option)
         const today = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
@@ -22,8 +16,7 @@ const optionValue = {
         const picture = [];
         picture.push(data);
         const insertProduct = 'INSERT INTO product(active,datemodify,proname,prodetail,photo,sellerid) VALUES($1,$2,$3,$4,$5,$6) returning proid'
-        const valueProduct = [active, today, productname, detail, data, sellerid]
-
+        const valueProduct = [active, today, productname, detail, data, sellerid];
         try{
             const returnProduct = await db.query(insertProduct,valueProduct)
             const insertPOp = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid,includingvat, types) VALUES($1,$2,$3,$4,$5,$6,$7,$8) returning proopid'

@@ -86,19 +86,27 @@ const Product = {
 }
 
 async function homepageCustomer(req, res, next) {
-        const sql = `select * from product`
+        const sql = `select proid,proname,prodetail,photo,sellerid from product`;
+        const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+        let responce = [];
+        
         try {
             const product = await db.query(sql);
             const tranfrom = await Promise.all(product.rows.map(async(item) => {
             const option = await getOption(item.proid);
-            return {
-                    productid: item.proid,
-                    productname: item.proname,
-                    productdetail: item.prodetail,
+            if (option[0] !== undefined) {
+                let obj = {
+                    proid: item.proid,
+                    photo: item.photo,
+                    sellerid: item.sellerid,
+                    proname: item.proname,
+                    prodetail: item.prodetail,
                     result: option
                 }
+                responce.push(obj);
+            }
             }));
-            return Responce.resSuccess(res, successMessage.success, tranfrom);
+            return Responce.resSuccess(res, successMessage.success, responce);
         } catch (error) {
             return Responce.resError(res, errorMessage.saveError);
         } finally {
@@ -124,12 +132,11 @@ async function homepageCustomer(req, res, next) {
                     index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');                    
                     const addTime = index.timeend = moment(index.timeend).add(7, 'h');
                     const endTime = index.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
-        
                     const startTime = index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');
                     if (endTime > date && date > startTime) {
                         products.push(index);
                     } else {
-                        return delete index;
+                        delete index
                     }
                 });
                 resolve(products);
@@ -140,7 +147,6 @@ async function homepageCustomer(req, res, next) {
         });
     }
 async function insertProductHomepage(req, res, next) {
-
     const { amount, userid, proopid } = req.body;
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
