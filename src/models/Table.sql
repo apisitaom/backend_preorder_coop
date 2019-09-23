@@ -4,7 +4,7 @@
 --ADMIN
 create table admin (
     id                  uuid primary key         default gen_random_uuid(),
-    email               varchar(128) not null,
+    email               varchar(128) not null UNIQUE,
     password            varchar(128) not null,
     created_date        timestamp default now(),
     modified_date       timestamp
@@ -99,7 +99,7 @@ create table Seller(
     email               varchar(255) UNIQUE,
     sellerPassword      varchar(60)  not null,
     taxId               varchar(60)  ,
-    photo               text [],
+    photo               varchar(60),
 
     bankId              uuid   REFERENCES Bank(bankId),
     promptpayId         uuid   REFERENCES Promptpay (promptpayId)
@@ -113,7 +113,7 @@ create table Payment(
     datemodify          timestamp,
     slip                varchar(255),--photo
     summary             float  ,
-
+    datepayment         timestamp,
     payStatusId         uuid  ,
     FOREIGN KEY (payStatusId) REFERENCES PaymentStatus (payStatusId)
 );
@@ -139,7 +139,7 @@ create table Product(
     datemodify          timestamp,
     proName             varchar(50)  ,
     proDetail           varchar(50)  ,
-    photo               varchar(255)  ,
+    photo               text [] ,
 
     sellerId            uuid  ,
     userid              uuid ,
@@ -158,6 +158,8 @@ create table ProductOption(
     price               float,
     includingvat        float,
     optionvalue         json[],
+        --กำหนดว่าสินค้าเป็น pre_order หรือไม่
+    types            varchar(60),
 
     proId               uuid ,
     FOREIGN key (proId) REFERENCES Product (proId)
@@ -211,8 +213,11 @@ create table OrderDetail(
     createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,    
-    amount              integer  ,
-    
+    amount              integer,
+    address             varchar(500),
+    phone               varchar(20),
+    phoneNumber         varchar(100),
+
     orderId             uuid  ,
     proOpId               uuid  ,
     FOREIGN KEY (orderId) REFERENCES OrderProduct(orderId),

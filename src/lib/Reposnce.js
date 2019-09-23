@@ -6,7 +6,6 @@ async function resSuccess(res, message, get) {
         data: get,
     });
 }
-
 async function resError(res, message, get) {
     res.send({
         code: 500,
@@ -14,8 +13,17 @@ async function resError(res, message, get) {
         data: get,
     });
 }
+async function resSuccuessToken(res, message, datas, tokens) {
+    res.send({
+        code: 200,
+        msg: message,
+        data: datas,
+        token: tokens,
+    });
+}
 
 module.exports = {
     resSuccess,
     resError,
+    resSuccuessToken
 }

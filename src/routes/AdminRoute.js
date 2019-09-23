@@ -1,15 +1,9 @@
-const router = require('express').Router()
+const router = require('express').Router();
+const admin = require('../services/Admin');
 
-const admin = require('../services/AdminService')
+router.get('/',(req,res)=>{res.json('ADMIN ROUTER')});
 
-router.get('/',(req,res)=>{
-    res.json('ADMIN ROUTER')
-})
+router.post('/add',admin.add);
+router.post('/login', admin.login);
 
-//LOGIN ADMIN
-router.post('/login',admin.Admin.login)
-
-//REGISTER ADMIN
-router.post('/register',admin.Admin.createAdmin)
-
-module.exports = router
+module.exports = router;

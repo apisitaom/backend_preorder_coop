@@ -1,4 +1,7 @@
-const con = require('../configdb/config')
+const db = require('../configdb/configDB');
+const errorMessage = require('../lib/errorMessage');
+const successMessage = require('../lib/successMessage');
+const Responce = require('../lib/Reposnce');
 
 const Order = {
     async getOrderDetail (req, res) {
@@ -20,7 +23,7 @@ const Order = {
                             FULL JOIN paymentstatus pays ON pay.paystatusid = pays.paystatusid
                             WHERE op.orderid IS NOT NULL and p.sellerid = $1`
         try {
-            const result = await con.pool.query(queryText,[id])
+            const result = await db.query(queryText,[id])
             for (let i = 0; i < (result.rows).length ;i++) {
                 let value = {
                     orderid : result.rows[0].orderid,
@@ -40,19 +43,11 @@ const Order = {
                 } 
                 resp.push(value)             
             }
-            const response = {
-                status : "200",
-                message : "success",
-                result : resp
-            }
-            return res.status(200).send(response)
+            return Responce.resSuccess(res, successMessage.success, resp);
         } catch (error) {
-            const response = {
-                status : "400",
-                message : "error"
-            }
-            res.status(400).send(response)
-            console.log(error)
+            return Responce.resError(res, errorMessage.saveError);
+        } finally {
+            res.end();
         }
     }
 }
