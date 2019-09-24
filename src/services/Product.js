@@ -129,7 +129,7 @@ async function homepageCustomer(req, res, next) {
             try {
                 const { rows } = await db.query(sql, [productid]);
                 rows.map(index => {
-                    index.timeend = moment(index.timeend).add(7, 'h');
+                    index.timeend = moment(index.timeend).subtract(7, 'h');
                     index.timeend = moment(index.timeend).format('YYYY-MM-DD HH:mm:ss');
                     index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');                    
                     const addTime = index.timeend = moment(index.timeend).add(7, 'h');

@@ -34,7 +34,7 @@ const moment = require('moment');
     let responce = [];
     try {
         const product = await db.query(sql, [req.params.id]);
-        const transfrom = await Promise.all(product.rows.map(async(item) => {
+        await Promise.all(product.rows.map(async(item) => {
         const option = await getOption(item.proid);
         if (option[0] !== undefined) {
             let obj = {
@@ -74,19 +74,19 @@ async function getOption (productid) {
         try {
             const { rows } = await db.query(sql, [productid]);
                 rows.map(index => {
-                    index.timeend = moment(index.timeend).add(7, 'h');
+                    index.timeend = moment(index.timeend).subtract(7, 'h');
                     index.timeend = moment(index.timeend).format('YYYY-MM-DD HH:mm:ss');
                     index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');                    
                     const addTime = index.timeend = moment(index.timeend).add(7, 'h');
                     const endTime = index.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
                     const startTime = index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');
-                    if (endTime > date && date > startTime) {
-                        products.push(index);
-                    } else {
-                        delete index;
-                    }
+                    // if (endTime > date && date > startTime) {
+                    //     products.push(index);
+                    // } else {
+                    //     delete index;
+                    // }
                 });
-                resolve(products);
+                resolve(rows);
                 res.end();
         } catch (error) {
             reject(error)
