@@ -157,7 +157,7 @@ create table ProductOption(
     createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
-    sku                 varchar(60),
+    sku                 varchar(60) UNIQUE,
     price               float,
     includingvat        float,
     optionvalue         json[],

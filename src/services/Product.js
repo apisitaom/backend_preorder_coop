@@ -104,7 +104,10 @@ async function homepageCustomer(req, res, next) {
             // } else {
             //     delete item;
             // }
+                // console.log(products);
 
+
+                
             // option.map(async(index)=> {
             //     let obj = {
             //         proid: item.proid,
