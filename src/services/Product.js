@@ -88,50 +88,37 @@ async function homepageCustomer(req, res, next) {
         const sql = `select proid,proname,prodetail,photo,sellerid,timestart,timeend from product`;
         let responce  = [];
         let products = [];
+        const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
         try {
             const product = await db.query(sql);
-            const tranfrom = await Promise.all(product.rows.map(async(item) => {
+            await Promise.all(product.rows.map(async(item) => {
             const option = await getOption(item.proid);
-            
-            // item.timeend = moment(item.timeend).subtract(7, 'h')
-            // item.timeend = moment(item.timeend).format('YYYY-MM-DD HH:mm:ss');
-            // item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');                    
-            // const addTime = item.timeend = moment(item.timeend).add(7, 'h');
-            // const endTime = item.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
-            // const startTime = item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');
-            // if (endTime > date && date > startTime) {
-            //     products.push(item);
-            // } else {
-            //     delete item;
-            // }
-
-            // option.map(async(index)=> {
-            //     let obj = {
-            //         proid: item.proid,
-            //         proname: item.proname,
-            //         prodetail: item.prodetail,
-            //         photo: item.photo,
-            //         sellerid: item.sellerid,
-            //         result :option,
-            //         event: eventdetail
-            //     }
-            //     responce.push(obj);
-            // });
-            return {
-                proid: item.proid,
-                proname: item.proname,
-                prodetail: item.prodetail,
-                photo: item.photo,
-                sellerid: item.sellerid,
-                timestart:item.timestart,
-                timeend: item.timeend,
-                result :option,
+ 
+            if(item.timestart !== null){
+            item.timeend = moment(item.timeend).subtract(7, 'h');
+            item.timeend = moment(item.timeend).format('YYYY-MM-DD HH:mm:ss');
+            item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');                    
+            const addTime = item.timeend = moment(item.timeend).add(7, 'h');
+            const endTime = item.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
+            const startTime = item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');
+            if (endTime > date && date > startTime) {
+                let obj = {
+                    proid: item.proid,
+                    proname: item.proname,
+                    prodetail: item.prodetail,
+                    photo: item.photo,
+                    sellerid: item.sellerid,
+                    timestart:item.timestart,
+                    timeend: item.timeend,
+                    result :option,
+                }
+                products.push(obj);
             }
+        }
             }));
-            return Responce.resSuccess(res, successMessage.success, tranfrom);
+            return Responce.resSuccess(res, successMessage.success, products);
         } catch (error) {
-            throw error
-            // return Responce.resError(res, errorMessage.saveError);
+            return Responce.resError(res, errorMessage.saveError);
         } finally {
             res.end();
         }
@@ -148,24 +135,6 @@ async function getOption (productid) {
             reject(error)
         }
     });
-}
-async function getEventdetail (proopid) {
-    const sql = `select 
-    eventdetail.totalproduct,
-    eventproduct.timestart,eventproduct.timeend
-    from eventdetail
-    inner join eventproduct on eventproduct.eventid = eventdetail.eventid
-    where eventdetail.proopid = $1`;
-    return new Promise(async(resolve, reject) => {
-        try{
-            const { rows } = await db.query(sql, [proopid]);
-            resolve(rows);
-            res.end();
-        } catch (error){
-            reject(error);
-        }
-    });
-
 }
 async function insertProductHomepage(req, res, next) {
     const { amount, userid, proopid } = req.body;
@@ -357,37 +326,34 @@ async function preOrder( req, res, next){
     const ends = moment(dates).format('YYYY-MM-DD HH:mm:ss');
     const end = moment(ends).add(hour, 'h');
     const types = 'preorder';
-    
-    const sqlProduct = `select * from product where proid = $1`;
-    const valueProduct = [productid];
-
     try {
+        const sqlProduct = `select * from product where proid = $1`;
+        const valueProduct = [productid];
         const { rows } = await db.query(sqlProduct, valueProduct);
         const sql = `insert into product (active, proname, prodetail, photo, sellerid, timestart, timeend) values ($1, $2, $3, $4, $5, $6, $7) returning proid`;
         const value = [active,rows[0].proname, rows[0].prodetail, rows[0].photo, rows[0].sellerid, days, new Date(end.toString())];
         const product = await db.query(sql, value);
-        optionJson.forEach(async (element, index) => {                
-        const sqlProductoption = `insert into productoption (active, sku, price, optionvalue,includingvat, proid, types, totalproduct) values ($1, $2, $3, $4, $5, $6, $7, $8) returning proopid `;
-        const valueProductoption = [active, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, optionJson[index].vat, product.rows[0].proid, types, optionJson[index].amount];
-        await db.query (sqlProductoption, valueProductoption);
-        // const sqlEventproduct = `insert into eventproduct(active, timestart, timeend) values ($1, $2, $3) returning eventid`;
-        // const valueEventproduct = [active, days, new Date(end.toString())];
-        // const eventproduct = await db.query(sqlEventproduct, valueEventproduct);
-        // const sqlEventdetail =`insert into eventdetail ( totalproduct,eventid, proopid) values ($1, $2, $3)`
-        // productoption.rows.map(indexs => {
-        //     eventproduct.rows.map(indes => {
-        //         optionJson.forEach(async (element, index) => { 
-        //         const valueEventdetail = [ optionJson[index].amount, indes.eventid, indexs.proopid];
-        //         db.query(sqlEventdetail, valueEventdetail);
-        //         })
-        //     })
-        // })
-    });
-        return Responce.resSuccess(res, successMessage.success);
-    } catch (error) {
-        return Responce.resError(res, errorMessage.saveError);
-    } finally {
-        res.end();
+            optionJson.forEach(async (element, index) => {                
+                const sqlProductoption = `insert into productoption (active, sku, price, optionvalue,includingvat, proid, types, totalproduct) values ($1, $2, $3, $4, $5, $6, $7, $8) returning proopid `;
+                const valueProductoption = [active, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, optionJson[index].vat, product.rows[0].proid, types, optionJson[index].amount];
+                await db.query (sqlProductoption, valueProductoption);
+// const sqlEventproduct = `insert into eventproduct(active, timestart, timeend) values ($1, $2, $3) returning eventid`;
+// const valueEventproduct = [active, days, new Date(end.toString())];
+// const eventproduct = await db.query(sqlEventproduct, valueEventproduct);
+// const sqlEventdetail =`insert into eventdetail ( totalproduct,eventid, proopid) values ($1, $2, $3)`
+// productoption.rows.map(indexs => {
+//     eventproduct.rows.map(indes => {
+//         optionJson.forEach(async (element, index) => { 
+//         const valueEventdetail = [ optionJson[index].amount, indes.eventid, indexs.proopid];
+//         db.query(sqlEventdetail, valueEventdetail);
+//         })
+//     })
+// })
+});
+return Responce.resSuccess(res, successMessage.success);
+} catch (error) {
+    db.query('REVOKE');
+    return Responce.resError(res, errorMessage.saveError);
     }
 }
 

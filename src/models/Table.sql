@@ -46,7 +46,7 @@ create table Member(
     province            varchar(100),
     zipcode             varchar(100),
     photo               varchar(100),
-    email               varchar(100),
+    email               varchar(100) UNIQUE,
     phone               varchar(100),
     passwordUser        varchar(100)
 );
