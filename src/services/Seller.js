@@ -22,37 +22,21 @@ const Seller = {
     const valuePromptpay = [today, activeStatus, today, promptpayname, promptpaynumber]
     const valueBank = [today, activeStatus, today, bankname, accountname, accountnumber]
     try {
-      // if (picture !== 'null') {
-        // ร้านค้าสมัครเเบบอัพรูปภาพ
-        await db.query('BEGIN');
         const rowBankNew = await db.query(insertBank, valueBank)
         const rowPromptpayNew = await db.query(insertPromptpay, valuePromptpay)
         const insertSeller = `INSERT INTO seller(active,datemodify,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,bankid,promptpayid, photo) 
         VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) returning sellerid`
         const value = [activeStatus, today, shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, taxid, rowBankNew.rows[0].bankid, rowPromptpayNew.rows[0].promptpayid, req.files[0].filename]
         await db.query(insertSeller, value);
-        await db.query('COMMIT');
+
         return Response.resSuccess(res, successMessage.success);
-      
-      // } if (picture === 'null') {
-      //   // ร้านค้าสมัครเเบบไม่อัพรูปภาพ
-      //   await db.query('BEGIN');
-      //   const rowBankNew = await db.query(insertBank, valueBank)
-      //   const rowPromptpayNew = await db.query(insertPromptpay, valuePromptpay)
-      //   const insertSeller = `INSERT INTO seller(active,datemodify,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,bankid,promptpayid) 
-      //   VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning sellerid`
-      //   const value = [activeStatus, today, shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, taxid, rowBankNew.rows[0].bankid, rowPromptpayNew.rows[0].promptpayid]
-      //   await db.query(insertSeller, value);
-      //   await db.query('COMMIT');
-      //   return Response.resSuccess(res, successMessage.success);
-      // }
     } catch (error) {
       if (error.routine === '_bt_check_unique') {
         return Response.resError(res, errorMessage.emailInvalid);
       }
       return Response.resError(res, errorMessage.saveError);
     } finally {
-      res.end()
+      res.end();
     }
   },
   async login(req, res) {
