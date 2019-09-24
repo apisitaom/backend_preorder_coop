@@ -29,6 +29,7 @@ async function getPay (req, res, next) {
         res.end();
     }
 }
+
 //payment ต่อจาก cart/add
 async function payment (req, res, next) {
     const {total, day, time, sellerid, } = req.body;  
@@ -37,12 +38,8 @@ async function payment (req, res, next) {
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
     
-    console.log(decode.data.id);
-
     const date = day + ' ' + time;
     
-    console.log(date);
-
     const active = true;
     const sqlPayment = `insert into payment (active, datepayment, summary, slip) values  ($1, $2, $3, $4)`
     const valuePayment = [active, moment(date).format('YYYY-MM-DD HH:mm:ss'), total, req.files[0].filename];
@@ -78,7 +75,6 @@ async function getOrderPayment(req, res, next) {
     full join eventproduct on eventproduct.eventid = eventdetail.eventid
     where member.userid = $1 and orderproduct.orderid = $2`
     const value = [decode.data.id, orderid];
-    //!(@*$(*!@&$*(!@&*$(&!@*($&(!@*&$*(!@*($&!@*($&(!@&$*(@!*(&$(*!@&*$@!&())))))))))))))
     try {
         const { rows } = await db.query(sql, value);
         return Responce.resSuccess(res, successMessage.success, rows);

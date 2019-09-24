@@ -84,15 +84,12 @@ const Product = {
         }
     }
 }
-
 async function homepageCustomer(req, res, next) {
         const sql = `select proid,proname,prodetail,photo,sellerid from product`;
-        const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
         let responce = [];
-        
         try {
             const product = await db.query(sql);
-            const tranfrom = await Promise.all(product.rows.map(async(item) => {
+            await Promise.all(product.rows.map(async(item) => {
             const option = await getOption(item.proid);
             if (option[0] !== undefined) {
                 let obj = {
@@ -101,6 +98,10 @@ async function homepageCustomer(req, res, next) {
                     sellerid: item.sellerid,
                     proname: item.proname,
                     prodetail: item.prodetail,
+                    timestart: moment(option[0].timestart).format('YYYY-MM-DD HH:mm:ss'),
+                    timeend: moment(option[0].timeend).format('YYYY-MM-DD HH:mm:ss'),
+                    hour: moment(option[0].timeend).format('HH'),
+                    time: moment(option[0].timeend).format('HH:mm:ss'),
                     result: option
                 }
                 responce.push(obj);
@@ -116,7 +117,8 @@ async function homepageCustomer(req, res, next) {
     async function getOption (productid) {
         const sql = `select 
         productoption.proopid,productoption.sku,productoption.price,productoption.includingvat,productoption.optionvalue,
-        eventproduct.timestart, eventproduct.timeend
+        eventproduct.timestart, eventproduct.timeend,
+        eventdetail.totalproduct
         from productoption
         full join eventdetail on eventdetail.proopid = productoption.proopid
         full join  eventproduct on  eventproduct.eventid = eventdetail.eventid
@@ -136,7 +138,7 @@ async function homepageCustomer(req, res, next) {
                     if (endTime > date && date > startTime) {
                         products.push(index);
                     } else {
-                        delete index
+                        delete index;
                     }
                 });
                 resolve(products);
@@ -293,8 +295,8 @@ async function getProduct(req, res) {
         const detail = []
         const getPopup = `select 
         product.proid,product.photo,product.proname, product.prodetail,
-        productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue,
-        seller.sellername
+        productoption.proopid,productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue,
+        seller.sellername,seller.sellerid
         from product
         inner join productoption on product.proid = productoption.proid
         full join seller on seller.sellerid = product.sellerid 
@@ -303,6 +305,7 @@ async function getProduct(req, res) {
             const { rows } = await db.query(getPopup, [req.params.id]);
             for (let i = 0; i < rows.length; i++) {
                 let obj = {
+                    'proopid': rows[i].proopid,
                     'price': rows[i].price,
                     'optionvalue': rows[i].optionvalue,
                     'sku': rows[i].sku,
@@ -311,7 +314,9 @@ async function getProduct(req, res) {
                 detail.push(obj)
             }
             const tranfrom = {
+                proid: rows[0].proid,
                 sellername: rows[0].sellername,
+                sellerid: rows[0].sellerid,
                 photo: rows[0].photo,
                 proname: rows[0].proname,
                 detail: rows[0].prodetail,
