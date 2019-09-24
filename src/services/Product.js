@@ -84,42 +84,72 @@ const Product = {
         }
     }
 }
-
 async function homepageCustomer(req, res, next) {
-    const sql = `select proid,active,proname,prodetail,photo,sellerid from product where active = true`
-    try {
-        const product = await db.query(sql);
-        const tranfrom = await Promise.all(product.rows.map(async(item) => {
-        const option = await getOption(item.proid);
-            return {
-                productid: item.proid,
-                productname: item.proname,
-                productdetail: item.prodetail,
-                result: option
-            }
-        }));
-        return Responce.resSuccess(res, successMessage.success, tranfrom);
-    } catch (error) {
-        return Responce.resError(res, errorMessage.saveError);
-    } finally {
-        res.end();
-    }
-}
-async function getOption (productid) {
-    const sql = `select sku,price,includingvat,optionvalue from productoption where proid = $1 and types = 'preorder'`
-    return new Promise(async(resolve , reject) => {
+        const sql = `select proid,proname,prodetail,photo,sellerid from product`;
+        let responce = [];
         try {
-            const { rows } = await db.query(sql, [productid]);
-            resolve(rows);
+            const product = await db.query(sql);
+            await Promise.all(product.rows.map(async(item) => {
+            const option = await getOption(item.proid);
+            if (option[0] !== undefined) {
+                let obj = {
+                    proid: item.proid,
+                    photo: item.photo,
+                    sellerid: item.sellerid,
+                    proname: item.proname,
+                    prodetail: item.prodetail,
+                    timestart: moment(option[0].timestart).format('YYYY-MM-DD HH:mm:ss'),
+                    timeend: moment(option[0].timeend).format('YYYY-MM-DD HH:mm:ss'),
+                    hour: moment(option[0].timeend).format('HH'),
+                    time: moment(option[0].timeend).format('HH:mm:ss'),
+                    result: option
+                }
+                responce.push(obj);
+            }
+            }));
+            return Responce.resSuccess(res, successMessage.success, responce);
         } catch (error) {
-            reject(error)
+            return Responce.resError(res, errorMessage.saveError);
+        } finally {
+            res.end();
         }
-    });
 }
-
+    async function getOption (productid) {
+        const sql = `select 
+        productoption.proopid,productoption.sku,productoption.price,productoption.includingvat,productoption.optionvalue,
+        eventproduct.timestart, eventproduct.timeend,
+        eventdetail.totalproduct
+        from productoption
+        full join eventdetail on eventdetail.proopid = productoption.proopid
+        full join  eventproduct on  eventproduct.eventid = eventdetail.eventid
+        where proid = $1 and types = 'preorder'`
+        const products = [];
+        const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+        return new Promise(async(resolve , reject) => {
+            try {
+                const { rows } = await db.query(sql, [productid]);
+                rows.map(index => {
+                    index.timeend = moment(index.timeend).subtract(7, 'h');
+                    index.timeend = moment(index.timeend).format('YYYY-MM-DD HH:mm:ss');
+                    index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');                    
+                    const addTime = index.timeend = moment(index.timeend).add(7, 'h');
+                    const endTime = index.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
+                    const startTime = index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');
+                    if (endTime > date && date > startTime) {
+                        products.push(index);
+                    } else {
+                        delete index;
+                    }
+                });
+                resolve(products);
+                res.end();
+            } catch (error) {
+                reject(error)
+            }
+        });
+    }
 async function insertProductHomepage(req, res, next) {
-
-    const { amount, userid, proopid } = req.body
+    const { amount, userid, proopid } = req.body;
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
@@ -130,7 +160,6 @@ async function insertProductHomepage(req, res, next) {
     const valuesOrderProduct = [active, userid];
     const sqlOrderDetail = `insert into orderdetail (active, amount, proopid, orderid) values ($1, $2, $3, $4)`
     try {
-
         await db.query('BEGIN');
         // ORDER PRODUCT
         const orderproduct = await db.query(sqlOrderProduct, valuesOrderProduct);
@@ -266,8 +295,8 @@ async function getProduct(req, res) {
         const detail = []
         const getPopup = `select 
         product.proid,product.photo,product.proname, product.prodetail,
-        productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue,
-        seller.sellername
+        productoption.proopid,productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue,
+        seller.sellername,seller.sellerid
         from product
         inner join productoption on product.proid = productoption.proid
         full join seller on seller.sellerid = product.sellerid 
@@ -276,6 +305,7 @@ async function getProduct(req, res) {
             const { rows } = await db.query(getPopup, [req.params.id]);
             for (let i = 0; i < rows.length; i++) {
                 let obj = {
+                    'proopid': rows[i].proopid,
                     'price': rows[i].price,
                     'optionvalue': rows[i].optionvalue,
                     'sku': rows[i].sku,
@@ -284,7 +314,9 @@ async function getProduct(req, res) {
                 detail.push(obj)
             }
             const tranfrom = {
+                proid: rows[0].proid,
                 sellername: rows[0].sellername,
+                sellerid: rows[0].sellerid,
                 photo: rows[0].photo,
                 proname: rows[0].proname,
                 detail: rows[0].prodetail,
@@ -350,4 +382,3 @@ module.exports = {
     cartCustomer,
     preOrder
 }
-
