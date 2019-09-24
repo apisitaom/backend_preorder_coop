@@ -26,6 +26,9 @@ const optionValue = {
             });
                 return Responce.resSuccess(res, successMessage.success);
         }catch(error){
+            if (error.routine === '_bt_check_unique') {
+                return Response.resError(res, errorMessage.sku);
+              }
             return Responce.resError(res, errorMessage.saveError);
         } finally {
             res.end();

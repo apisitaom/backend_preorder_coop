@@ -88,53 +88,37 @@ async function homepageCustomer(req, res, next) {
         const sql = `select proid,proname,prodetail,photo,sellerid,timestart,timeend from product`;
         let responce  = [];
         let products = [];
+        const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
         try {
             const product = await db.query(sql);
-            const tranfrom = await Promise.all(product.rows.map(async(item) => {
+            await Promise.all(product.rows.map(async(item) => {
             const option = await getOption(item.proid);
-            
-            // item.timeend = moment(item.timeend).subtract(7, 'h')
-            // item.timeend = moment(item.timeend).format('YYYY-MM-DD HH:mm:ss');
-            // item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');                    
-            // const addTime = item.timeend = moment(item.timeend).add(7, 'h');
-            // const endTime = item.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
-            // const startTime = item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');
-            // if (endTime > date && date > startTime) {
-            //     products.push(item);
-            // } else {
-            //     delete item;
-            // }
-                // console.log(products);
-
-
-                
-            // option.map(async(index)=> {
-            //     let obj = {
-            //         proid: item.proid,
-            //         proname: item.proname,
-            //         prodetail: item.prodetail,
-            //         photo: item.photo,
-            //         sellerid: item.sellerid,
-            //         result :option,
-            //         event: eventdetail
-            //     }
-            //     responce.push(obj);
-            // });
-            return {
-                proid: item.proid,
-                proname: item.proname,
-                prodetail: item.prodetail,
-                photo: item.photo,
-                sellerid: item.sellerid,
-                timestart:item.timestart,
-                timeend: item.timeend,
-                result :option,
+ 
+            if(item.timestart !== null){
+            item.timeend = moment(item.timeend).subtract(7, 'h')
+            item.timeend = moment(item.timeend).format('YYYY-MM-DD HH:mm:ss');
+            item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');                    
+            const addTime = item.timeend = moment(item.timeend).add(7, 'h');
+            const endTime = item.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
+            const startTime = item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');
+            if (endTime > date && date > startTime) {
+                let obj = {
+                    proid: item.proid,
+                    proname: item.proname,
+                    prodetail: item.prodetail,
+                    photo: item.photo,
+                    sellerid: item.sellerid,
+                    timestart:item.timestart,
+                    timeend: item.timeend,
+                    result :option,
+                }
+                products.push(obj);
             }
+        }
             }));
-            return Responce.resSuccess(res, successMessage.success, tranfrom);
+            return Responce.resSuccess(res, successMessage.success, products);
         } catch (error) {
-            throw error
-            // return Responce.resError(res, errorMessage.saveError);
+            return Responce.resError(res, errorMessage.saveError);
         } finally {
             res.end();
         }
@@ -151,24 +135,6 @@ async function getOption (productid) {
             reject(error)
         }
     });
-}
-async function getEventdetail (proopid) {
-    const sql = `select 
-    eventdetail.totalproduct,
-    eventproduct.timestart,eventproduct.timeend
-    from eventdetail
-    inner join eventproduct on eventproduct.eventid = eventdetail.eventid
-    where eventdetail.proopid = $1`;
-    return new Promise(async(resolve, reject) => {
-        try{
-            const { rows } = await db.query(sql, [proopid]);
-            resolve(rows);
-            res.end();
-        } catch (error){
-            reject(error);
-        }
-    });
-
 }
 async function insertProductHomepage(req, res, next) {
     const { amount, userid, proopid } = req.body;
