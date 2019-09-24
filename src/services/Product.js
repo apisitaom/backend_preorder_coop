@@ -85,14 +85,27 @@ const Product = {
     }
 }
 async function homepageCustomer(req, res, next) {
-        const sql = `select proid,proname,prodetail,photo,sellerid from product`;
+        const sql = `select proid,proname,prodetail,photo,sellerid,timestart,timeend from product`;
         let responce  = [];
+        let products = [];
         try {
             const product = await db.query(sql);
             const tranfrom = await Promise.all(product.rows.map(async(item) => {
             const option = await getOption(item.proid);
+            
+            // item.timeend = moment(item.timeend).subtract(7, 'h')
+            // item.timeend = moment(item.timeend).format('YYYY-MM-DD HH:mm:ss');
+            // item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');                    
+            // const addTime = item.timeend = moment(item.timeend).add(7, 'h');
+            // const endTime = item.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
+            // const startTime = item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');
+            // if (endTime > date && date > startTime) {
+            //     products.push(item);
+            // } else {
+            //     delete item;
+            // }
+
             // option.map(async(index)=> {
-            //     const eventdetail = await getEventdetail(index.proopid);
             //     let obj = {
             //         proid: item.proid,
             //         proname: item.proname,
@@ -110,6 +123,8 @@ async function homepageCustomer(req, res, next) {
                 prodetail: item.prodetail,
                 photo: item.photo,
                 sellerid: item.sellerid,
+                timestart:item.timestart,
+                timeend: item.timeend,
                 result :option,
             }
             }));
@@ -122,15 +137,11 @@ async function homepageCustomer(req, res, next) {
         }
 }
 async function getOption (productid) {
-    const sql = `select productoption.proopid,productoption.sku,productoption.price,productoption.includingvat,productoption.optionvalue from productoption where types ='preorder' and proid = $1`
+    const sql = `select productoption.proopid,productoption.sku,productoption.price,productoption.includingvat,productoption.optionvalue,productoption.totalproduct from productoption where types ='preorder' and proid = $1`
     let responce = [];
     return new Promise(async(resolve , reject) => {
         try {
             const { rows } = await db.query(sql, [productid]);
-            const transfrom = await Promise.all(rows.map(async(item) => {
-                // const eventdetail = await getEventdetail();
-                console.log(item);
-            }));
             resolve(rows);
             res.end();
         } catch (error) {
