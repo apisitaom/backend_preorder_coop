@@ -46,7 +46,7 @@ create table Member(
     province            varchar(100),
     zipcode             varchar(100),
     photo               varchar(100),
-    email               varchar(100),
+    email               varchar(100) UNIQUE,
     phone               varchar(100),
     passwordUser        varchar(100)
 );
@@ -140,6 +140,9 @@ create table Product(
     proName             varchar(50)  ,
     proDetail           varchar(50)  ,
     photo               text [] ,
+           
+    timeStart           timestamp,
+    timeEnd             timestamp,
 
     sellerId            uuid  ,
     userid              uuid ,
@@ -160,6 +163,7 @@ create table ProductOption(
     optionvalue         json[],
         --กำหนดว่าสินค้าเป็น pre_order หรือไม่
     types            varchar(60),
+    totalProduct        float,
 
     proId               uuid ,
     FOREIGN key (proId) REFERENCES Product (proId)
@@ -219,7 +223,7 @@ create table OrderDetail(
     phoneNumber         varchar(100),
 
     orderId             uuid  ,
-    proOpId               uuid  ,
+    proOpId             uuid  ,
     FOREIGN KEY (orderId) REFERENCES OrderProduct(orderId),
     FOREIGN KEY (proOpId) REFERENCES ProductOption(proOpId)
 );

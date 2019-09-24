@@ -31,7 +31,8 @@ const moment = require('moment');
     }
     async function getProductPreorder (req,res, next) {
         const sql = `select proid,proname,prodetail,photo,sellerid from product where sellerid = $1`;
-    let responce = [];
+        let responce = [];
+        const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     try {
         const product = await db.query(sql, [req.params.id]);
         await Promise.all(product.rows.map(async(item) => {
@@ -68,25 +69,23 @@ async function getOption (productid) {
     full join eventdetail on eventdetail.proopid = productoption.proopid
     full join  eventproduct on  eventproduct.eventid = eventdetail.eventid
     where proid = $1 and types = 'preorder'`
-    const products = [];
-    const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     return new Promise(async(resolve , reject) => {
         try {
             const { rows } = await db.query(sql, [productid]);
-                rows.map(index => {
-                    index.timeend = moment(index.timeend).subtract(7, 'h');
-                    index.timeend = moment(index.timeend).format('YYYY-MM-DD HH:mm:ss');
-                    index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');                    
-                    const addTime = index.timeend = moment(index.timeend).add(7, 'h');
-                    const endTime = index.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
-                    const startTime = index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');
-                    // if (endTime > date && date > startTime) {
-                    //     products.push(index);
-                    // } else {
-                    //     delete index;
-                    // }
-                });
-                resolve(rows);
+            rows.map(index => {
+                index.timeend = moment(index.timeend).subtract(7, 'h');
+                index.timeend = moment(index.timeend).format('YYYY-MM-DD HH:mm:ss');
+                index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');                    
+                const addTime = index.timeend = moment(index.timeend).add(7, 'h');
+                const endTime = index.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
+                const startTime = index.timestart = moment(index.timestart).format('YYYY-MM-DD HH:mm:ss');
+                if (endTime > date && date > startTime) {
+                    products.push(index);
+                } else {
+                    delete index;
+                }
+            });
+            resolve(products);
                 res.end();
         } catch (error) {
             reject(error)
