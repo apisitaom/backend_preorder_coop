@@ -21,10 +21,13 @@ async function registerMember (req, res, next) {
         const { rows } = await db.query(sql, values);
         return Responce.resSuccess(res, successMessage.success, rows);
     } catch (error) {
-        return Responce.resError(res, errorMessage.saveError);
-    } finally {
-        res.end();
-    }
+        if (error.routine === '_bt_check_unique') {
+          return Response.resError(res, errorMessage.emailInvalid);
+        }
+        return Response.resError(res, errorMessage.saveError);
+      } finally {
+        res.end()
+      }
 }
 async function getProfileMember (req, res, next) {
     const { headers } = req;

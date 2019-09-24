@@ -48,10 +48,9 @@ const Seller = {
       // }
     } catch (error) {
       if (error.routine === '_bt_check_unique') {
-        return Response.resError(res, errorMessage.saveError);
+        return Response.resError(res, errorMessage.emailInvalid);
       }
-      throw error
-      // return Response.resError(res, errorMessage.saveError);
+      return Response.resError(res, errorMessage.saveError);
     } finally {
       res.end()
     }

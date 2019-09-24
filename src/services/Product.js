@@ -326,38 +326,24 @@ async function preOrder( req, res, next){
     const ends = moment(dates).format('YYYY-MM-DD HH:mm:ss');
     const end = moment(ends).add(hour, 'h');
     const types = 'preorder';
-    
+    try {
     const sqlProduct = `select * from product where proid = $1`;
     const valueProduct = [productid];
-
-    try {
-        const { rows } = await db.query(sqlProduct, valueProduct);
-        const sql = `insert into product (active, proname, prodetail, photo, sellerid, timestart, timeend) values ($1, $2, $3, $4, $5, $6, $7) returning proid`;
-        const value = [active,rows[0].proname, rows[0].prodetail, rows[0].photo, rows[0].sellerid, days, new Date(end.toString())];
-        const product = await db.query(sql, value);
-        optionJson.forEach(async (element, index) => {                
-        const sqlProductoption = `insert into productoption (active, sku, price, optionvalue,includingvat, proid, types, totalproduct) values ($1, $2, $3, $4, $5, $6, $7, $8) returning proopid `;
-        const valueProductoption = [active, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, optionJson[index].vat, product.rows[0].proid, types, optionJson[index].amount];
-        await db.query (sqlProductoption, valueProductoption);
-        // const sqlEventproduct = `insert into eventproduct(active, timestart, timeend) values ($1, $2, $3) returning eventid`;
-        // const valueEventproduct = [active, days, new Date(end.toString())];
-        // const eventproduct = await db.query(sqlEventproduct, valueEventproduct);
-        // const sqlEventdetail =`insert into eventdetail ( totalproduct,eventid, proopid) values ($1, $2, $3)`
-        // productoption.rows.map(indexs => {
-        //     eventproduct.rows.map(indes => {
-        //         optionJson.forEach(async (element, index) => { 
-        //         const valueEventdetail = [ optionJson[index].amount, indes.eventid, indexs.proopid];
-        //         db.query(sqlEventdetail, valueEventdetail);
-        //         })
-        //     })
-        // })
+    const { rows } = await db.query(sqlProduct, valueProduct);
+    db.query('BEGIN');
+    const sql = `insert into product (active, proname, prodetail, photo, sellerid, timestart, timeend) values ($1, $2, $3, $4, $5, $6, $7) returning proid`;
+    const value = [active,rows[0].proname, rows[0].prodetail, rows[0].photo, rows[0].sellerid, days, new Date(end.toString())];
+    const product = await db.query(sql, value);
+    optionJson.forEach(async (element, index) => {  
+            const sqlProductoption = `insert into productoption (active, sku, price, optionvalue,includingvat, proid, types, totalproduct) values ($1, $2, $3, $4, $5, $6, $7, $8) returning proopid `;
+            const valueProductoption = [active, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, optionJson[index].vat, product.rows[0].proid, types, optionJson[index].amount];
+            await db.query (sqlProductoption, valueProductoption);
+            return Responce.resSuccess(res, successMessage.success);
     });
-        return Responce.resSuccess(res, successMessage.success);
-    } catch (error) {
-        return Responce.resError(res, errorMessage.saveError);
-    } finally {
-        res.end();
-    }
+} catch (error) {
+    db.query('REVOKE');
+    return Responce.resError(res, errorMessage.saveError);
+}
 }
 
 module.exports = {
