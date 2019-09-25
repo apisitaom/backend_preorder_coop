@@ -86,7 +86,6 @@ const Product = {
 }
 async function homepageCustomer(req, res, next) {
         const sql = `select proid,proname,prodetail,photo,sellerid,timestart,timeend from product`;
-        let responce  = [];
         let products = [];
         const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
         try {
@@ -125,7 +124,6 @@ async function homepageCustomer(req, res, next) {
 }
 async function getOption (productid) {
     const sql = `select productoption.proopid,productoption.sku,productoption.price,productoption.includingvat,productoption.optionvalue,productoption.totalproduct from productoption where types ='preorder' and proid = $1`
-    let responce = [];
     return new Promise(async(resolve , reject) => {
         try {
             const { rows } = await db.query(sql, [productid]);
@@ -337,18 +335,6 @@ async function preOrder( req, res, next){
                 const sqlProductoption = `insert into productoption (active, sku, price, optionvalue,includingvat, proid, types, totalproduct) values ($1, $2, $3, $4, $5, $6, $7, $8) returning proopid `;
                 const valueProductoption = [active, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, optionJson[index].vat, product.rows[0].proid, types, optionJson[index].amount];
                 await db.query (sqlProductoption, valueProductoption);
-// const sqlEventproduct = `insert into eventproduct(active, timestart, timeend) values ($1, $2, $3) returning eventid`;
-// const valueEventproduct = [active, days, new Date(end.toString())];
-// const eventproduct = await db.query(sqlEventproduct, valueEventproduct);
-// const sqlEventdetail =`insert into eventdetail ( totalproduct,eventid, proopid) values ($1, $2, $3)`
-// productoption.rows.map(indexs => {
-//     eventproduct.rows.map(indes => {
-//         optionJson.forEach(async (element, index) => { 
-//         const valueEventdetail = [ optionJson[index].amount, indes.eventid, indexs.proopid];
-//         db.query(sqlEventdetail, valueEventdetail);
-//         })
-//     })
-// })
 });
 return Responce.resSuccess(res, successMessage.success);
 } catch (error) {
