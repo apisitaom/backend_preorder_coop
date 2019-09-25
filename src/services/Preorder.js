@@ -47,7 +47,7 @@ const moment = require('moment');
             const startTime = item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');
             if (endTime > date && date > startTime) {
                 let obj = {
-                    'status':'ready',
+                    'status':'on preorder',
                     proid: item.proid,
                     proname: item.proname,
                     prodetail: item.prodetail,
