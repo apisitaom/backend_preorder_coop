@@ -49,7 +49,18 @@ async function getOrderDetail (req, res) {
         res.end();
     }
 }
+async function add (req, res, next) {
+    
+    const sql = ``;
 
+    try {
+
+        return Responce.resSuccess(res, successMessage.success);
+    } catch (error) {
+        return Responce.resError(res, errorMessage.saveError);
+    }
+}
 module.exports = {
-    getOrderDetail
+    getOrderDetail,
+    add
 }

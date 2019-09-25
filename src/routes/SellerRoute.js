@@ -7,7 +7,7 @@ const preorder = require('../services/Preorder');
 const order = require('../services/Order');
 const auth = require('../lib/Auth');
 
-router.get('/',(req,res)=>{res.json('SELLER ROUTER')});
+router.get('/',(req,res)=>{res.json('SELLER ROUTE')});
 router.get('/popup/:id',product.Product.getPopup);
 router.get('/products/:id', preorder.getProduct);
 router.get('/preproduct/:id', preorder.getProductPreorder);

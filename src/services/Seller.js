@@ -22,14 +22,14 @@ const helper = require('../lib/Helper');
     const valueBank = [today, activeStatus, today, bankname, accountname, accountnumber]
     try {
       if (!req.files[0] || !req.files ||req.files === null || req.files === [] || req.files[0] === undefined) {
-        const rowBankNew = await db.query(insertBank, valueBank)
+        const rowBankNew = await db.query(insertBank, valueBank);
         const rowPromptpayNew = await db.query(insertPromptpay, valuePromptpay)
         const insertSeller = `INSERT INTO seller(active,datemodify,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,bankid,promptpayid) 
         VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning sellerid`
         const value = [activeStatus, today, shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, taxid, rowBankNew.rows[0].bankid, rowPromptpayNew.rows[0].promptpayid]
         await db.query(insertSeller, value);
       } else {
-        const rowBankNew = await db.query(insertBank, valueBank)
+        const rowBankNew = await db.query(insertBank, valueBank);
         const rowPromptpayNew = await db.query(insertPromptpay, valuePromptpay)
         const insertSeller = `INSERT INTO seller(active,datemodify,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,bankid,promptpayid, photo) 
         VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) returning sellerid`
@@ -78,7 +78,7 @@ const helper = require('../lib/Helper');
   }
   async function shopinfo(req, res) {
     const sql = `select 
-    seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode,
+    seller.sellerid,seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode,
     seller.province,seller.phonenumber,seller.email,seller.photo,
     bank.bankname,bank.bankaccountname,bank.banknumber,
     promptpay.promptpayname,promptpay.promptpaynumber 
@@ -89,6 +89,7 @@ const helper = require('../lib/Helper');
     try {
       const { rows } = await db.query(sql, [req.params.id]);
       const tranfrom = {
+        sellerid: rows[0].sellerid,
         shopname: rows[0].sellername,
         address: rows[0].address,
         subdistrict: rows[0].subdistrict,
