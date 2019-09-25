@@ -8,6 +8,10 @@ create table admin (
     password            varchar(128) not null,
     created_date        timestamp default now(),
     modified_date       timestamp
+    
+    --IS (**FK**) for table bank and promptpay
+    bankid              uuid,
+    promptpayid         uuid
 );
 --------------------------1--------------------
 --Shipping Status

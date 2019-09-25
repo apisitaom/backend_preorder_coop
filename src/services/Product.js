@@ -85,14 +85,13 @@ const Product = {
     }
 }
 async function homepageCustomer(req, res, next) {
-        const sql = `select proid,proname,prodetail,photo,sellerid,timestart,timeend from product`;
+        const sql = `select proid,proname,prodetail,photo,sellerid,timestart,timeend from product where active = true`;
         let products = [];
         const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
         try {
             const product = await db.query(sql);
             await Promise.all(product.rows.map(async(item) => {
             const option = await getOption(item.proid);
- 
             if(item.timestart !== null){
             item.timeend = moment(item.timeend).subtract(7, 'h');
             item.timeend = moment(item.timeend).format('YYYY-MM-DD HH:mm:ss');
@@ -225,22 +224,22 @@ async function cartCustomer(req, res, next) {
     // ORDER DETAIL
     const sqlOrderDetail = `insert into orderdetail (active, amount, address, phonenumber, orderid, proopid) values ($1, $2, $3, $4, $5, $6)`
     try {
-            const product = await db.query(sqlProduct, valueProduct);
-            const eventproduct = await db.query(sqlEventProduct, valueEventProduct);
-            const sqlProductoption = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid,includingvat) VALUES($1,$2,$3,$4,$5,$6,$7) returning proopid'
-            optionJson.forEach(async (element, index) => {                                                         // edit product ID
-            const valueProductoption = [active, date, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, product.rows[0].proid, optionJson[index].vat]
-            const productoption = await db.query(sqlProductoption, valueProductoption);
-            const valueEventDetail = [eventproduct.rows[0].eventid, productoption.rows[0].proopid]; // use in "try"
-            await db.query(sqlEventDetail, valueEventDetail);
-            const shipping = await db.query(sqlShipping, valueShipping);
-            const payment = await db.query(sqlPayment, valuePayment);
-            const valueOrderProduct = [active, decode.data.id, payment.rows[0].payid, shipping.rows[0].shipid, eventproduct.rows[0].eventid]; // use in "try"  
-            const orderproduct = await db.query(sqlOrderProduct, valueOrderProduct);
-            productoption.rows.map(index => {
-                const valueOrderDetail = [active, amount, address, phonenumber, orderproduct.rows[0].orderid, index.proopid]; // use in "try"
-                db.query(sqlOrderDetail, valueOrderDetail);
-            })
+        const product = await db.query(sqlProduct, valueProduct);
+        const eventproduct = await db.query(sqlEventProduct, valueEventProduct);
+        const sqlProductoption = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid,includingvat) VALUES($1,$2,$3,$4,$5,$6,$7) returning proopid'
+        optionJson.forEach(async (element, index) => {                                                         // edit product ID
+        const valueProductoption = [active, date, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, product.rows[0].proid, optionJson[index].vat]
+        const productoption = await db.query(sqlProductoption, valueProductoption);
+        const valueEventDetail = [eventproduct.rows[0].eventid, productoption.rows[0].proopid]; // use in "try"
+        await db.query(sqlEventDetail, valueEventDetail);
+        const shipping = await db.query(sqlShipping, valueShipping);
+        const payment = await db.query(sqlPayment, valuePayment);
+        const valueOrderProduct = [active, decode.data.id, payment.rows[0].payid, shipping.rows[0].shipid, eventproduct.rows[0].eventid]; // use in "try"  
+        const orderproduct = await db.query(sqlOrderProduct, valueOrderProduct);
+        productoption.rows.map(index => {
+            const valueOrderDetail = [active, amount, address, phonenumber, orderproduct.rows[0].orderid, index.proopid]; // use in "try"
+            db.query(sqlOrderDetail, valueOrderDetail);
+        })
         });
         return Responce.resSuccess(res, successMessage.success);
     } catch (error) {
@@ -278,43 +277,42 @@ async function shopCustomer(req, res, next) {
     }
 }
 async function getProduct(req, res) {
-        const detail = []
-        const getPopup = `select 
-        product.proid,product.photo,product.proname, product.prodetail,
-        productoption.proopid,productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue,
-        seller.sellername,seller.sellerid
-        from product
-        inner join productoption on product.proid = productoption.proid
-        full join seller on seller.sellerid = product.sellerid 
-        where product.proid = $1` ;
-        try {
-            const { rows } = await db.query(getPopup, [req.params.id]);
-            for (let i = 0; i < rows.length; i++) {
-                let obj = {
-                    'proopid': rows[i].proopid,
-                    'price': rows[i].price,
-                    'optionvalue': rows[i].optionvalue,
-                    'sku': rows[i].sku,
-                    'vat': rows[i].includingvat
-                }
-                detail.push(obj)
+    const detail = []
+    const getPopup = `select 
+    product.proid,product.photo,product.proname, product.prodetail,
+    productoption.proopid,productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue,
+    seller.sellername,seller.sellerid
+    from product
+    inner join productoption on product.proid = productoption.proid
+    full join seller on seller.sellerid = product.sellerid 
+    where product.proid = $1` ;
+    try {
+        const { rows } = await db.query(getPopup, [req.params.id]);
+        for (let i = 0; i < rows.length; i++) {
+            let obj = {
+                'proopid': rows[i].proopid,
+                'price': rows[i].price,
+                'optionvalue': rows[i].optionvalue,
+                'sku': rows[i].sku,
+                'vat': rows[i].includingvat
             }
-            const tranfrom = {
-                proid: rows[0].proid,
-                sellername: rows[0].sellername,
-                sellerid: rows[0].sellerid,
-                photo: rows[0].photo,
-                proname: rows[0].proname,
-                detail: rows[0].prodetail,
-                results: detail
-            }
-            return Responce.resSuccess(res, successMessage.success, tranfrom);
-        } catch (error) {
-            return Responce.resError(res, errorMessage.saveError);
+            detail.push(obj)
         }
+        const tranfrom = {
+            proid: rows[0].proid,
+            sellername: rows[0].sellername,
+            sellerid: rows[0].sellerid,
+            photo: rows[0].photo,
+            proname: rows[0].proname,
+            detail: rows[0].prodetail,
+            results: detail
+        }
+        return Responce.resSuccess(res, successMessage.success, tranfrom);
+    } catch (error) {
+        return Responce.resError(res, errorMessage.saveError);
     }
-
-async function preOrder( req, res, next){
+}
+async function preOrder( req, res, next) {
     const {productid, date, time, hour} = req.body;
     const optionJson = JSON.parse(req.body.option);
     const active = true;
