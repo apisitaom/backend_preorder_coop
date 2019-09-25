@@ -87,7 +87,7 @@ const Product = {
 async function homepageCustomer(req, res, next) {
         const sql = `select proid,proname,prodetail,photo,sellerid,timestart,timeend from product where active = true`;
         let products = [];
-        const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
+        const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
         try {
             const product = await db.query(sql);
             await Promise.all(product.rows.map(async(item) => {
@@ -108,6 +108,8 @@ async function homepageCustomer(req, res, next) {
                     sellerid: item.sellerid,
                     timestart:item.timestart,
                     timeend: item.timeend,
+                    time : moment(item.timeend).format('mm:ss'),
+                    hour: moment(item.timeend).format('HH'),
                     result :option,
                 }
                 products.push(obj);

@@ -223,8 +223,7 @@ create table OrderDetail(
     datemodify          timestamp,    
     amount              integer,
     address             varchar(500),
-    phone               varchar(20),
-    phoneNumber         varchar(100),
+    phone               varchar(50),
 
     orderId             uuid  ,
     proOpId             uuid  ,

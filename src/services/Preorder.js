@@ -55,6 +55,8 @@ async function getProductPreorder (req,res, next) {
                 sellerid: item.sellerid,
                 timestart:item.timestart,
                 timeend: item.timeend,
+                time : moment(item.timeend).format('mm:ss'),
+                hour: moment(item.timeend).format('HH'),
                 result :option,
             }
             products.push(obj);
@@ -68,6 +70,8 @@ async function getProductPreorder (req,res, next) {
                 sellerid: item.sellerid,
                 timestart:item.timestart,
                 timeend: item.timeend,
+                time : moment(item.timeend).format('mm:ss'),
+                hour: moment(item.timeend).format('HH'),
                 result :option,
             }
             products.push(obj);
