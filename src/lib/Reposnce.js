@@ -21,7 +21,6 @@ async function resSuccuessToken(res, message, datas, tokens) {
         token: tokens,
     });
 }
-
 module.exports = {
     resSuccess,
     resError,

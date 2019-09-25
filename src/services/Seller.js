@@ -5,8 +5,7 @@ const successMessage = require('../lib/successMessage');
 const Response = require('../lib/Reposnce');
 const helper = require('../lib/Helper');
 
-const Seller = {
-  async insert(req, res) {
+  async function insert(req, res) {
     if (!req.body.email || !req.body.password) {
       return Response.resError(res, errorMessage.paramsNotMatch);
     }
@@ -46,8 +45,8 @@ const Seller = {
     } finally {
       res.end();
     }
-  },
-  async login(req, res) {
+  }
+  async function login(req, res) {
     if (!req.body.email || !req.body.password) {
       return Response.resError(res, errorMessage.saveError);
     }
@@ -76,8 +75,8 @@ const Seller = {
     } catch (error) {
       return Response.resError(res, errorMessage.saveError);
     }
-  },
-  async shopinfo(req, res) {
+  }
+  async function shopinfo(req, res) {
     const sql = `select 
     seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode,
     seller.province,seller.phonenumber,seller.email,seller.photo,
@@ -110,9 +109,8 @@ const Seller = {
     } catch (error) {
       return Response.resError(res, errorMessage.saveError);
     }
-  },
-
-  async updateSeller(req, res, next) {
+  }
+  async function updateSeller(req, res, next) {
     const { shopname, address, subdistrict, district, province, zipcode, phone, email, password, bankname, accountname, accountnumber, promptpayname, promptpaynumber, } = req.body
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
@@ -149,6 +147,10 @@ const Seller = {
       res.end();
     }
   }
-}
 
-module.exports = Seller;
+module.exports = {
+  insert,
+  login,
+  shopinfo,
+  updateSeller
+}

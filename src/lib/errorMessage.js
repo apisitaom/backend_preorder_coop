@@ -6,5 +6,7 @@ module.exports = {
     noToken: 'token is not provided',
     tokeninvalid:'your token provided is invalid',
 
-    sku:'SKU has already'
+    sku:'SKU has already',
+
+    photo:'invalid types picture'
 }

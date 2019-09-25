@@ -4,8 +4,8 @@ const successMessage = require('../lib/successMessage');
 const Responce = require('../lib/Reposnce');
 
 async function getOrderDetail (req, res) {
-    const id = req.params.id
-    let resp = []
+    const id = req.params.id;
+    let resp = [];
     const queryText = `SELECT 	op.orderid,op.createdate,													
 	                            po.optionvalue,po.price,po.includingvat,												
 	                            p.proname,																				
@@ -49,6 +49,7 @@ async function getOrderDetail (req, res) {
         res.end();
     }
 }
+
 module.exports = {
     getOrderDetail
 }
