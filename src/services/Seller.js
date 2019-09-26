@@ -111,14 +111,14 @@ const helper = require('../lib/Helper');
       return Response.resError(res, errorMessage.saveError);
     }
   }
-  async function updateSeller(req, res, next) {
-    const { shopname, address, subdistrict, district, province, zipcode, phone, email, password, bankname, accountname, accountnumber, promptpayname, promptpaynumber, } = req.body
+  async function edit(req, res, next) {
+    const { shopname, address, subdistrict, district, province, zipcode, phone, email, bankname, accountname, accountnumber, promptpayname, promptpaynumber, } = req.body
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
 
-    const hashPassword = helper.Helper.hashPassword(password);
+    // const hashPassword = helper.Helper.hashPassword(password);
     
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
     const sql = `select * from seller where sellerid = $1`
@@ -131,12 +131,12 @@ const helper = require('../lib/Helper');
 
     try {
       if (req.files === null || req.files === [] || req.files[0] === undefined) {
-        const sqlSeller = `update seller set sellername = $1, address = $2, subdistrict = $3, district = $4, zipcode = $5, province = $6, phonenumber = $7, email = $8, sellerpassword = $9 , datemodify = $10 where sellerid = $11 `
-        const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, date, decode.data.id]    
+        const sqlSeller = `update seller set sellername = $1, address = $2, subdistrict = $3, district = $4, zipcode = $5, province = $6, phonenumber = $7, email = $8, datemodify = $9 where sellerid = $10 `
+        const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, date, decode.data.id]    
         await db.query(sqlSeller, valueSeller);
       } else {
-        const sqlSeller = `update seller set sellername = $1, address = $2, subdistrict = $3, district = $4, zipcode = $5, province = $6, phonenumber = $7, email = $8, sellerpassword = $9 , photo = $10, datemodify = $11 where sellerid = $12 `
-        const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, req.files[0].filename, date, decode.data.id] 
+        const sqlSeller = `update seller set sellername = $1, address = $2, subdistrict = $3, district = $4, zipcode = $5, province = $6, phonenumber = $7, email = $8, photo = $9, datemodify = $10 where sellerid = $11 `
+        const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, req.files[0].filename, date, decode.data.id] 
         await db.query(sqlSeller, valueSeller);
       }
       await db.query(sqlBank, valuebank);
@@ -153,5 +153,5 @@ module.exports = {
   insert,
   login,
   shopinfo,
-  updateSeller
+  edit
 }

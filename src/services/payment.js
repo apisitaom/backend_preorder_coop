@@ -4,24 +4,34 @@ const successMessage = require('../lib/successMessage');
 const Responce = require('../lib/Reposnce');
 const moment = require('moment');
 const helper = require('../lib/Helper');
+const productoptions = require('./productoptions');
 
-async function getPay (req, res, next) {
+async function lists (req, res, next) {
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-    const sql = `select 
-    product.photo, product.prodetail, product.proname,
-    productoption.sku, productoption.price,productoption.optionvalue
-    from orderproduct 
-    full join member on member.userid = orderproduct.userid
+    const sql = `select * 
+    from orderproduct
+    full join payment on orderproduct.payid = payment.payid
     full join orderdetail on orderdetail.orderid = orderproduct.orderid
-    full join productoption on productoption.proopid = orderdetail.proopid
-    full join product on product.proid =  productoption.proid
-    where member.userid = $1`
+    where orderproduct.userid = $1`
     const value = [decode.data.id]
     try {
-        const { rows } = await db.query(sql, value  );
+        const { rows } = await db.query(sql, value);      
+        const tranfrom = await Promise.all(rows.map(async(item) => {
+            const productoption = await productoptions.Productoption(item.proopids);
+            console.log(item);
+            console.log(productoption);
+            // return {
+            //     orderdetailid: item.orderdetailid,
+            //     amount: item.amount,
+            //     address: item.address,
+            //     orderid: item.orderid,
+            //     phone: item.phone,
+            //     result: productoption
+            //     }
+            }));
         return Responce.resSuccess(res, successMessage.success, rows);
     } catch (error) {
         return Responce.resError(res, errorMessage.saveError);
@@ -37,9 +47,7 @@ async function add (req, res, next) {
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-    
     const date = day + ' ' + time;
-    
     const active = true;    
         if (!req.files[0]) {
             return Responce.resError(res, errorMessage.photo);
@@ -89,7 +97,7 @@ async function getOrderPayment(req, res, next) {
 
 
 module.exports = {
-    getPay,
+    lists,
     add,
     getOrderPayment
 }

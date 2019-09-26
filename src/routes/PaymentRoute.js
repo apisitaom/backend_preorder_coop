@@ -5,8 +5,7 @@ const payment = require('../services/payment');
 
 router.get('/', (req, res, next)=>{res.json('PAYMENT ROUTE')});
 // router.get('/lists',auth.userVerifyToken ,payment.getPay);
-router.get('/lists/:id',payment.getPay);
-
+router.get('/lists',payment.lists);
 
 router.post('/add',img.upload, payment.add);
 router.post('/order', payment.getOrderPayment);
