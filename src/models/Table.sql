@@ -225,8 +225,7 @@ create table OrderDetail(
     address             varchar(500),
     phone               varchar(50),
 
-    orderId             uuid  ,
-    proOpId             uuid  ,
-    FOREIGN KEY (orderId) REFERENCES OrderProduct(orderId),
+    orderdetails             uuid  ,
     FOREIGN KEY (proOpId) REFERENCES ProductOption(proOpId)
+    FOREIGN KEY (orderId) REFERENCES OrderProduct(orderId),
 );

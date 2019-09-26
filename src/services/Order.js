@@ -91,7 +91,6 @@ async function list (req, res, next) {
     from orderdetail 
     full join orderproduct on orderproduct.orderid = orderdetail.orderid
     where orderproduct.userid = $1`
-    let responce = [];
     try {
         const { rows } = await db.query(sql, [decode.data.id]);
         const tranfrom = await Promise.all(rows.map(async(item) => {
@@ -123,6 +122,9 @@ async function Productoption (productoptionid) {
     return new Promise (async(resolve, reject) => {
          let data = await Promise.all(productoptionid.map(async(index) => {
             const {rows} = await db.query(sql, [index]);
+            rows[0].timeend = moment(rows[0].timeend).subtract(7, 'h');
+            rows[0].timeend = moment(rows[0].timeend).format('YYYY-MM-DD HH:mm:ss');
+            rows[0].timestart = moment(rows[0].timestart).format('YYYY-MM-DD HH:mm:ss');                    
             return rows
         }));
         resolve(data);
