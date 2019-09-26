@@ -12,9 +12,8 @@ function generateToken(datas) {
   const token = jwt.sign({
     data: datas
   },
-    process.env.SECRET, { expiresIn: '7d' }
+    process.env.SECRET, { expiresIn: '30d' }
   );
-
   return token;
 }
 function comparePassword(hashPassword, password) {

@@ -9,6 +9,7 @@ const adminRoute = require('./routes/AdminRoute');
 const productRoute = require('./routes/ProductRoute');
 const memberRoute = require('./routes/MemberRoute');
 const paymentRoute = require('./routes/PaymentRoute');
+const orderRoute = require('./routes/OrderRoute');
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -27,13 +28,12 @@ app.get('/', (req, res) => {
     res.json({ info: `welcome  to project start on ${port}` })
 });
 
-//seLLER ROUTE
 app.use('/seller', sellerRoute);
 app.use('/admin', adminRoute);
 app.use('/product', productRoute);
 app.use('/member', memberRoute);
 app.use('/payment', paymentRoute);
-//IMAGE
+app.use('/order', orderRoute);
 app.use('/images', express.static(path.join(__dirname + '/../public/uploads')));
 
 app.listen(port,  () => {

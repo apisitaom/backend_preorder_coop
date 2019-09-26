@@ -8,6 +8,10 @@ create table admin (
     password            varchar(128) not null,
     created_date        timestamp default now(),
     modified_date       timestamp
+    
+    --IS (**FK**) for table bank and promptpay
+    bankid              uuid,
+    promptpayid         uuid
 );
 --------------------------1--------------------
 --Shipping Status
@@ -219,11 +223,9 @@ create table OrderDetail(
     datemodify          timestamp,    
     amount              integer,
     address             varchar(500),
-    phone               varchar(20),
-    phoneNumber         varchar(100),
+    phone               varchar(50),
 
-    orderId             uuid  ,
-    proOpId             uuid  ,
-    FOREIGN KEY (orderId) REFERENCES OrderProduct(orderId),
+    orderdetails             uuid  ,
     FOREIGN KEY (proOpId) REFERENCES ProductOption(proOpId)
+    FOREIGN KEY (orderId) REFERENCES OrderProduct(orderId),
 );

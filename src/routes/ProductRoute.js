@@ -3,7 +3,7 @@ const product = require('../services/Product');
 const img = require('../lib/ImageUpload');
 const auth = require('../lib/Auth');
 
-router.get('/', (req, res, next)=>{res.json('PRODUCT ROUTER')});
+router.get('/', (req, res, next)=>{res.json('PRODUCT ROUTE')});
 router.get('/lists', product.homepageCustomer);
 router.get('/pay',auth.userVerifyToken,product.getCartCustomer);
 router.get('/list' ,auth.sellerVerifyToken,product.shopCustomer);

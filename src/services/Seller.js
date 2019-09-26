@@ -5,8 +5,7 @@ const successMessage = require('../lib/successMessage');
 const Response = require('../lib/Reposnce');
 const helper = require('../lib/Helper');
 
-const Seller = {
-  async insert(req, res) {
+  async function insert(req, res) {
     if (!req.body.email || !req.body.password) {
       return Response.resError(res, errorMessage.paramsNotMatch);
     }
@@ -22,13 +21,21 @@ const Seller = {
     const valuePromptpay = [today, activeStatus, today, promptpayname, promptpaynumber]
     const valueBank = [today, activeStatus, today, bankname, accountname, accountnumber]
     try {
-        const rowBankNew = await db.query(insertBank, valueBank)
+      if (!req.files[0] || !req.files ||req.files === null || req.files === [] || req.files[0] === undefined) {
+        const rowBankNew = await db.query(insertBank, valueBank);
+        const rowPromptpayNew = await db.query(insertPromptpay, valuePromptpay)
+        const insertSeller = `INSERT INTO seller(active,datemodify,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,bankid,promptpayid) 
+        VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning sellerid`
+        const value = [activeStatus, today, shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, taxid, rowBankNew.rows[0].bankid, rowPromptpayNew.rows[0].promptpayid]
+        await db.query(insertSeller, value);
+      } else {
+        const rowBankNew = await db.query(insertBank, valueBank);
         const rowPromptpayNew = await db.query(insertPromptpay, valuePromptpay)
         const insertSeller = `INSERT INTO seller(active,datemodify,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,bankid,promptpayid, photo) 
         VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) returning sellerid`
         const value = [activeStatus, today, shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, taxid, rowBankNew.rows[0].bankid, rowPromptpayNew.rows[0].promptpayid, req.files[0].filename]
         await db.query(insertSeller, value);
-
+      }
         return Response.resSuccess(res, successMessage.success);
     } catch (error) {
       if (error.routine === '_bt_check_unique') {
@@ -38,8 +45,8 @@ const Seller = {
     } finally {
       res.end();
     }
-  },
-  async login(req, res) {
+  }
+  async function login(req, res) {
     if (!req.body.email || !req.body.password) {
       return Response.resError(res, errorMessage.saveError);
     }
@@ -68,10 +75,10 @@ const Seller = {
     } catch (error) {
       return Response.resError(res, errorMessage.saveError);
     }
-  },
-  async shopinfo(req, res) {
+  }
+  async function shopinfo(req, res) {
     const sql = `select 
-    seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode,
+    seller.sellerid,seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode,
     seller.province,seller.phonenumber,seller.email,seller.photo,
     bank.bankname,bank.bankaccountname,bank.banknumber,
     promptpay.promptpayname,promptpay.promptpaynumber 
@@ -82,6 +89,7 @@ const Seller = {
     try {
       const { rows } = await db.query(sql, [req.params.id]);
       const tranfrom = {
+        sellerid: rows[0].sellerid,
         shopname: rows[0].sellername,
         address: rows[0].address,
         subdistrict: rows[0].subdistrict,
@@ -102,17 +110,13 @@ const Seller = {
     } catch (error) {
       return Response.resError(res, errorMessage.saveError);
     }
-  },
-
-  async updateSeller(req, res, next) {
-    const { shopname, address, subdistrict, district, province, zipcode, phone, email, password, bankname, accountname, accountnumber, promptpayname, promptpaynumber, } = req.body
+  }
+  async function edit(req, res, next) {
+    const { shopname, address, subdistrict, district, province, zipcode, phone, email, bankname, accountname, accountnumber, promptpayname, promptpaynumber, } = req.body
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-
-    const hashPassword = helper.Helper.hashPassword(password);
-    
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
     const sql = `select * from seller where sellerid = $1`
     const values = [decode.data.id]
@@ -121,15 +125,14 @@ const Seller = {
     const valuebank = [date, bankname, accountname, accountnumber, rows[0].bankid]
     const sqlPromptpay = `update promptpay set datemodify = $1, promptpayname = $2, promptpaynumber = $3 where promptpayid = $4`
     const valuePrompay = [date, promptpayname, promptpaynumber, rows[0].promptpayid]
-
     try {
-      if (req.files === null || req.files === [] || req.files[0] === undefined) {
-        const sqlSeller = `update seller set sellername = $1, address = $2, subdistrict = $3, district = $4, zipcode = $5, province = $6, phonenumber = $7, email = $8, sellerpassword = $9 , datemodify = $10 where sellerid = $11 `
-        const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, date, decode.data.id]    
+      if (!req.files[0] || req.files === null || req.files === [] || req.files[0] === undefined) {
+        const sqlSeller = `update seller set sellername = $1, address = $2, subdistrict = $3, district = $4, zipcode = $5, province = $6, phonenumber = $7, email = $8, datemodify = $9 where sellerid = $10 `
+        const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, date, decode.data.id]    
         await db.query(sqlSeller, valueSeller);
       } else {
-        const sqlSeller = `update seller set sellername = $1, address = $2, subdistrict = $3, district = $4, zipcode = $5, province = $6, phonenumber = $7, email = $8, sellerpassword = $9 , photo = $10, datemodify = $11 where sellerid = $12 `
-        const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, req.files[0].filename, date, decode.data.id] 
+        const sqlSeller = `update seller set sellername = $1, address = $2, subdistrict = $3, district = $4, zipcode = $5, province = $6, phonenumber = $7, email = $8, photo = $9, datemodify = $10 where sellerid = $11 `
+        const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, req.files[0].filename, date, decode.data.id] 
         await db.query(sqlSeller, valueSeller);
       }
       await db.query(sqlBank, valuebank);
@@ -141,6 +144,10 @@ const Seller = {
       res.end();
     }
   }
-}
 
-module.exports = Seller;
+module.exports = {
+  insert,
+  login,
+  shopinfo,
+  edit
+}
