@@ -20,6 +20,5 @@ router.post('/edit',auth.sellerVerifyToken,img.upload,seller.edit);
 router.post('/login',seller.login);
 router.post('/optionvalue',img.upload,optionvalue.insert);
 router.post('/preorder',preorder.insertPreorder);
-router.post('/orders/:id', order.getOrderDetail);
 
 module.exports = router;

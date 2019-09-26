@@ -117,9 +117,6 @@ const helper = require('../lib/Helper');
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-
-    // const hashPassword = helper.Helper.hashPassword(password);
-    
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
     const sql = `select * from seller where sellerid = $1`
     const values = [decode.data.id]
@@ -128,9 +125,8 @@ const helper = require('../lib/Helper');
     const valuebank = [date, bankname, accountname, accountnumber, rows[0].bankid]
     const sqlPromptpay = `update promptpay set datemodify = $1, promptpayname = $2, promptpaynumber = $3 where promptpayid = $4`
     const valuePrompay = [date, promptpayname, promptpaynumber, rows[0].promptpayid]
-
     try {
-      if (req.files === null || req.files === [] || req.files[0] === undefined) {
+      if (!req.files[0] || req.files === null || req.files === [] || req.files[0] === undefined) {
         const sqlSeller = `update seller set sellername = $1, address = $2, subdistrict = $3, district = $4, zipcode = $5, province = $6, phonenumber = $7, email = $8, datemodify = $9 where sellerid = $10 `
         const valueSeller = [shopname, address, subdistrict, district, zipcode, province, phone, email, date, decode.data.id]    
         await db.query(sqlSeller, valueSeller);

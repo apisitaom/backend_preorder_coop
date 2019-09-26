@@ -1,9 +1,5 @@
 const db = require('../configdb/configDB');
-const errorMessage = require('../lib/errorMessage');
-const successMessage = require('../lib/successMessage');
-const Responce = require('../lib/Reposnce');
 const moment = require('moment');
-const helper = require('../lib/Helper');
 
 async function Productoption (productoptionid) {
     const sql = `select productoption.proopid, productoption.price, productoption.includingvat,
