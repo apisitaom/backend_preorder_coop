@@ -19,7 +19,7 @@ async function login(req,res){
     if(!rows[0]){
       return Responce.resError(res, errorMessage.saveError);
     }
-    if (!helper.Helper.comparePassword(rows[0].password, req.body.password)){
+    if (!rows[0].password){
         return Responce.resError(res, errorMessage.saveError);
     }
     const mergedata = {
