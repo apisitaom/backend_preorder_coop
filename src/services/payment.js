@@ -21,18 +21,19 @@ async function lists (req, res, next) {
         const { rows } = await db.query(sql, value);      
         const tranfrom = await Promise.all(rows.map(async(item) => {
             const productoption = await productoptions.Productoption(item.proopids);
-            console.log(item);
-            console.log(productoption);
-            // return {
-            //     orderdetailid: item.orderdetailid,
-            //     amount: item.amount,
-            //     address: item.address,
-            //     orderid: item.orderid,
-            //     phone: item.phone,
-            //     result: productoption
-            //     }
+            return {
+                orderdetailid: item.orderdetailid,
+                amount: item.amount,
+                address: item.address,
+                orderid: item.orderid,
+                phone: item.phone,
+                payid: item.payid,
+                summary: item.summary,
+                amount: item.amount,
+                result: productoption
+                }
             }));
-        return Responce.resSuccess(res, successMessage.success, rows);
+        return Responce.resSuccess(res, successMessage.success, tranfrom);
     } catch (error) {
         return Responce.resError(res, errorMessage.saveError);
     } finally {
