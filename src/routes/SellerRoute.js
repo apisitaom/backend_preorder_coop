@@ -16,7 +16,7 @@ router.get('/preorder',preorder.getProduct);
 router.get('/preorder/:id',preorder.getProductDetail);
 
 router.post('/register',img.upload,seller.insert);
-router.post('/edit',auth.sellerVerifyToken,img.upload,seller.edit);
+router.post('/edit',img.upload,seller.edit);
 router.post('/login',seller.login);
 router.post('/optionvalue',img.upload,optionvalue.insert);
 router.post('/preorder',preorder.insertPreorder);
