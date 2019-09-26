@@ -31,8 +31,8 @@ async function getPay (req, res, next) {
 }
 
 //payment ต่อจาก cart/add
-async function payment (req, res, next) {
-    const {total, day, time, sellerid, } = req.body;  
+async function add (req, res, next) {
+    const {total, day, time, sellerid, orderid} = req.body;  
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
@@ -40,17 +40,18 @@ async function payment (req, res, next) {
     
     const date = day + ' ' + time;
     
-    const active = true;
-    const sqlPayment = `insert into payment (active, datepayment, summary, slip) values  ($1, $2, $3, $4)`
-    const valuePayment = [active, moment(date).format('YYYY-MM-DD HH:mm:ss'), total, req.files[0].filename];
-    try {
-        await db.query(sqlPayment, valuePayment);
-        return Responce.resSuccess(res, successMessage.success);
-    } catch (error) {
-        return Responce.resError(res, errorMessage.saveError);
-    } finally {
-        res.end();
-    }
+    const active = true;    
+        if (!req.files[0]) {
+            return Responce.resError(res, errorMessage.photo);
+        } else {
+            const sqlPayment = `insert into payment (active, datepayment, summary, slip) values  ($1, $2, $3, $4) returning payid`
+            const valuePayment = [active, moment(date).format('YYYY-MM-DD HH:mm:ss'), total, req.files[0].fieldname];    
+            const orderproduct = await db.query(sqlPayment, valuePayment);
+            const updateorderproduct = `update orderproduct set payid = $1 where orderid = $2`
+            const valueorderproduct = [orderproduct.rows[0].payid, orderid];
+            await db.query(updateorderproduct, valueorderproduct);
+            return Responce.resSuccess(res, successMessage.success);
+        }
 }
 async function getOrderPayment(req, res, next) {
     const { orderid } = req.body;
@@ -82,11 +83,13 @@ async function getOrderPayment(req, res, next) {
         return Responce.resError(res, errorMessage.saveError);
     } finally {
         res.end();
-    }
+    } 
 }
+
+
 
 module.exports = {
     getPay,
-    payment,
+    add,
     getOrderPayment
 }

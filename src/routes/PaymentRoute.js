@@ -8,6 +8,6 @@ router.get('/', (req, res, next)=>{res.json('PAYMENT ROUTE')});
 router.get('/lists/:id',payment.getPay);
 
 
-router.post('/add',img.upload, payment.payment);
+router.post('/add',img.upload, payment.add);
 router.post('/order', payment.getOrderPayment);
 module.exports = router;
