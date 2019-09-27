@@ -75,7 +75,7 @@ async function login(req, res) {
     return Response.resError(res, errorMessage.saveError);
   }
 }
-async function shopinfo(req, res) {
+async function lists(req, res) {
   const sql = `select 
   seller.sellerid,seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode,
   seller.province,seller.phonenumber,seller.email,seller.photo,
@@ -163,7 +163,7 @@ async function all(req, res) {
 module.exports = {
   insert,
   login,
-  shopinfo,
+  lists,
   edit,
   all
 }
