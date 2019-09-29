@@ -145,7 +145,7 @@ async function edit(req, res, next) {
 }
 async function all(req, res) {
   const sql = `select 
-  seller.sellerid,seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode,
+  seller.active,seller.taxid, seller.createdate, seller.sellerid,seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode,
   seller.province,seller.phonenumber,seller.email,seller.photo,
   bank.bankname,bank.bankaccountname,bank.banknumber,
   promptpay.promptpayname,promptpay.promptpaynumber 

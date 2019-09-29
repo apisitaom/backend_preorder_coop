@@ -307,7 +307,7 @@ async function getProduct(req, res) {
             photo: rows[0].photo,
             proname: rows[0].proname,
             detail: rows[0].prodetail,
-            results: detail
+            result: detail
         }
         return Responce.resSuccess(res, successMessage.success, tranfrom);
     } catch (error) {
