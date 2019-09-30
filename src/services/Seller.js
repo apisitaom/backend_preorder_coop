@@ -159,11 +159,26 @@ async function all(req, res) {
     return Response.resError(res, errorMessage.saveError);
   }
 }
+async function Role (req, res) {
+  const { active, sellerid } = req.body;
+  
+  console.log(req.body);
 
+  const sql = `update seller set active = $1 where sellerid = $2`;
+  const value = [active, sellerid];
+  try {
+    await db.query(sql, value);
+    return Response.resSuccess(res, successMessage.success);
+  } catch (error) {
+    throw error
+    // return Response.resError(res, errorMessage.saveError);
+  }
+}
 module.exports = {
   insert,
   login,
   lists,
   edit,
-  all
+  all,
+  Role
 }
