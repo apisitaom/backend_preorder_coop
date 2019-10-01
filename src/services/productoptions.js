@@ -16,7 +16,7 @@ async function Productoption (productoptionid) {
             rows[0].timeend = moment(rows[0].timeend).subtract(7, 'h');
             rows[0].timeend = moment(rows[0].timeend).format('YYYY-MM-DD HH:mm:ss');
             rows[0].timestart = moment(rows[0].timestart).format('YYYY-MM-DD HH:mm:ss');                    
-            return rows
+            return rows;
         }));
         resolve(data);
     });
