@@ -282,7 +282,7 @@ async function getProduct(req, res) {
     const detail = []
     const getPopup = `select 
     product.proid,product.photo,product.proname, product.prodetail,
-    productoption.proopid,productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue,
+    productoption.proopid,productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue,productoption.totalproduct,
     seller.sellername,seller.sellerid
     from product
     inner join productoption on product.proid = productoption.proid
@@ -296,7 +296,8 @@ async function getProduct(req, res) {
                 'price': rows[i].price,
                 'optionvalue': rows[i].optionvalue,
                 'sku': rows[i].sku,
-                'vat': rows[i].includingvat
+                'vat': rows[i].includingvat,
+                'totalproduct': rows[i].totalproduct
             }
             detail.push(obj)
         }

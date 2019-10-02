@@ -4,8 +4,6 @@ const img  =require('../lib/ImageUpload');
 const optionvalue = require('../services/Optionvalue');
 const product = require('../services/Product');
 const preorder = require('../services/Preorder');
-const order = require('../services/Order');
-const auth = require('../lib/Auth');
 
 router.get('/',(req,res)=>{res.json('SELLER ROUTE')});
 router.get('/popup/:id',product.Product.getPopup);
@@ -21,5 +19,6 @@ router.post('/edit',img.upload,seller.edit);
 router.post('/login',seller.login);
 router.post('/optionvalue',img.upload,optionvalue.insert);
 router.post('/preorder',preorder.insertPreorder);
+router.post('/role',seller.Role);    
 
 module.exports = router;

@@ -7,7 +7,10 @@ const moment = require('moment');
 const productoptions = require('./productoptions');
 
 async function add (req, res, next) {
-    const {address, phonenumber, countdowntime, amount, proopid} = req.body;
+    const {address, phonenumber, countdowntime, amounts, proopid, district, province, zipcode} = req.body;
+    if (amounts.length != proopid.length) {
+        return Responce.resError(res, errorMessage.saveError);
+    }
     const active = true;
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
@@ -18,8 +21,8 @@ async function add (req, res, next) {
             const sqlorderproduct = `insert into orderproduct (active, userid) values ($1, $2) returning orderid`
             const valueorderproduct = [active, decode.data.id];
             const orderproduct = await db.query(sqlorderproduct, valueorderproduct);
-            const sqlorderdetail = `insert into orderdetail (active, amount, address, phone, proopids, orderid) values ($1, $2, $3, $4, $5, $6)`
-            const valueorderdetail = [active, amount, address, phonenumber, proopid, orderproduct.rows[0].orderid];
+            const sqlorderdetail = `insert into orderdetail (active, amounts, address, phone, proopids, orderid, disstrict, province, zipcode) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
+            const valueorderdetail = [active, amounts, address, phonenumber, proopid, orderproduct.rows[0].orderid, district, province, zipcode];
             await db.query(sqlorderdetail, valueorderdetail);
             db.query('COMMIT');
         return Responce.resSuccess(res, successMessage.success);
@@ -42,14 +45,17 @@ async function list (req, res, next) {
     try {
         const { rows } = await db.query(sql, [decode.data.id]);
         const tranfrom = await Promise.all(rows.map(async(item) => {
-        const productoption = await productoptions.Productoption(item.proopids);
+        const productoption = await productoptions.Productoption(item.proopids, item.amounts);
         return {
             orderdetailid: item.orderdetailid,
-            amount: item.amount,
+            amounts: item.amounts,
             address: item.address,
+            disstrict: item.disstrict,
+            province: item.province,
+            zipcode: item.zipcode,
             orderid: item.orderid,
             phone: item.phone,
-            result: productoption
+            result: productoption,
             }
         }));
         return Responce.resSuccess(res, successMessage.success, tranfrom);
