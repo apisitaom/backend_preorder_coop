@@ -7,8 +7,10 @@ const moment = require('moment');
 const productoptions = require('./productoptions');
 
 async function add (req, res, next) {
-    console.log(req.body);
     const {address, phonenumber, countdowntime, amounts, proopid, disstrict, province, zipcode} = req.body;
+    if (amounts.length != proopid.length) {
+        return Responce.resError(res, errorMessage.saveError);
+    }
     const active = true;
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
@@ -43,7 +45,7 @@ async function list (req, res, next) {
     try {
         const { rows } = await db.query(sql, [decode.data.id]);
         const tranfrom = await Promise.all(rows.map(async(item) => {
-        const productoption = await productoptions.Productoption(item.proopids);
+        const productoption = await productoptions.Productoption(item.proopids, item.amounts);
         return {
             orderdetailid: item.orderdetailid,
             amounts: item.amounts,
