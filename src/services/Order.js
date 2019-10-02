@@ -7,7 +7,7 @@ const moment = require('moment');
 const productoptions = require('./productoptions');
 
 async function add (req, res, next) {
-    const {address, phonenumber, countdowntime, amounts, proopid, disstrict, province, zipcode} = req.body;
+    const {address, phonenumber, countdowntime, amounts, proopid, district, province, zipcode} = req.body;
     if (amounts.length != proopid.length) {
         return Responce.resError(res, errorMessage.saveError);
     }
@@ -22,7 +22,7 @@ async function add (req, res, next) {
             const valueorderproduct = [active, decode.data.id];
             const orderproduct = await db.query(sqlorderproduct, valueorderproduct);
             const sqlorderdetail = `insert into orderdetail (active, amounts, address, phone, proopids, orderid, disstrict, province, zipcode) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
-            const valueorderdetail = [active, amounts, address, phonenumber, proopid, orderproduct.rows[0].orderid, disstrict, province, zipcode];
+            const valueorderdetail = [active, amounts, address, phonenumber, proopid, orderproduct.rows[0].orderid, district, province, zipcode];
             await db.query(sqlorderdetail, valueorderdetail);
             db.query('COMMIT');
         return Responce.resSuccess(res, successMessage.success);
