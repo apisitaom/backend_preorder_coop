@@ -13,14 +13,14 @@ async function Productoption (productoptionid, amounts) {
     return new Promise (async(resolve, reject) => {
             let data = await Promise.all(productoptionid.map(async(index) => {
                 for (let i = 0; i< amounts.length;i++) {
-                const {rows} = await db.query(sql, [index]);
+                const { rows } = await db.query(sql, [index]);
                     rows[0].timeend = moment(rows[0].timeend).subtract(7, 'h');
                     rows[0].timeend = moment(rows[0].timeend).format('YYYY-MM-DD HH:mm:ss');
                     rows[0].timestart = moment(rows[0].timestart).format('YYYY-MM-DD HH:mm:ss');                  
-                        let responce = {
+                    let responce = {
                             proopid: rows[0].proopid,
                             price: rows[0].price,
-                            includingvat: rows[0].includingvat,
+                              includingvat: rows[0].includingvat,
                             optionvalue: rows[0].optionvalue,
                             totalproduct: rows[0].totalproduct,
                             sku: rows[0].sku,

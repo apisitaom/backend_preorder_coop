@@ -41,12 +41,16 @@ async function list (req, res, next) {
     const sql = `select * 
     from orderdetail 
     full join orderproduct on orderproduct.orderid = orderdetail.orderid
+    full join member on member.userid = orderproduct.userid 
     where orderproduct.userid = $1`
     try {
         const { rows } = await db.query(sql, [decode.data.id]);
         const tranfrom = await Promise.all(rows.map(async(item) => {
         const productoption = await productoptions.Productoption(item.proopids, item.amounts);
         return {
+            fullname: item.firstname +' '+ item.lastname,
+            createdate: item.createdate,
+            orderid: item.orderid,
             orderdetailid: item.orderdetailid,
             amounts: item.amounts,
             address: item.address,
