@@ -149,10 +149,14 @@ CREATE TABLE public.orderdetail (
     datemodify timestamp without time zone,
     amount integer,
     address character varying(500),
-    phone character varying(20),
-    phonenumber character varying(100),
     orderid uuid,
-    proopid uuid
+    proopid uuid,
+    phone character varying(50),
+    proopids text[],
+    disstrict character varying(100),
+    province character varying(100),
+    zipcode character varying(100),
+    amounts text[]
 );
 
 
@@ -442,14 +446,6 @@ ALTER TABLE ONLY public.product
 
 ALTER TABLE ONLY public.productoption
     ADD CONSTRAINT productoption_pkey PRIMARY KEY (proopid);
-
-
---
--- Name: productoption productoption_sku_key; Type: CONSTRAINT; Schema: public; Owner: aom
---
-
-ALTER TABLE ONLY public.productoption
-    ADD CONSTRAINT productoption_sku_key UNIQUE (sku);
 
 
 --

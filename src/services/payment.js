@@ -40,6 +40,42 @@ async function lists (req, res, next) {
         res.end();
     }
 }
+//ข้อมูลเดียว
+async function list (req, res, next) {
+    const { headers } = req;
+    const subtoken = headers.authorization.split(' ');
+    const token = subtoken[1];
+    const decode = helper.Helper.verifyToken(token);
+    const sql = `select * 
+    from orderproduct
+    full join payment on orderproduct.payid = payment.payid
+    full join orderdetail on orderdetail.orderid = orderproduct.orderid
+    where orderproduct.userid = $1 `
+    const value = [decode.data.id]
+    try {
+        const { rows } = await db.query(sql, value);      
+        const tranfrom = await Promise.all(rows.map(async(item) => {
+        const productoption = await productoptions.Productoption(item.proopids);
+        console.log(item);    
+        return {
+                orderdetailid: item.orderdetailid,
+                amount: item.amount,
+                address: item.address,
+                orderid: item.orderid,
+                phone: item.phone,
+                payid: item.payid,
+                summary: item.summary,
+                amount: item.amount,
+                result: productoption
+                }
+            }));
+        return Responce.resSuccess(res, successMessage.success, tranfrom);
+    } catch (error) {
+        return Responce.resError(res, errorMessage.saveError);
+    } finally {
+        res.end();
+    }
+}
 
 //payment ต่อจาก cart/add
 async function add (req, res, next) {
