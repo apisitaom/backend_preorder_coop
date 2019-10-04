@@ -283,7 +283,7 @@ async function shopCustomer(req, res, next) {
 async function getProduct(req, res) {
     const detail = []
     const getPopup = `select 
-    product.proid,product.photo,product.proname, product.prodetail,
+    product.proid,product.photo,product.proname, product.prodetail, product.category,
     productoption.proopid,productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue,productoption.totalproduct,
     seller.sellername,seller.sellerid
     from product
@@ -305,6 +305,7 @@ async function getProduct(req, res) {
         }
         const tranfrom = {
             proid: rows[0].proid,
+            category: rows[0].category,
             sellername: rows[0].sellername,
             sellerid: rows[0].sellerid,
             photo: rows[0].photo,
