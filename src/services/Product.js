@@ -9,7 +9,7 @@ const Product = {
     async getPopup(req, res) {
         const detail = []
         const getPopup = `select 
-        product.proid,product.photo,product.proname, product.prodetail,
+        product.proid,product.photo,product.proname, product.prodetail,product.category,
         productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue
         from product
         inner join productoption on product.proid = productoption.proid 
@@ -29,6 +29,7 @@ const Product = {
                 photo: rows[0].photo,
                 proname: rows[0].proname,
                 detail: rows[0].prodetail,
+                category: rows[0].category,
                 results: detail
             }
             return Responce.resSuccess(res, successMessage.success, tranfrom);
@@ -85,7 +86,7 @@ const Product = {
     }
 }
 async function homepageCustomer(req, res, next) {
-        const sql = `select proid,proname,prodetail,photo,sellerid,timestart,timeend from product where active = true`;
+        const sql = `select proid,proname,prodetail,photo,sellerid,timestart,timeend,category from product where active = true`;
         let products = [];
         const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
         try {
@@ -104,6 +105,7 @@ async function homepageCustomer(req, res, next) {
                     proid: item.proid,
                     proname: item.proname,
                     prodetail: item.prodetail,
+                    category: item.category,
                     photo: item.photo,
                     sellerid: item.sellerid,
                     timestart:item.timestart,
@@ -256,7 +258,7 @@ async function shopCustomer(req, res, next) {
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
     const sql = `select 
-    product.photo, product.proname, 
+    product.photo, product.proname, product.category,
     seller.address, seller.subdistrict, seller.district, seller.zipcode, 
     seller.province, seller.phonenumber, seller.email, seller.photo, 
     eventproduct.timestart, 

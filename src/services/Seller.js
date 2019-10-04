@@ -188,7 +188,7 @@ async function buy (req, res, next) {
         if (productoption[0] != undefined) {
           let responce = {
             fullname: item.firstname +' '+ item.lastname,
-            createdate: item.createdate,
+            createdate: moment(item.createdate,).format('YYYY-MM-DD HH:mm:ss'),
             orderid: item.orderid,
             orderdetailid: item.orderdetailid,
             amounts: item.amounts,
@@ -215,6 +215,17 @@ async function buy (req, res, next) {
   }
 }
 
+async function shipping (req, res , next) {
+  const { orderid } = req.body
+  const sql =``
+  const value = []
+  try {
+    
+  } catch (error) {
+    throw error
+  }
+}
+
 module.exports = {
   insert,
   login,
@@ -222,5 +233,6 @@ module.exports = {
   edit,
   all,
   Role,
-  buy
+  buy,
+  shipping
 }

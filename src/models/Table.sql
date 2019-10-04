@@ -144,7 +144,7 @@ create table Product(
     proName             varchar(50)  ,
     proDetail           varchar(50)  ,
     photo               text [] ,
-           
+    category            varchar(50),     
     timeStart           timestamp,
     timeEnd             timestamp,
 

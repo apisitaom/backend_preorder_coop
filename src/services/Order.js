@@ -47,9 +47,9 @@ async function lists (req, res, next) {
         const { rows } = await db.query(sql, [decode.data.id]);
         const tranfrom = await Promise.all(rows.map(async(item) => {
             const productoption = await productoptions.Productoption(item.proopids, item.amounts);
-        return {
+            return {
             fullname: item.firstname +' '+ item.lastname,
-            createdate: item.createdate,
+            createdate: moment(item.createdate,).format('YYYY-MM-DD HH:mm:ss'),
             orderid: item.orderid,
             orderdetailid: item.orderdetailid,
             amounts: item.amounts,
