@@ -18,8 +18,10 @@ async function add (req, res, next) {
     const decode = helper.Helper.verifyToken(token);
     try {
             db.query('BEGIN');
-            const sqlorderproduct = `insert into orderproduct (active, userid) values ($1, $2) returning orderid`
-            const valueorderproduct = [active, decode.data.id];
+            const sqlpayment = `insert into payment(active, paystatusid) values ($1, $2) returning payid`
+            const payment = await db.query(sqlpayment, [active, 1]);
+            const sqlorderproduct = `insert into orderproduct (active, userid, payid) values ($1, $2, $3) returning orderid`
+            const valueorderproduct = [active, decode.data.id,payment.rows[0].payid];
             const orderproduct = await db.query(sqlorderproduct, valueorderproduct);
             const sqlorderdetail = `insert into orderdetail (active, amounts, address, phone, proopids, orderid, disstrict, province, zipcode) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
             const valueorderdetail = [active, amounts, address, phonenumber, proopid, orderproduct.rows[0].orderid, district, province, zipcode];
@@ -41,11 +43,14 @@ async function lists (req, res, next) {
     const sql = `select * 
     from orderdetail 
     full join orderproduct on orderproduct.orderid = orderdetail.orderid
+    full join payment on payment.payid = orderproduct.payid
+    full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
     full join member on member.userid = orderproduct.userid 
     where orderproduct.userid = $1`
     try {
         const { rows } = await db.query(sql, [decode.data.id]);
         const tranfrom = await Promise.all(rows.map(async(item) => {
+            console.log(item);
             const productoption = await productoptions.Productoption(item.proopids, item.amounts);
             return {
             fullname: item.firstname +' '+ item.lastname,
@@ -59,6 +64,7 @@ async function lists (req, res, next) {
             zipcode: item.zipcode,
             orderid: item.orderid,
             phone: item.phone,
+            statusname: item.statusname,
             result: productoption,
             }
         }));
@@ -75,6 +81,8 @@ async function list (req, res, next) {
     const sql = `select * 
     from orderdetail 
     full join orderproduct on orderproduct.orderid = orderdetail.orderid
+    full join payment on payment.payid = orderproduct.payid
+    full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
     full join member on member.userid = orderproduct.userid 
     where orderproduct.userid = $1 and orderproduct.orderid = $2`
     const value = [decode.data.id, req.params.id]
@@ -94,6 +102,7 @@ async function list (req, res, next) {
             zipcode: item.zipcode,
             orderid: item.orderid,
             phone: item.phone,
+            statusname: item.statusname,
             result: productoption,
             }
         }));

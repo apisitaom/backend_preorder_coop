@@ -16,7 +16,7 @@ create table admin (
 --------------------------1--------------------
 --Shipping Status
 create table ShippingStatus(
-    shipStatusId        uuid primary key         default gen_random_uuid(),
+    shipStatusId        integer primary key,
     shippingStatusName  varchar(50)  ,
     createdate          timestamp default now(),
     active              boolean,
@@ -57,7 +57,7 @@ create table Member(
 
 --Payment Status
 create table PaymentStatus(
-    payStatusId         uuid primary key         default gen_random_uuid(),
+    payStatusId         integer primary key,
     createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
@@ -118,7 +118,7 @@ create table Payment(
     slip                varchar(255),--photo
     summary             float  ,
     datepayment         timestamp,
-    payStatusId         uuid  ,
+    payStatusId         integer  ,
     FOREIGN KEY (payStatusId) REFERENCES PaymentStatus (payStatusId)
 );
 
@@ -130,7 +130,7 @@ create table Shipping(
     datemodify          timestamp,
     shipTrackNo         varchar(100),
 
-    shipStatusId        uuid  ,
+    shipStatusId        integer  ,
     FOREIGN KEY (shipStatusId) REFERENCES shippingstatus (shipstatusid)
 );
 
@@ -234,3 +234,11 @@ create table OrderDetail(
     FOREIGN KEY (proOpId) REFERENCES ProductOption(proOpId)
     FOREIGN KEY (orderId) REFERENCES OrderProduct(orderId),
 );
+
+
+-- ข้อมูลสถานะการจ่ายตัง
+insert into paymentstatus (paystatusid, active, statusname ) values (1, true, 'รอการชำระเงิน/สินค้า');
+insert into paymentstatus (paystatusid, active, statusname ) values (2, true, 'การชำระเงินเสร็จสิ้นเเล้ว');
+-- ข้อมมูลสถานะการส่ง
+insert into shippingstatus (shipstatusid, active, shippingstatusname) values (1, true, 'สินค้ายังไม่ได้ทำการจัดส่ง');
+insert into shippingstatus (shipstatusid, active, shippingstatusname) values (2, true, 'สินค้ายังทำการจัดส่งเรียบร้อยเเล้ว');
