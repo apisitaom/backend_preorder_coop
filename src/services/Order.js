@@ -33,7 +33,7 @@ async function add (req, res, next) {
         res.end();
     }
 }
-async function list (req, res, next) {
+async function lists (req, res, next) {
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
@@ -45,6 +45,41 @@ async function list (req, res, next) {
     where orderproduct.userid = $1`
     try {
         const { rows } = await db.query(sql, [decode.data.id]);
+        const tranfrom = await Promise.all(rows.map(async(item) => {
+            const productoption = await productoptions.Productoption(item.proopids, item.amounts);
+        return {
+            fullname: item.firstname +' '+ item.lastname,
+            createdate: item.createdate,
+            orderid: item.orderid,
+            orderdetailid: item.orderdetailid,
+            amounts: item.amounts,
+            address: item.address,
+            disstrict: item.disstrict,
+            province: item.province,
+            zipcode: item.zipcode,
+            orderid: item.orderid,
+            phone: item.phone,
+            result: productoption,
+            }
+        }));
+        return Responce.resSuccess(res, successMessage.success, tranfrom);
+    } catch (error) {
+        return Responce.resError(res, errorMessage.saveError);
+    }
+}
+async function list (req, res, next) {
+    const { headers } = req;
+    const subtoken = headers.authorization.split(' ');
+    const token = subtoken[1];
+    const decode = helper.Helper.verifyToken(token);
+    const sql = `select * 
+    from orderdetail 
+    full join orderproduct on orderproduct.orderid = orderdetail.orderid
+    full join member on member.userid = orderproduct.userid 
+    where orderproduct.userid = $1 and orderproduct.orderid = $2`
+    const value = [decode.data.id, req.params.id]
+    try {
+        const { rows } = await db.query(sql, value);
         const tranfrom = await Promise.all(rows.map(async(item) => {
         const productoption = await productoptions.Productoption(item.proopids, item.amounts);
         return {
@@ -67,7 +102,9 @@ async function list (req, res, next) {
         return Responce.resError(res, errorMessage.saveError);
     }
 }
+
 module.exports = {
     add,
+    lists,
     list
 }

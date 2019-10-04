@@ -13,6 +13,7 @@ router.get('/list/:id',seller.lists);
 router.get('/preorder',preorder.getProduct);
 router.get('/preorder/:id',preorder.getProductDetail);
 router.get('/all', seller.all);
+router.get('/buy', seller.buy);
 
 router.post('/register',img.upload,seller.insert);
 router.post('/edit',img.upload,seller.edit);

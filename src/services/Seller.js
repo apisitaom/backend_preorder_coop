@@ -4,6 +4,7 @@ const errorMessage = require('../lib/errorMessage');
 const successMessage = require('../lib/successMessage');
 const Response = require('../lib/Reposnce');
 const helper = require('../lib/Helper');
+const productoptions = require('./productoptions'); 
 
 async function insert(req, res) {
   if (!req.body.email || !req.body.password) {
@@ -170,11 +171,56 @@ async function Role (req, res) {
     return Response.resError(res, errorMessage.saveError);
   }
 }
+async function buy (req, res, next) {
+  const { headers } = req;
+  const subtoken = headers.authorization.split(' ');
+  const token = subtoken[1];
+  const decode = helper.Helper.verifyToken(token);
+  const sql = `select * 
+  from orderdetail 
+  full join orderproduct on orderproduct.orderid = orderdetail.orderid
+  full join member on member.userid = orderproduct.userid 
+  `
+  try {
+      const { rows } = await db.query(sql);
+      const tranfrom = await Promise.all(rows.map(async(item) => {
+        const productoption = await productoptions.ProductoptionSeller(item.proopids, item.amounts, decode.data.id);
+        if (productoption[0] != undefined) {
+          let responce = {
+            fullname: item.firstname +' '+ item.lastname,
+            createdate: item.createdate,
+            orderid: item.orderid,
+            orderdetailid: item.orderdetailid,
+            amounts: item.amounts,
+            address: item.address,
+            disstrict: item.disstrict,
+            province: item.province,
+            zipcode: item.zipcode,
+            orderid: item.orderid,
+            phone: item.phone,
+            result: productoption,
+          }
+          return responce != undefined ? responce : 'what' 
+          }
+      }));
+      let data = []
+      tranfrom.map(async(item) => {
+        if(item != undefined){
+          data.push(item);
+        }
+      })
+      return Response.resSuccess(res, successMessage.success, data);
+  } catch (error) {
+      return Response.resError(res, errorMessage.saveError);
+  }
+}
+
 module.exports = {
   insert,
   login,
   lists,
   edit,
   all,
-  Role
+  Role,
+  buy
 }

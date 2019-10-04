@@ -56,7 +56,6 @@ async function list (req, res, next) {
         const { rows } = await db.query(sql, value);      
         const tranfrom = await Promise.all(rows.map(async(item) => {
         const productoption = await productoptions.Productoption(item.proopids);
-        console.log(item);    
         return {
                 orderdetailid: item.orderdetailid,
                 amount: item.amount,
