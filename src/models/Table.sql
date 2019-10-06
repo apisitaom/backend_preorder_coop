@@ -238,7 +238,10 @@ create table OrderDetail(
 
 -- ข้อมูลสถานะการจ่ายตัง
 insert into paymentstatus (paystatusid, active, statusname ) values (1, true, 'รอการชำระเงิน/สินค้า');
-insert into paymentstatus (paystatusid, active, statusname ) values (2, true, 'การชำระเงินเสร็จสิ้นเเล้ว');
+insert into paymentstatus (paystatusid, active, statusname ) values (2, true, 'รอตรวจสอบ การชำระเงินเสร็จสิ้นเเล้ว');
+insert into paymentstatus (paystatusid, active, statusname ) values (3, true, 'การชำระเงินเสร็จสิ้นเเล้ว');
+
 -- ข้อมมูลสถานะการส่ง
 insert into shippingstatus (shipstatusid, active, shippingstatusname) values (1, true, 'สินค้ายังไม่ได้ทำการจัดส่ง');
-insert into shippingstatus (shipstatusid, active, shippingstatusname) values (2, true, 'สินค้ายังทำการจัดส่งเรียบร้อยเเล้ว');
+insert into shippingstatus (shipstatusid, active, shippingstatusname) values (2, true, 'รอตรวจสอย การสินค้ายังทำการจัดส่งเรียบร้อยเเล้ว');
+insert into shippingstatus (shipstatusid, active, shippingstatusname) values (3, true, 'สินค้ายังทำการจัดส่งเรียบร้อยเเล้ว');
