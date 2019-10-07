@@ -12,25 +12,31 @@ async function lists (req, res, next) {
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
     const sql = `select * 
-    from orderproduct
-    full join payment on orderproduct.payid = payment.payid
-    full join orderdetail on orderdetail.orderid = orderproduct.orderid
+    from orderdetail 
+    full join orderproduct on orderproduct.orderid = orderdetail.orderid
+    full join payment on payment.payid = orderproduct.payid
+    full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
+    full join member on member.userid = orderproduct.userid 
     where orderproduct.userid = $1`
     const value = [decode.data.id]
     try {
         const { rows } = await db.query(sql, value);      
         const tranfrom = await Promise.all(rows.map(async(item) => {
-            const productoption = await productoptions.Productoption(item.proopids);
+            const productoption = await productoptions.Productoption(item.proopids, item.amounts);
             return {
+                fullname: item.firstname +' '+ item.lastname,
+                createdate: item.createdate,
+                orderid: item.orderid,
                 orderdetailid: item.orderdetailid,
-                amount: item.amount,
+                amounts: item.amounts,
                 address: item.address,
+                disstrict: item.disstrict,
+                province: item.province,
+                zipcode: item.zipcode,
                 orderid: item.orderid,
                 phone: item.phone,
-                payid: item.payid,
-                summary: item.summary,
-                amount: item.amount,
-                result: productoption
+                statusname: item.statusname,
+                result: productoption,
                 }
             }));
         return Responce.resSuccess(res, successMessage.success, tranfrom);
@@ -40,45 +46,47 @@ async function lists (req, res, next) {
         res.end();
     }
 }
-//ข้อมูลเดียว
 async function list (req, res, next) {
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
     const sql = `select * 
-    from orderproduct
-    full join payment on orderproduct.payid = payment.payid
-    full join orderdetail on orderdetail.orderid = orderproduct.orderid
-    where orderproduct.userid = $1 `
-    const value = [decode.data.id]
+    from orderdetail 
+    full join orderproduct on orderproduct.orderid = orderdetail.orderid
+    full join payment on payment.payid = orderproduct.payid
+    full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
+    full join member on member.userid = orderproduct.userid 
+    where orderproduct.userid = $1 and orderproduct.orderid = $2`
+    const value = [decode.data.id, req.params.id]
     try {
-        const { rows } = await db.query(sql, value);      
+        const { rows } = await db.query(sql, value);
         const tranfrom = await Promise.all(rows.map(async(item) => {
-        const productoption = await productoptions.Productoption(item.proopids);
+        const productoption = await productoptions.Productoption(item.proopids, item.amounts);
         return {
-                orderdetailid: item.orderdetailid,
-                amount: item.amount,
-                address: item.address,
-                orderid: item.orderid,
-                phone: item.phone,
-                payid: item.payid,
-                summary: item.summary,
-                amount: item.amount,
-                result: productoption
-                }
-            }));
+            fullname: item.firstname +' '+ item.lastname,
+            createdate: item.createdate,
+            orderid: item.orderid,
+            orderdetailid: item.orderdetailid,
+            amounts: item.amounts,
+            address: item.address,
+            disstrict: item.disstrict,
+            province: item.province,
+            zipcode: item.zipcode,
+            orderid: item.orderid,
+            phone: item.phone,
+            statusname: item.statusname,
+            result: productoption,
+            }
+        }));
         return Responce.resSuccess(res, successMessage.success, tranfrom);
     } catch (error) {
         return Responce.resError(res, errorMessage.saveError);
-    } finally {
-        res.end();
     }
 }
 
-//payment ต่อจาก cart/add
 async function add (req, res, next) {
-    const {total, day, time, sellerid, orderid} = req.body;  
+    const {total, day, time, sellerid, orderid, payid} = req.body;  
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
@@ -88,17 +96,56 @@ async function add (req, res, next) {
         if (!req.files[0]) {
             return Responce.resError(res, errorMessage.photo);
         } else {
-            const sqlPayment = `insert into payment (active, datepayment, summary, slip) values  ($1, $2, $3, $4) returning payid`
-            const valuePayment = [active, moment(date).format('YYYY-MM-DD HH:mm:ss'), total, req.files[0].fieldname];    
-            const orderproduct = await db.query(sqlPayment, valuePayment);
-            const updateorderproduct = `update orderproduct set payid = $1 where orderid = $2`
-            const valueorderproduct = [orderproduct.rows[0].payid, orderid];
-            await db.query(updateorderproduct, valueorderproduct);
+            const sqlPayment = `update payment set active = $1, datepayment = $2, summary = $3, slip = $4, paystatusid = $5 where payid = $6`
+            const valuePayment = [active, moment(date).format('YYYY-MM-DD HH:mm:ss'), total, req.files[0].fieldname, 2, payid];    
+            await db.query(sqlPayment, valuePayment);
             return Responce.resSuccess(res, successMessage.success);
         }
+}
+// =================================== ADMIN ===================================
+async function adminLists (req, res, next) {
+    const { headers } = req;
+    const subtoken = headers.authorization.split(' ');
+    const token = subtoken[1];
+    const decode = helper.Helper.verifyToken(token);
+    const sql = `select * 
+    from orderdetail 
+    full join orderproduct on orderproduct.orderid = orderdetail.orderid
+    full join payment on payment.payid = orderproduct.payid
+    full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
+    full join member on member.userid = orderproduct.userid`
+    const value = [decode.data.id]
+    try {
+        const { rows } = await db.query(sql, value);      
+        const tranfrom = await Promise.all(rows.map(async(item) => {
+            const productoption = await productoptions.Productoption(item.proopids, item.amounts);
+            return {
+                fullname: item.firstname +' '+ item.lastname,
+                createdate: item.createdate,
+                orderid: item.orderid,
+                orderdetailid: item.orderdetailid,
+                amounts: item.amounts,
+                address: item.address,
+                disstrict: item.disstrict,
+                province: item.province,
+                zipcode: item.zipcode,
+                orderid: item.orderid,
+                phone: item.phone,
+                statusname: item.statusname,
+                result: productoption,
+                }
+            }));
+        return Responce.resSuccess(res, successMessage.success, tranfrom);
+    } catch (error) {
+        return Responce.resError(res, errorMessage.saveError);
+    } finally {
+        res.end();
+    }
 }
 
 module.exports = {
     lists,
-    add
+    add,
+    list,
+    adminLists
 }
