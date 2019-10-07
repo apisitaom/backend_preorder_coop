@@ -104,48 +104,43 @@ async function add (req, res, next) {
 }
 // =================================== ADMIN ===================================
 async function adminLists (req, res, next) {
-    const { headers } = req;
-    const subtoken = headers.authorization.split(' ');
-    const token = subtoken[1];
-    const decode = helper.Helper.verifyToken(token);
     const sql = `select * 
     from orderdetail 
     full join orderproduct on orderproduct.orderid = orderdetail.orderid
     full join payment on payment.payid = orderproduct.payid
     full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
     full join member on member.userid = orderproduct.userid`
-    const value = [decode.data.id]
+    let data = [];
     try {
-        const { rows } = await db.query(sql, value);      
-        const tranfrom = await Promise.all(rows.map(async(item) => {
-            const productoption = await productoptions.Productoption(item.proopids, item.amounts);
-            return {
-                fullname: item.firstname +' '+ item.lastname,
-                createdate: item.createdate,
-                orderid: item.orderid,
-                orderdetailid: item.orderdetailid,
-                amounts: item.amounts,
-                address: item.address,
-                disstrict: item.disstrict,
-                province: item.province,
-                zipcode: item.zipcode,
-                orderid: item.orderid,
-                phone: item.phone,
-                statusname: item.statusname,
-                result: productoption,
-                }
-            }));
-        return Responce.resSuccess(res, successMessage.success, tranfrom);
+        const { rows } = await db.query(sql);
+        rows.map(async(element ,index) => {
+            if (element.orderid != null) {
+                data.push(element);
+            }
+        })
+        return Responce.resSuccess(res, successMessage.success, data);
     } catch (error) {
         return Responce.resError(res, errorMessage.saveError);
     } finally {
         res.end();
     }
 }
+async function adminAdd (req, res, next) {
+    const {payid} = req.body;    
+        const sqlPayment = `update payment set paystatusid = $1 where payid = $2`
+        const valuePayment = [ 3, payid];    
+        try {
+            await db.query(sqlPayment, valuePayment);
+            return Responce.resSuccess(res, successMessage.success);
+        } catch (error) {
+            return Responce.resError(res, errorMessage.saveError);
+        }
+}
 
 module.exports = {
     lists,
     add,
     list,
-    adminLists
+    adminLists,
+    adminAdd
 }
