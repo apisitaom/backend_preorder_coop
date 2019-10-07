@@ -115,7 +115,21 @@ async function adminLists (req, res, next) {
         const { rows } = await db.query(sql);
         rows.map(async(element ,index) => {
             if (element.orderid != null) {
-                data.push(element);
+                let responce = {
+                    payid: element.payid,
+                    orderid: element.orderid,
+                    phone: element.phone,
+                    disstrict: element.disstrict,
+                    province: element.province,
+                    zipcode: element.zipcode,
+                    slip: element.slip,
+                    summary: element.summary,
+                    statusname: element.statusname,
+                    fullname: element.firstname + ' '+ element.lastname,
+                    gender: element.gender,
+                    email: element.email,
+                }
+                data.push(responce);
             }
         })
         return Responce.resSuccess(res, successMessage.success, data);
