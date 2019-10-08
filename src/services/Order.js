@@ -7,7 +7,7 @@ const moment = require('moment');
 const productoptions = require('./productoptions');
 
 async function add (req, res, next) {
-    const {address, phonenumber, countdowntime, amounts, proopid, district, province, zipcode} = req.body;
+    const {address, phonenumber, countdowntime, amounts, proopid, district, province, zipcode, sellerid} = req.body;
     if (amounts.length != proopid.length) {
         return Responce.resError(res, errorMessage.saveError);
     }
@@ -20,8 +20,8 @@ async function add (req, res, next) {
             db.query('BEGIN');
             const sqlpayment = `insert into payment(active, paystatusid) values ($1, $2) returning payid`
             const payment = await db.query(sqlpayment, [active, 1]);
-            const sqlorderproduct = `insert into orderproduct (active, userid, payid) values ($1, $2, $3) returning orderid`
-            const valueorderproduct = [active, decode.data.id,payment.rows[0].payid];
+            const sqlorderproduct = `insert into orderproduct (active, userid, payid, sellerid) values ($1, $2, $3, $4) returning orderid`
+            const valueorderproduct = [active, decode.data.id,payment.rows[0].payid, sellerid];
             const orderproduct = await db.query(sqlorderproduct, valueorderproduct);
             const sqlorderdetail = `insert into orderdetail (active, amounts, address, phone, proopids, orderid, disstrict, province, zipcode) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
             const valueorderdetail = [active, amounts, address, phonenumber, proopid, orderproduct.rows[0].orderid, district, province, zipcode];
@@ -78,7 +78,6 @@ async function lists (req, res, next) {
         return Responce.resError(res, errorMessage.saveError);
     }
 }
-
 module.exports = {
     add,
     lists
