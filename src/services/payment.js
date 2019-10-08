@@ -146,10 +146,8 @@ async function adminAdd (req, res, next) {
         const active = true;
         const sqlpayment = `update payment set paystatusid = $1 where payid = $2`
         const valuepayment = [ 3, payid]; // 3 = การชำระเงินเสร็จสิ้นเเล้ว
-
         const sqlshipping = `insert into shipping (active, shipstatusid) returning shipid`
         const valueshipping = [active, 1] // 1 = สินค้ายังไม่ได้ทำการจัดส่ง
-
         const sqlorderproduct = `update orderproduct set shipid = $1 where orderid = $2`
         try {
             const shipping = await db.query(sqlshipping, valueshipping);

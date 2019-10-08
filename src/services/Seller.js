@@ -208,6 +208,7 @@ async function buy (req, res, next) {
             orderid: item.orderid,
             phone: item.phone,
             statusname: item.statusname,
+            shippingstatusname: item.shippingstatusname,
             total: sum,
             result: productoption,
           }
@@ -265,6 +266,7 @@ async function buyid (req, res, next) {
             orderid: item.orderid,
             phone: item.phone,
             statusname: item.statusname,
+            shippingstatusname: item.shippingstatusname,
             total: sum,
             result: productoption,
           }
@@ -284,7 +286,15 @@ async function buyid (req, res, next) {
       return Response.resError(res, errorMessage.saveError);
   }
 }
-
+async function shippingadd (req, res, next) {
+  const sql = ``
+  const value = []
+  try {
+    return Response.resSuccess(res, successMessage.success);    
+  } catch (error) {
+    return Response.resError(res, errorMessage.saveError);
+  }
+}
 module.exports = {
   insert,
   login,

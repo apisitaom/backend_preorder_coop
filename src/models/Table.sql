@@ -242,4 +242,5 @@ insert into paymentstatus (paystatusid, active, statusname ) values (3, true, '�
 -- ข้อมมูลสถานะการส่ง
 insert into shippingstatus (shipstatusid, active, shippingstatusname) values (1, true, 'สินค้ายังไม่ได้ทำการจัดส่ง');
 insert into shippingstatus (shipstatusid, active, shippingstatusname) values (2, true, 'รอตรวจสอบ การส่งสินค้า');
-insert into shippingstatus (shipstatusid, active, shippingstatusname) values (3, true, 'สินค้ายังทำการจัดส่งเรียบร้อยเเล้ว');
+insert into shippingstatus (shipstatusid, active, shippingstatusname) values (3, true, 'สินค้าทำการจัดส่งเรียบร้อยเเล้ว');
+insert into shippingstatus (shipstatusid, active, shippingstatusname) values (4, true, 'ยืนยันการจัดส่งเรียบร้อยเเล้ว');
