@@ -142,13 +142,19 @@ async function adminLists (req, res, next) {
     }
 }
 async function adminAdd (req, res, next) {
-    const { payid , orderid } = req.body;    
-        const sqlPayment = `update payment set paystatusid = $1 where payid = $2`
-        const valuePayment = [ 3, payid];    
+        const { payid , orderid } = req.body;
+        const active = true;
+        const sqlpayment = `update payment set paystatusid = $1 where payid = $2`
+        const valuepayment = [ 3, payid]; // 3 = การชำระเงินเสร็จสิ้นเเล้ว
+
+        const sqlshipping = `insert into shipping (active, shipstatusid) returning shipid`
+        const valueshipping = [active, 1] // 1 = สินค้ายังไม่ได้ทำการจัดส่ง
+
         const sqlorderproduct = `update orderproduct set shipid = $1 where orderid = $2`
-        const valueorderproduct = [1, orderid];
         try {
-            await db.query(sqlPayment, valuePayment);
+            const shipping = await db.query(sqlshipping, valueshipping);
+            await db.query(sqlpayment, valuepayment);
+            const valueorderproduct = [shipping.rows[0].shipid, orderid];
             await db.query(sqlorderproduct, valueorderproduct);
             return Responce.resSuccess(res, successMessage.success);
         } catch (error) {
