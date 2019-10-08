@@ -332,8 +332,8 @@ async function preOrder( req, res, next) {
         const sqlProduct = `select * from product where proid = $1`;
         const valueProduct = [productid];
         const { rows } = await db.query(sqlProduct, valueProduct);
-        const sql = `insert into product (active, proname, prodetail, photo, sellerid, timestart, timeend) values ($1, $2, $3, $4, $5, $6, $7) returning proid`;
-        const value = [active,rows[0].proname, rows[0].prodetail, rows[0].photo, rows[0].sellerid, days, new Date(end.toString())];
+        const sql = `insert into product (active, proname, prodetail, photo, sellerid, timestart, timeend, category) values ($1, $2, $3, $4, $5, $6, $7, $8) returning proid`;
+        const value = [active,rows[0].proname, rows[0].prodetail, rows[0].photo, rows[0].sellerid, days, new Date(end.toString()), rows[0].category];
         const product = await db.query(sql, value);
             optionJson.forEach(async (element, index) => {                
                 const sqlProductoption = `insert into productoption (active, sku, price, optionvalue,includingvat, proid, types, totalproduct) values ($1, $2, $3, $4, $5, $6, $7, $8) returning proopid `;

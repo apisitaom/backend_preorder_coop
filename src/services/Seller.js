@@ -191,9 +191,14 @@ async function buy (req, res, next) {
         if (item.proopids != null) {
         const productoption = await productoptions.ProductoptionSeller(item.proopids, item.amounts, decode.data.id);
         let sum = 0;
+        let datas = []
         productoption.map(async(element, index) => {
             sum += element.totalprice;
+            if (element !== null || element !== undefined) {
+              datas.push(element);
+            }
         })
+        
         if (productoption[0] != undefined) {
           let responce = {
             fullname: item.firstname +' '+ item.lastname,
@@ -210,7 +215,7 @@ async function buy (req, res, next) {
             statusname: item.statusname,
             shippingstatusname: item.shippingstatusname,
             total: sum,
-            result: productoption,
+            result: datas,
           }
           return responce != undefined && responce 
           }
@@ -249,9 +254,13 @@ async function buyid (req, res, next) {
         if (item.proopids != null) {
         const productoption = await productoptions.ProductoptionSeller(item.proopids, item.amounts, decode.data.id);
         let sum = 0;
+        let datas = []
         productoption.map(async(element, index) => {
-            sum += element.totalprice;
-        })
+          sum += element.totalprice;
+          if (element !== null || element !== undefined) {
+            datas.push(element);
+          }
+      })
         if (productoption[0] != undefined) {
           let responce = {
             fullname: item.firstname +' '+ item.lastname,
@@ -268,7 +277,7 @@ async function buyid (req, res, next) {
             statusname: item.statusname,
             shippingstatusname: item.shippingstatusname,
             total: sum,
-            result: productoption,
+            result: datas,
           }
           return responce != undefined && responce 
           }
@@ -287,6 +296,7 @@ async function buyid (req, res, next) {
   }
 }
 async function shippingadd (req, res, next) {
+  const { shipid, shiptrackno } = req.body;
   const sql = ``
   const value = []
   try {
