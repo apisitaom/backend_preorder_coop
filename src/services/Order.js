@@ -50,8 +50,11 @@ async function lists (req, res, next) {
     try {
         const { rows } = await db.query(sql, [decode.data.id]);
         const tranfrom = await Promise.all(rows.map(async(item) => {
-            console.log(item);
             const productoption = await productoptions.Productoption(item.proopids, item.amounts);
+            let sum = 0;
+            productoption.map(async(element, index) => {
+                sum += element.totalprice;
+            })
             return {
             fullname: item.firstname +' '+ item.lastname,
             createdate: moment(item.createdate,).format('YYYY-MM-DD HH:mm:ss'),
@@ -66,7 +69,8 @@ async function lists (req, res, next) {
             phone: item.phone,
             payid: item.payid,
             statusname: item.statusname,
-            result: productoption,
+            total: sum,
+            result: productoption
             }
         }));
         return Responce.resSuccess(res, successMessage.success, tranfrom);

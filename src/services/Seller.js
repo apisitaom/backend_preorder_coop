@@ -177,9 +177,9 @@ async function buy (req, res, next) {
   const token = subtoken[1];
   const decode = helper.Helper.verifyToken(token);
   const sql = `select * 
-  from orderdetail 
-  full join orderproduct on orderproduct.orderid = orderdetail.orderid
-  full join member on member.userid = orderproduct.userid 
+  from orderproduct 
+  full join orderdetail on orderdetail.orderid = orderproduct.orderid
+  full join member on member.userid = orderproduct.userid
   `
   try {
       const { rows } = await db.query(sql);
@@ -200,7 +200,7 @@ async function buy (req, res, next) {
             phone: item.phone,
             result: productoption,
           }
-          return responce != undefined ? responce : 'what' 
+          return responce != undefined && responce 
           }
       }));
       let data = []
@@ -216,13 +216,26 @@ async function buy (req, res, next) {
 }
 
 async function shipping (req, res , next) {
-  const { orderid } = req.body
-  const sql =``
-  const value = []
+  const { headers } = req;
+  const subtoken = headers.authorization.split(' ');
+  const token = subtoken[1];
+  const decode = helper.Helper.verifyToken(token);
+  const sql = `select * 
+  from orderdetail 
+  full join orderproduct on orderproduct.orderid = orderdetail.orderid
+  full join payment on payment.payid = orderproduct.payid
+  full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
+  full join member on member.userid = orderproduct.userid 
+  `
   try {
-    
+      const { rows } = await db.query(sql);
+      const tranfrom = await Promise.all(rows.map(async(item) => {
+        const productoption = await productoptions.ProductoptionSellers(item.proopids, decode.data.id, item.amounts);
+      }));
+
+      return Response.resSuccess(res, successMessage.success, rows);
   } catch (error) {
-    throw error
+      return Response.resError(res, errorMessage.saveError);
   }
 }
 

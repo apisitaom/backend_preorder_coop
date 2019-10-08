@@ -113,6 +113,8 @@ create table Payment(
     datemodify          timestamp,
     slip                varchar(255),--photo
     summary             float  ,
+    summarycheck       float  , -- เช็คราคา
+
     datepayment         timestamp,
     payStatusId         integer  ,
     FOREIGN KEY (payStatusId) REFERENCES PaymentStatus (payStatusId)

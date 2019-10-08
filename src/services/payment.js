@@ -36,6 +36,7 @@ async function lists (req, res, next) {
                 orderid: item.orderid,
                 phone: item.phone,
                 statusname: item.statusname,
+                payid: item.payid,
                 result: productoption,
                 }
             }));
@@ -76,6 +77,7 @@ async function list (req, res, next) {
             orderid: item.orderid,
             phone: item.phone,
             statusname: item.statusname,
+            payid: item.payid,
             result: productoption,
             }
         }));
@@ -140,11 +142,14 @@ async function adminLists (req, res, next) {
     }
 }
 async function adminAdd (req, res, next) {
-    const {payid} = req.body;    
+    const { payid , orderid } = req.body;    
         const sqlPayment = `update payment set paystatusid = $1 where payid = $2`
         const valuePayment = [ 3, payid];    
+        const sqlorderproduct = `update orderproduct set shipid = $1 where orderid = $2`
+        const valueorderproduct = [1, orderid];
         try {
             await db.query(sqlPayment, valuePayment);
+            await db.query(sqlorderproduct, valueorderproduct);
             return Responce.resSuccess(res, successMessage.success);
         } catch (error) {
             return Responce.resError(res, errorMessage.saveError);

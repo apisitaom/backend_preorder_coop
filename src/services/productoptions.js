@@ -31,19 +31,18 @@ async function Productoption (productoptionid, amounts) {
                             sellerid: rows[0].sellerid,
                             timestart: rows[0].timestart,
                             timeend: rows[0].timeend,
-                            amounts: amounts[i]
+                            amounts: amounts[i],
+                            totalprice: amounts[i] * rows[0].price
                         }
-                    return responce;
+                        return responce;
                 }
-                
             }));
             resolve(data);
     });
 }
-
-
 async function ProductoptionSeller (productoptionid, amounts, id) {
-const sql = `select productoption.proopid, productoption.price, productoption.includingvat,
+const sql = `select 
+productoption.proopid, productoption.price, productoption.includingvat,
 productoption.optionvalue, productoption.totalproduct,
 productoption.sku, 
 product.proid, product.proname, product.prodetail, product.photo, product.sellerid,
@@ -84,8 +83,24 @@ return new Promise (async(resolve, reject) => {
         resolve(data);
     });
 }
-
+async function ProductoptionSellers (proopid, amounts, sellerid) {
+    const sql = `select 
+    *
+    from 
+    productoption
+    full join product on product.proid = productoption.proid
+    where productoption.proopid = $1 and product.sellerid = $2`
+    console.log(proopid);
+    return new Promise (async(resolve, reject) => {
+        let data = await Promise.all(proopid.map(async(element, index) => {
+            console.log(element);
+            // const { rows } = await db.query(sql, [index, sellerid]);
+        }));
+        resolve('GOOD');
+    })
+}
 module.exports = {
     Productoption,
-    ProductoptionSeller
+    ProductoptionSeller,
+    ProductoptionSellers
 }
