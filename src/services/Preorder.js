@@ -30,6 +30,7 @@ async function getProduct (req, res) {
         res.end();
     }
 }
+
 async function getProductPreorder (req,res, next) {
     const sql = `select 
     proid,proname,prodetail,photo,sellerid,timestart,timeend 
@@ -41,7 +42,6 @@ async function getProductPreorder (req,res, next) {
         const product = await db.query(sql, [req.params.id]);
         await Promise.all(product.rows.map(async(item) => {
         const option = await getOption(item.proid);
-
         if(item.timestart !== null){
         item.timeend = moment(item.timeend).subtract(7, 'h');
         item.timeend = moment(item.timeend).format('YYYY-MM-DD HH:mm:ss');
@@ -89,6 +89,7 @@ async function getProductPreorder (req,res, next) {
         res.end();
     }
 }
+
 async function getOption (productid) {
     const sql = `select productoption.proopid,productoption.sku,productoption.price,productoption.includingvat,productoption.optionvalue,productoption.totalproduct from productoption where types ='preorder' and proid = $1`
     return new Promise(async(resolve , reject) => {
@@ -101,6 +102,7 @@ async function getOption (productid) {
         }
     });
 }
+
 async function getProductDetail (req, res) {
     const key = req.params.id
     const selectOne =   `select 
@@ -116,6 +118,7 @@ async function getProductDetail (req, res) {
         res.end();
     }
 }
+
 async function insertPreorder (req, res) {
     const active = true
     const today = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
@@ -141,6 +144,7 @@ async function insertPreorder (req, res) {
         res.end();
     }
 }
+
 module.exports = {
     getProduct,
     getProductPreorder,

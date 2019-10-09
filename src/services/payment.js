@@ -47,6 +47,7 @@ async function lists (req, res, next) {
         res.end();
     }
 }
+
 async function list (req, res, next) {
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
@@ -104,9 +105,10 @@ async function add (req, res, next) {
             return Responce.resSuccess(res, successMessage.success);
         }
 }
-// =================================== ADMIN ===================================
-async function adminLists (req, res, next) {
-    const sql = `select * 
+
+async function adminpaymentlists (req, res, next) {
+    const sql = `select 
+    * 
     from orderdetail 
     full join orderproduct on orderproduct.orderid = orderdetail.orderid
     full join payment on payment.payid = orderproduct.payid
@@ -141,7 +143,8 @@ async function adminLists (req, res, next) {
         res.end();
     }
 }
-async function adminAdd (req, res, next) {
+
+async function adminpaymentadd (req, res, next) {
         const { payid , orderid } = req.body;
         const active = true;
         const sqlpayment = `update payment set paystatusid = $1 where payid = $2`
@@ -157,13 +160,13 @@ async function adminAdd (req, res, next) {
             return Responce.resSuccess(res, successMessage.success);
         } catch (error) {
             return Responce.resError(res, errorMessage.saveError);
-        }
+    }
 }
 
 module.exports = {
     lists,
     add,
     list,
-    adminLists,
-    adminAdd
+    adminpaymentlists,
+    adminpaymentadd
 }

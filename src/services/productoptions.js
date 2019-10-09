@@ -38,6 +38,7 @@ async function Productoption (productoptionid, amounts) {
             resolve(data);
     });
 }
+
 async function ProductoptionSeller (productoptionid, amounts, id) {
 const sql = `select 
 productoption.proopid, productoption.price, productoption.includingvat,
@@ -82,6 +83,7 @@ return new Promise (async(resolve, reject) => {
         resolve(data);
     });
 }
+
 async function option (productid) {
     const sql = `select productoption.proopid,productoption.sku,productoption.price,productoption.includingvat,productoption.optionvalue,productoption.totalproduct from productoption where types ='preorder' and proid = $1`
     return new Promise(async(resolve , reject) => {
@@ -94,6 +96,7 @@ async function option (productid) {
         }
     });
 }
+
 module.exports = {
     Productoption,
     ProductoptionSeller,

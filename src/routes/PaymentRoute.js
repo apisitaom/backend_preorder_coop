@@ -1,15 +1,13 @@
 const router = require('express').Router();
 const img = require('../lib/ImageUpload');
-const auth = require('../lib/Auth');
 const payment = require('../services/payment');
 
 router.get('/', (req, res, next)=>{res.json('PAYMENT ROUTE')});
 router.get('/lists', payment.lists);
 router.get('/list/:id', payment.list);
-//+++++++++++++++++++ ADMIN +++++++++++++++++++
-router.get('/all', payment.adminLists)
+router.get('/all', payment.adminpaymentlists) // ADMIN
 
 router.post('/add', img.upload, payment.add);
-//+++++++++++++++++++ ADMIN +++++++++++++++++++
-router.post('/pay', payment.adminAdd);
+router.post('/pay', payment.adminpaymentadd); // ADMIN
+
 module.exports = router;

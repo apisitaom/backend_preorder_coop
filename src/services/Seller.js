@@ -47,6 +47,7 @@ async function insert(req, res) {
     res.end();
   }
 }
+
 async function login(req, res) {
   if (!req.body.email || !req.body.password) {
     return Response.resError(res, errorMessage.saveError);
@@ -76,6 +77,7 @@ async function login(req, res) {
     return Response.resError(res, errorMessage.saveError);
   }
 }
+
 async function lists(req, res) {
   const sql = `select 
   seller.sellerid,seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode,
@@ -111,6 +113,7 @@ async function lists(req, res) {
     return Response.resError(res, errorMessage.saveError);
   }
 }
+
 async function edit(req, res, next) {
   const { shopname, address, subdistrict, district, province, zipcode, phone, email, bankname, accountname, accountnumber, promptpayname, promptpaynumber, } = req.body
   const { headers } = req;
@@ -144,6 +147,7 @@ async function edit(req, res, next) {
     res.end();
   }
 }
+
 async function all(req, res) {
   const sql = `select 
   seller.active,seller.taxid, seller.createdate, seller.sellerid,seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode,
@@ -160,7 +164,8 @@ async function all(req, res) {
     return Response.resError(res, errorMessage.saveError);
   }
 }
-async function Role (req, res) {
+
+async function role (req, res) {
   const { active, sellerid } = req.body;
   const sql = `update seller set active = $1 where sellerid = $2`;
   const value = [active, sellerid];
@@ -171,6 +176,7 @@ async function Role (req, res) {
     return Response.resError(res, errorMessage.saveError);
   }
 }
+
 async function buy (req, res, next) {
   const { headers } = req;
   const subtoken = headers.authorization.split(' ');
@@ -234,6 +240,7 @@ async function buy (req, res, next) {
       return Response.resError(res, errorMessage.saveError);
   }
 }
+
 async function buyid (req, res, next) {
   const { headers } = req;
   const subtoken = headers.authorization.split(' ');
@@ -298,13 +305,14 @@ async function buyid (req, res, next) {
       return Response.resError(res, errorMessage.saveError);
   }
 }
+
 module.exports = {
   insert,
   login,
   lists,
   edit,
   all,
-  Role,
+  role,
   buy,
   buyid
 }

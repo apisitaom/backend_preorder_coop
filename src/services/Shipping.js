@@ -15,6 +15,7 @@ async function sellershipping (req, res, next) {
         return Responce.resError(res, errorMessage.saveError);
     }
 }
+
 async function customerreceive (req, res, next) {
     const { shipid } = req.body;
     const sqlshipping = `update shipping set shipstatusid = $1

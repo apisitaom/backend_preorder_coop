@@ -35,6 +35,7 @@ async function add (req, res, next) {
         res.end();
     }
 }
+
 async function lists (req, res, next) {
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
@@ -82,7 +83,6 @@ async function lists (req, res, next) {
         return Responce.resError(res, errorMessage.saveError);
     }
 }
-// ============================== ADMIN ==============================
 
 module.exports = {
     add,

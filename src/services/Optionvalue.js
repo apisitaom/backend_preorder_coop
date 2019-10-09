@@ -3,7 +3,6 @@ const moment = require('moment');
 const Responce = require('../lib/Reposnce');
 const successMessage = require('../lib/successMessage');
 const errorMessage = require('../lib/errorMessage');
-const helper = require('../lib/Helper');
 
 async function insert (req,res){    
     const {productname,detail,sellerid, category} = req.body
@@ -33,6 +32,7 @@ async function insert (req,res){
                 }
         });
 }
+
 module.exports = {
     insert
 }
