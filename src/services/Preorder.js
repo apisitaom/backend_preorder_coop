@@ -30,7 +30,6 @@ async function getProduct (req, res) {
         res.end();
     }
 }
-
 async function getProductPreorder (req,res, next) {
     const sql = `select 
     proid,proname,prodetail,photo,sellerid,timestart,timeend 

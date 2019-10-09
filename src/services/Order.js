@@ -68,6 +68,7 @@ async function lists (req, res, next) {
             orderid: item.orderid,
             phone: item.phone,
             payid: item.payid,
+            // shipid: item.shipid,
             statusname: item.statusname,
             total: sum,
             result: productoption

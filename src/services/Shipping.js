@@ -5,20 +5,37 @@ const Responce = require('../lib/Reposnce');
 const helper = require('../lib/Helper');
 const moment = require('moment');
 
-async function receive (req, res, next) {
+async function customerreceive (req, res, next) {
     const { shipid } = req.body;
-    const sql = ``
-    const value = []
+    const sqlpayment = `update shipping set shipstatusid = $1
+    where shipid = $2`
+    const valuepayment = [4, shiptrackno, shipid] // 4 = ยืนยันการจัดส่งเรียบร้อยเเล้ว
     try {
+        await db.query(sqlpayment, valuepayment);
         return Responce.resSuccess(res, successMessage.success);
     } catch (error) {
         return Responce.resSuccess(res, errorMessage.saveError)
     }
 }
-async function sellerShipping (req, res, next) {
-    const sql = ``
-    const value = []
+async function sellershipping (req, res, next) {
+    const { shipid, shiptrackno } = req.body;
+    const sqlpayment = `update shipping set shipstatusid = $1, shiptrackno = $2
+    where shipid = $3`
+    const valuepayment = [2, shiptrackno, shipid] // 2 = รอตรวจสอบ การส่งสินค้
     try {
+        await db.query(sqlpayment, valuepayment);
+        return Responce.resSuccess(res, successMessage.success);
+    } catch (error) {
+        return Responce.resError(res, errorMessage.saveError);
+    }
+}
+async function adminshipping (req, res, next) {
+    const { shipid } = req.body;
+    const sqlpayment = `update shipping set shipstatusid = $1
+    where shipid = $2`
+    const valuepayment = [3, shiptrackno, shipid] // 3 = สินค้ายังทำการจัดส่งเรียบร้อยเเล้ว
+    try {
+        await db.query(sqlpayment, valuepayment);
         return Responce.resSuccess(res, successMessage.success);
     } catch (error) {
         return Responce.resError(res, errorMessage.saveError);
@@ -26,5 +43,7 @@ async function sellerShipping (req, res, next) {
 }
 
 module.exports = {
-    receive
+    customerreceive,
+    sellershipping,
+    adminshipping
 }
