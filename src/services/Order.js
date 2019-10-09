@@ -82,6 +82,8 @@ async function lists (req, res, next) {
         return Responce.resError(res, errorMessage.saveError);
     }
 }
+// ============================== ADMIN ==============================
+
 module.exports = {
     add,
     lists

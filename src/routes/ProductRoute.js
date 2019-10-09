@@ -12,5 +12,6 @@ router.get('/list/:id', product.getProduct);
 router.post('/add', product.insertProductHomepage);
 router.post('/buy',auth.userVerifyToken,img.upload, product.cartCustomer);
 router.post('/adds', product.preOrder);
+router.post('/edit', product.edit);
 
 module.exports = router;

@@ -5,11 +5,11 @@ const Responce = require('../lib/Reposnce');
 
 async function sellershipping (req, res, next) {
     const { shipid, shiptrackno } = req.body;
-    const sqlpayment = `update shipping set shipstatusid = $1, shiptrackno = $2
+    const sqlshipping = `update shipping set shipstatusid = $1, shiptrackno = $2
     where shipid = $3`
-    const valuepayment = [3, shiptrackno, shipid] //  3 = สินค้ายังทำการจัดส่งเรียบร้อยเเล้ว
+    const valueshipping = [3, shiptrackno, shipid] //  3 = สินค้ายังทำการจัดส่งเรียบร้อยเเล้ว
     try {
-        await db.query(sqlpayment, valuepayment);
+        await db.query(sqlshipping, valueshipping);
         return Responce.resSuccess(res, successMessage.success);
     } catch (error) {
         return Responce.resError(res, errorMessage.saveError);
@@ -17,11 +17,11 @@ async function sellershipping (req, res, next) {
 }
 async function customerreceive (req, res, next) {
     const { shipid } = req.body;
-    const sqlpayment = `update shipping set shipstatusid = $1
+    const sqlshipping = `update shipping set shipstatusid = $1
     where shipid = $2`
-    const valuepayment = [4, shipid] // 4 = ยืนยันการจัดส่งเรียบร้อยเเล้ว
+    const valueshipping = [4, shipid] // 4 = ยืนยันการจัดส่งเรียบร้อยเเล้ว
     try {
-        await db.query(sqlpayment, valuepayment);
+        await db.query(sqlshipping, valueshipping);
         return Responce.resSuccess(res, successMessage.success);
     } catch (error) {
         return Responce.resSuccess(res, errorMessage.saveError);

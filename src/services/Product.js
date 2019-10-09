@@ -335,10 +335,15 @@ return Responce.resSuccess(res, successMessage.success);
     return Responce.resError(res, errorMessage.saveError);
     }
 }
-async function edit (req, res, next) {
-    const sql = ``
-    const value = []
+async function edit (req, res, next) { 
+    const { productid, proname, prodetail, category, proopid, price } = req.body;
+    const sqlproduct = `update product set proname = $1, prodetail = $2, category = $3 where proid = $4`
+    const valueproduct = [proname, prodetail, category, productid]
+    const sqlproductoption = `update productoption set price = $1 where proopid = $2`
+    const valueproductoption = [price, proopid]
     try {
+        await db.query(sqlproduct, valueproduct);
+        await db.query(sqlproductoption, valueproductoption);
         return Responce.resSuccess(res, successMessage.success);        
     } catch (error) {
         return Responce.resError(res, errorMessage.saveError);
@@ -353,5 +358,6 @@ module.exports = {
     shopCustomer,
     getProduct,
     cartCustomer,
-    preOrder
+    preOrder,
+    edit
 }

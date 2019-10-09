@@ -233,6 +233,8 @@ create table OrderDetail(
     FOREIGN KEY (orderId) REFERENCES OrderProduct(orderId),
 );
 
+-- เเอดมิน
+insert into admin (email, password) values ('test@gmail.com', 12345);
 
 -- ข้อมูลสถานะการจ่ายตัง
 insert into paymentstatus (paystatusid, active, statusname ) values (1, true, 'รอชำระ');

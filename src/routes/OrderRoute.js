@@ -1,6 +1,4 @@
 const router = require('express').Router();
-const img = require('../lib/ImageUpload');
-const auth = require('../lib/Auth');
 const order = require('../services/Order');
 
 router.get('/', (req, res, next) => {res.json('ORDER ROUTE')});
