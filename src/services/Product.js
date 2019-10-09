@@ -13,7 +13,7 @@ const Product = {
         productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue
         from product
         inner join productoption on product.proid = productoption.proid 
-        where product.proid = $1` ;
+        where product.proid = $1 `;
         try {
             const { rows } = await db.query(getPopup, [req.params.id]);
             for (let i = 0; i < rows.length; i++) {
@@ -344,6 +344,15 @@ return Responce.resSuccess(res, successMessage.success);
 } catch (error) {
     db.query('REVOKE');
     return Responce.resError(res, errorMessage.saveError);
+    }
+}
+async function edit (req, res, next) {
+    const sql = ``
+    const value = []
+    try {
+        return Responce.resSuccess(res, successMessage.success);        
+    } catch (error) {
+        return Responce.resError(res, errorMessage.saveError);
     }
 }
 

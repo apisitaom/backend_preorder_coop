@@ -15,8 +15,15 @@ async function receive (req, res, next) {
         return Responce.resSuccess(res, errorMessage.saveError)
     }
 }
-
-// =================================== ADMIN ===================================
+async function sellerShipping (req, res, next) {
+    const sql = ``
+    const value = []
+    try {
+        return Responce.resSuccess(res, successMessage.success);
+    } catch (error) {
+        return Responce.resError(res, errorMessage.saveError);
+    }
+}
 
 module.exports = {
     receive

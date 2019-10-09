@@ -6,7 +6,7 @@ const moment = require('moment');
 
 async function getProduct (req, res) {
     const sql = `select 
-    product.proid, product.proname
+    product.proid, product.proname, product.category
     from productoption
     full join product on product.proid = productoption.proid
     where 
@@ -18,7 +18,8 @@ async function getProduct (req, res) {
             let data = {
                 order : i+1,
                 productid : value.rows[i].proid,
-                productname : value.rows[i].proname
+                productname : value.rows[i].proname,
+                category: value.rows[i].category
             }
             responce.push(data)
         }
@@ -29,8 +30,12 @@ async function getProduct (req, res) {
         res.end();
     }
 }
+
 async function getProductPreorder (req,res, next) {
-    const sql = `select proid,proname,prodetail,photo,sellerid,timestart,timeend from product where sellerid = $1`;
+    const sql = `select 
+    proid,proname,prodetail,photo,sellerid,timestart,timeend 
+    from product 
+    where sellerid = $1`;
     let products = [];
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
     try {
