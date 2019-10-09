@@ -205,15 +205,16 @@ async function buy (req, res, next) {
             createdate: moment(item.createdate,).format('YYYY-MM-DD HH:mm:ss'),
             orderid: item.orderid,
             orderdetailid: item.orderdetailid,
-            amounts: item.amounts,
             address: item.address,
             disstrict: item.disstrict,
             province: item.province,
             zipcode: item.zipcode,
             orderid: item.orderid,
             phone: item.phone,
-            statusname: item.statusname,
+            shiptrackno: item.shiptrackno,
             shippingstatusname: item.shippingstatusname,
+            shipid: item.shipid,
+            statusname: item.statusname,
             total: sum,
             result: datas,
           }
@@ -274,8 +275,10 @@ async function buyid (req, res, next) {
             zipcode: item.zipcode,
             orderid: item.orderid,
             phone: item.phone,
-            statusname: item.statusname,
+            shiptrackno: item.shiptrackno,
             shippingstatusname: item.shippingstatusname,
+            shipid: item.shipid,
+            statusname: item.statusname,
             total: sum,
             result: datas,
           }
@@ -293,16 +296,6 @@ async function buyid (req, res, next) {
       return Response.resSuccess(res, successMessage.success, data);
   } catch (error) {
       return Response.resError(res, errorMessage.saveError);
-  }
-}
-async function shippingadd (req, res, next) {
-  const { shipid, shiptrackno } = req.body;
-  const sql = ``
-  const value = []
-  try {
-    return Response.resSuccess(res, successMessage.success);    
-  } catch (error) {
-    return Response.resError(res, errorMessage.saveError);
   }
 }
 module.exports = {

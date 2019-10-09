@@ -45,6 +45,8 @@ async function lists (req, res, next) {
     full join orderproduct on orderproduct.orderid = orderdetail.orderid
     full join payment on payment.payid = orderproduct.payid
     full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
+    full join shipping on shipping.shipid = orderproduct.shipid
+    full join shippingstatus on shippingstatus.shipstatusid = shipping.shipstatusid
     full join member on member.userid = orderproduct.userid 
     where orderproduct.userid = $1`
     try {
@@ -60,7 +62,6 @@ async function lists (req, res, next) {
             createdate: moment(item.createdate,).format('YYYY-MM-DD HH:mm:ss'),
             orderid: item.orderid,
             orderdetailid: item.orderdetailid,
-            amounts: item.amounts,
             address: item.address,
             disstrict: item.disstrict,
             province: item.province,
@@ -68,7 +69,9 @@ async function lists (req, res, next) {
             orderid: item.orderid,
             phone: item.phone,
             payid: item.payid,
-            // shipid: item.shipid,
+            shiptrackno: item.shiptrackno,
+            shippingstatusname: item.shippingstatusname,
+            shipid: item.shipid,
             statusname: item.statusname,
             total: sum,
             result: productoption
