@@ -299,6 +299,54 @@ async function edit (req, res, next) {
     }
 }
 
+
+async function search (req, res, next) {
+    const { proname } = req.body;
+    const search = '%'+proname+ '%'
+    const sql = `select 
+    proid, proname, prodetail, photo, sellerid, timestart, timeend, category 
+    from product 
+    where proname like $1 `;
+    const value = [ search ]
+    let products = [];
+    const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+    try {
+        const product = await db.query(sql, value);
+        await Promise.all(product.rows.map(async(item) => {
+        const option = await productoptions.option(item.proid);
+        if(item.timestart !== null){
+        item.timeend = moment(item.timeend).subtract(7, 'h');
+        item.timeend = moment(item.timeend).format('YYYY-MM-DD HH:mm:ss');
+        item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');                    
+        const addTime = item.timeend = moment(item.timeend).add(7, 'h');
+        const endTime = item.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
+        const startTime = item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');
+        if (endTime > date && date > startTime) {
+            let obj = {
+                proid: item.proid,
+                proname: item.proname,
+                prodetail: item.prodetail,
+                category: item.category,
+                photo: item.photo,
+                sellerid: item.sellerid,
+                timestart:item.timestart,
+                timeend: item.timeend,
+                time : moment(item.timeend).format('mm:ss'),
+                hour: moment(item.timeend).format('HH'),
+                result :option,
+            }
+            products.push(obj);
+        }
+    }
+        }));
+        return Responce.resSuccess(res, successMessage.success, products);
+    } catch (error) {
+        return Responce.resError(res, errorMessage.saveError);
+    } finally {
+        res.end();
+    }
+}
+
 module.exports = {
     getPopup,
     getCartCustomer,
@@ -308,5 +356,6 @@ module.exports = {
     getProduct,
     cartCustomer,
     preOrder,
-    edit
+    edit,
+    search
 }

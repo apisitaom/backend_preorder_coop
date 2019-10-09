@@ -13,5 +13,6 @@ router.post('/add', product.insertProductHomepage);
 router.post('/buy',auth.userVerifyToken,img.upload, product.cartCustomer);
 router.post('/adds', product.preOrder);
 router.post('/edit', product.edit);
+router.post('/search', product.search);
 
 module.exports = router;
