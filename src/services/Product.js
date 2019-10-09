@@ -4,6 +4,7 @@ const successMessage = require('../lib/successMessage');
 const Responce = require('../lib/Reposnce');
 const helper = require('../lib/Helper');
 const moment = require('moment')
+const productoptions = require('./productoptions');
 
 const Product = {
     async getPopup(req, res) {
@@ -92,7 +93,7 @@ async function homepageCustomer(req, res, next) {
         try {
             const product = await db.query(sql);
             await Promise.all(product.rows.map(async(item) => {
-            const option = await getOption(item.proid);
+            const option = await productoptions.option(item.proid);
             if(item.timestart !== null){
             item.timeend = moment(item.timeend).subtract(7, 'h');
             item.timeend = moment(item.timeend).format('YYYY-MM-DD HH:mm:ss');
@@ -124,18 +125,6 @@ async function homepageCustomer(req, res, next) {
         } finally {
             res.end();
         }
-}
-async function getOption (productid) {
-    const sql = `select productoption.proopid,productoption.sku,productoption.price,productoption.includingvat,productoption.optionvalue,productoption.totalproduct from productoption where types ='preorder' and proid = $1`
-    return new Promise(async(resolve , reject) => {
-        try {
-            const { rows } = await db.query(sql, [productid]);
-            resolve(rows);
-            res.end();
-        } catch (error) {
-            reject(error)
-        }
-    });
 }
 async function insertProductHomepage(req, res, next) {
     const { amount, userid, proopid } = req.body;
