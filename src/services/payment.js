@@ -106,7 +106,47 @@ async function add (req, res, next) {
         }
 }
 
+// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ ADMIN $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
 async function adminpaymentlists (req, res, next) {
+    const sql = `select 
+    * 
+    from orderdetail 
+    full join orderproduct on orderproduct.orderid = orderdetail.orderid
+    full join payment on payment.payid = orderproduct.payid
+    full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
+    full join member on member.userid = orderproduct.userid`
+    let data = [];
+    try {
+        const { rows } = await db.query(sql);
+        rows.map(async(element ,index) => {
+            if (element.orderid != null) {
+                let responce = {
+                    payid: element.payid,
+                    orderid: element.orderid,
+                    phone: element.phone,
+                    disstrict: element.disstrict,
+                    province: element.province,
+                    zipcode: element.zipcode,
+                    slip: element.slip,
+                    summary: element.summary,
+                    statusname: element.statusname,
+                    fullname: element.firstname + ' '+ element.lastname,
+                    gender: element.gender,
+                    email: element.email,
+                }
+                data.push(responce);
+            }
+        })
+        return Responce.resSuccess(res, successMessage.success, data);
+    } catch (error) {
+        return Responce.resError(res, errorMessage.saveError);
+    } finally {
+        res.end();
+    }
+}
+
+async function adminpaymentcheck (req, res, next) {
     const sql = `select 
     * 
     from orderdetail 
@@ -169,5 +209,6 @@ module.exports = {
     add,
     list,
     adminpaymentlists,
-    adminpaymentadd
+    adminpaymentadd,
+    adminpaymentcheck,
 }

@@ -299,7 +299,6 @@ async function edit (req, res, next) {
     }
 }
 
-
 async function search (req, res, next) {
     const { proname } = req.body;
     const search = '%'+proname+ '%'
