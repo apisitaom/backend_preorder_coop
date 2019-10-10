@@ -4,7 +4,7 @@ const successMessage = require('../lib/successMessage');
 const Responce = require('../lib/Reposnce');
 const helper = require('../lib/Helper');
 const moment = require('moment');
-const productoptions = require('./productoptions');
+const productoptions = require('./options');
 
 async function add (req, res, next) {
     const {address, phonenumber, countdowntime, amounts, proopid, district, province, zipcode, sellerid} = req.body;

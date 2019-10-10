@@ -23,7 +23,7 @@ async function customerreceive (req, res, next) {
     const valueshipping = [4, shipid] // 4 = ยืนยันการจัดส่งเรียบร้อยเเล้ว
     try {
         await db.query(sqlshipping, valueshipping);
-        return Responce.resSuccess(res, successMessage.success);
+        return Responce.resSuccess(res, successMessage.success, 'ยืนยันการจัดส่งเรียบร้อยเเล้ว');
     } catch (error) {
         return Responce.resSuccess(res, errorMessage.saveError);
     }
@@ -106,9 +106,22 @@ async function recieve (req, res, next) {
     }
 }
 
+async function edit (req, res, next) {
+    const { shiptrackno, shipid } = req.body;
+    const sql = `update shipping set shiptrackno  = $1 where shipid = $2`
+    const value = [ shiptrackno, shipid ]
+    try {
+        await db.query(sql, value);
+        return Responce.resSuccess(res, successMessage.success);
+    } catch (error) {
+        return Responce.resError(res, errorMessage.saveError);
+    }
+
+}
 module.exports = {
     customerreceive,
     sellershipping,
     lists,
-    recieve
+    recieve,
+    edit
 }

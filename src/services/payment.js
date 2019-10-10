@@ -4,7 +4,7 @@ const successMessage = require('../lib/successMessage');
 const Responce = require('../lib/Reposnce');
 const moment = require('moment');
 const helper = require('../lib/Helper');
-const productoptions = require('./productoptions');
+const productoptions = require('./options');
 
 async function lists (req, res, next) {
     const { headers } = req;

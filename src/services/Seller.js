@@ -4,7 +4,7 @@ const errorMessage = require('../lib/errorMessage');
 const successMessage = require('../lib/successMessage');
 const Response = require('../lib/Reposnce');
 const helper = require('../lib/Helper');
-const productoptions = require('./productoptions'); 
+const productoptions = require('./options'); 
 
 async function insert(req, res) {
   if (!req.body.email || !req.body.password) {
@@ -169,7 +169,10 @@ async function role (req, res) {
   const { active, sellerid } = req.body;
   const sql = `update seller set active = $1 where sellerid = $2`;
   const value = [active, sellerid];
-  try {
+  try {const db = require('../configdb/configDB');
+  const moment = require('moment');
+  const errorMessage = require('../lib/errorMessage');
+  
     await db.query(sql, value);
     return Response.resSuccess(res, successMessage.success);
   } catch (error) {

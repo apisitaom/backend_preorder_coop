@@ -3,7 +3,7 @@ const errorMessage = require('../lib/errorMessage');
 const successMessage = require('../lib/successMessage');
 const Responce = require('../lib/Reposnce');
 const moment = require('moment');
-const productoptions = require('./productoptions');
+const productoptions = require('./options');
 
 async function getProduct (req, res) {
     const sql = `select 

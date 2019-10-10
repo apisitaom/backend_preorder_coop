@@ -4,7 +4,7 @@ const successMessage = require('../lib/successMessage');
 const Responce = require('../lib/Reposnce');
 const helper = require('../lib/Helper');
 const moment = require('moment')
-const productoptions = require('./productoptions');
+const productoptions = require('./options');
 
 async function getPopup(req, res) {
     const detail = []
@@ -284,7 +284,6 @@ return Responce.resSuccess(res, successMessage.success);
 }
 
 async function edit (req, res, next) { 
-    console.log(req.body);
     const { proid, proname, prodetail, category} = req.body;
     const options= JSON.parse(req.body.option)
     let data = req.files.map( (item, index) =>  item.filename );
