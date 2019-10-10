@@ -2,6 +2,7 @@ const db = require('../configdb/configDB');
 const errorMessage = require('../lib/errorMessage');
 const successMessage = require('../lib/successMessage');
 const Responce = require('../lib/Reposnce');
+const moment = require('moment')
 
 async function sellershipping (req, res, next) {
     const { shipid, shiptrackno } = req.body;
@@ -45,6 +46,7 @@ async function lists (req, res, next) {
         rows.map(async(element ,index) => {
             if (element.orderid != null) {
                 let responce = {
+                    createdate: moment(element.createdate).format('YYYY-MM-DD HH:mm:ss'),
                     payid: element.payid,
                     orderid: element.orderid,
                     phone: element.phone,

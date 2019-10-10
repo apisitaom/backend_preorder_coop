@@ -369,5 +369,5 @@ module.exports = {
     cartCustomer,
     preOrder,
     edit,
-    search
+    search,
 }
