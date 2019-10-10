@@ -4,10 +4,13 @@ const successMessage = require('../lib/successMessage');
 const Responce = require('../lib/Reposnce');
 const helper = require('../lib/Helper');
 const moment = require('moment');
-const productoptions = require('./productoptions');
+const productoptions = require('./options');
 
 async function add (req, res, next) {
-    const {address, phonenumber, countdowntime, amount, proopid} = req.body;
+    const {address, phonenumber, countdowntime, amounts, proopid, district, province, zipcode, sellerid} = req.body;
+    if (amounts.length != proopid.length) {
+        return Responce.resError(res, errorMessage.saveError);
+    }
     const active = true;
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
@@ -15,11 +18,13 @@ async function add (req, res, next) {
     const decode = helper.Helper.verifyToken(token);
     try {
             db.query('BEGIN');
-            const sqlorderproduct = `insert into orderproduct (active, userid) values ($1, $2) returning orderid`
-            const valueorderproduct = [active, decode.data.id];
+            const sqlpayment = `insert into payment(active, paystatusid) values ($1, $2) returning payid`
+            const payment = await db.query(sqlpayment, [active, 1]);
+            const sqlorderproduct = `insert into orderproduct (active, userid, payid, sellerid) values ($1, $2, $3, $4) returning orderid`
+            const valueorderproduct = [active, decode.data.id,payment.rows[0].payid, sellerid];
             const orderproduct = await db.query(sqlorderproduct, valueorderproduct);
-            const sqlorderdetail = `insert into orderdetail (active, amount, address, phone, proopids, orderid) values ($1, $2, $3, $4, $5, $6)`
-            const valueorderdetail = [active, amount, address, phonenumber, proopid, orderproduct.rows[0].orderid];
+            const sqlorderdetail = `insert into orderdetail (active, amounts, address, phone, proopids, orderid, disstrict, province, zipcode) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
+            const valueorderdetail = [active, amounts, address, phonenumber, proopid, orderproduct.rows[0].orderid, district, province, zipcode];
             await db.query(sqlorderdetail, valueorderdetail);
             db.query('COMMIT');
         return Responce.resSuccess(res, successMessage.success);
@@ -30,7 +35,8 @@ async function add (req, res, next) {
         res.end();
     }
 }
-async function list (req, res, next) {
+
+async function lists (req, res, next) {
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
@@ -38,17 +44,37 @@ async function list (req, res, next) {
     const sql = `select * 
     from orderdetail 
     full join orderproduct on orderproduct.orderid = orderdetail.orderid
+    full join payment on payment.payid = orderproduct.payid
+    full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
+    full join shipping on shipping.shipid = orderproduct.shipid
+    full join shippingstatus on shippingstatus.shipstatusid = shipping.shipstatusid
+    full join member on member.userid = orderproduct.userid 
     where orderproduct.userid = $1`
     try {
         const { rows } = await db.query(sql, [decode.data.id]);
         const tranfrom = await Promise.all(rows.map(async(item) => {
-        const productoption = await productoptions.Productoption(item.proopids);
-        return {
+            const productoption = await productoptions.Productoption(item.proopids, item.amounts);
+            let sum = 0;
+            productoption.map(async(element, index) => {
+                sum += element.totalprice;
+            })
+            return {
+            fullname: item.firstname +' '+ item.lastname,
+            createdate: moment(item.createdate,).format('YYYY-MM-DD HH:mm:ss'),
+            orderid: item.orderid,
             orderdetailid: item.orderdetailid,
-            amount: item.amount,
             address: item.address,
+            disstrict: item.disstrict,
+            province: item.province,
+            zipcode: item.zipcode,
             orderid: item.orderid,
             phone: item.phone,
+            payid: item.payid,
+            shiptrackno: item.shiptrackno,
+            shippingstatusname: item.shippingstatusname,
+            shipid: item.shipid,
+            statusname: item.statusname,
+            total: sum,
             result: productoption
             }
         }));
@@ -57,7 +83,8 @@ async function list (req, res, next) {
         return Responce.resError(res, errorMessage.saveError);
     }
 }
+
 module.exports = {
     add,
-    list
+    lists
 }

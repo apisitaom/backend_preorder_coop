@@ -3,10 +3,9 @@ const moment = require('moment');
 const Responce = require('../lib/Reposnce');
 const successMessage = require('../lib/successMessage');
 const errorMessage = require('../lib/errorMessage');
-const helper = require('../lib/Helper');
 
 async function insert (req,res){    
-    const {productname,detail,sellerid} = req.body
+    const {productname,detail,sellerid, category} = req.body
     const optionJson = JSON.parse(req.body.option)
     const today = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     const active = true;
@@ -15,8 +14,8 @@ async function insert (req,res){
     const picture = [];
     picture.push(data);
     db.query('BEGIN');
-    const insertProduct = 'INSERT INTO product(active,datemodify,proname,prodetail,photo,sellerid) VALUES($1,$2,$3,$4,$5,$6) returning proid'
-    const valueProduct = [active, today, productname, detail, data, sellerid];
+    const insertProduct = 'INSERT INTO product(active,datemodify,proname,prodetail,photo,sellerid, category) VALUES($1,$2,$3,$4,$5,$6, $7) returning proid'
+    const valueProduct = [active, today, productname, detail, data, sellerid, category];
         const returnProduct = await db.query(insertProduct,valueProduct);
         const insertPOp = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid,includingvat, types) VALUES($1,$2,$3,$4,$5,$6,$7,$8) returning proopid'
         optionJson.forEach(async (element, index) => {
@@ -33,6 +32,7 @@ async function insert (req,res){
                 }
         });
 }
+
 module.exports = {
     insert
 }

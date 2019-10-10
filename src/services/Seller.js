@@ -4,6 +4,7 @@ const errorMessage = require('../lib/errorMessage');
 const successMessage = require('../lib/successMessage');
 const Response = require('../lib/Reposnce');
 const helper = require('../lib/Helper');
+const productoptions = require('./options'); 
 
 async function insert(req, res) {
   if (!req.body.email || !req.body.password) {
@@ -46,6 +47,7 @@ async function insert(req, res) {
     res.end();
   }
 }
+
 async function login(req, res) {
   if (!req.body.email || !req.body.password) {
     return Response.resError(res, errorMessage.saveError);
@@ -75,6 +77,7 @@ async function login(req, res) {
     return Response.resError(res, errorMessage.saveError);
   }
 }
+
 async function lists(req, res) {
   const sql = `select 
   seller.sellerid,seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode,
@@ -110,6 +113,7 @@ async function lists(req, res) {
     return Response.resError(res, errorMessage.saveError);
   }
 }
+
 async function edit(req, res, next) {
   const { shopname, address, subdistrict, district, province, zipcode, phone, email, bankname, accountname, accountnumber, promptpayname, promptpaynumber, } = req.body
   const { headers } = req;
@@ -143,6 +147,7 @@ async function edit(req, res, next) {
     res.end();
   }
 }
+
 async function all(req, res) {
   const sql = `select 
   seller.active,seller.taxid, seller.createdate, seller.sellerid,seller.sellername,seller.address,seller.subdistrict,seller.district,seller.zipcode,
@@ -160,10 +165,157 @@ async function all(req, res) {
   }
 }
 
+async function role (req, res) {
+  const { active, sellerid } = req.body;
+  const sql = `update seller set active = $1 where sellerid = $2`;
+  const value = [active, sellerid];
+  try {const db = require('../configdb/configDB');
+  const moment = require('moment');
+  const errorMessage = require('../lib/errorMessage');
+  
+    await db.query(sql, value);
+    return Response.resSuccess(res, successMessage.success);
+  } catch (error) {
+    return Response.resError(res, errorMessage.saveError);
+  }
+}
+
+async function buy (req, res, next) {
+  const { headers } = req;
+  const subtoken = headers.authorization.split(' ');
+  const token = subtoken[1];
+  const decode = helper.Helper.verifyToken(token);
+  const sql = `select * 
+  from orderdetail 
+  full join orderproduct on orderproduct.orderid = orderdetail.orderid
+  full join payment on payment.payid = orderproduct.payid
+  full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
+  full join shipping on shipping.shipid = orderproduct.shipid
+  full join shippingstatus on shippingstatus.shipstatusid = shipping.shipstatusid
+  full join member on member.userid = orderproduct.userid 
+  `
+  try {
+      const { rows } = await db.query(sql);
+      const tranfrom = await Promise.all(rows.map(async(item) => {
+        if (item.proopids != null) {
+        const productoption = await productoptions.ProductoptionSeller(item.proopids, item.amounts, decode.data.id);
+        let sum = 0;
+        let datas = []
+        productoption.map(async(element, index) => {
+            sum += element.totalprice;
+            if (element !== null || element !== undefined) {
+              datas.push(element);
+            }
+        })
+        
+        if (productoption[0] != undefined) {
+          let responce = {
+            fullname: item.firstname +' '+ item.lastname,
+            createdate: moment(item.createdate,).format('YYYY-MM-DD HH:mm:ss'),
+            orderid: item.orderid,
+            orderdetailid: item.orderdetailid,
+            address: item.address,
+            disstrict: item.disstrict,
+            province: item.province,
+            zipcode: item.zipcode,
+            orderid: item.orderid,
+            phone: item.phone,
+            shiptrackno: item.shiptrackno,
+            shippingstatusname: item.shippingstatusname,
+            shipid: item.shipid,
+            statusname: item.statusname,
+            total: sum,
+            result: datas,
+          }
+          return responce != undefined && responce 
+          }
+        }
+      }));
+      let data = []
+      tranfrom.map(async(item) => {
+        if(item != undefined){
+          data.push(item);
+        }
+      })
+      
+      return Response.resSuccess(res, successMessage.success, data);
+  } catch (error) {
+      return Response.resError(res, errorMessage.saveError);
+  }
+}
+
+async function buyid (req, res, next) {
+  const { headers } = req;
+  const subtoken = headers.authorization.split(' ');
+  const token = subtoken[1];
+  const decode = helper.Helper.verifyToken(token);
+  const sql = `select * 
+  from orderdetail 
+  full join orderproduct on orderproduct.orderid = orderdetail.orderid
+  full join payment on payment.payid = orderproduct.payid
+  full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
+  full join shipping on shipping.shipid = orderproduct.shipid
+  full join shippingstatus on shippingstatus.shipstatusid = shipping.shipstatusid
+  full join member on member.userid = orderproduct.userid
+  where orderproduct.orderid = $1 
+  `
+  try {
+      const { rows } = await db.query(sql, [req.params.id]);
+      const tranfrom = await Promise.all(rows.map(async(item) => {
+        if (item.proopids != null) {
+        const productoption = await productoptions.ProductoptionSeller(item.proopids, item.amounts, decode.data.id);
+        let sum = 0;
+        let datas = []
+        productoption.map(async(element, index) => {
+          sum += element.totalprice;
+          if (element !== null || element !== undefined) {
+            datas.push(element);
+          }
+      })
+        if (productoption[0] != undefined) {
+          let responce = {
+            fullname: item.firstname +' '+ item.lastname,
+            createdate: moment(item.createdate,).format('YYYY-MM-DD HH:mm:ss'),
+            orderid: item.orderid,
+            orderdetailid: item.orderdetailid,
+            amounts: item.amounts,
+            address: item.address,
+            disstrict: item.disstrict,
+            province: item.province,
+            zipcode: item.zipcode,
+            orderid: item.orderid,
+            phone: item.phone,
+            shiptrackno: item.shiptrackno,
+            shippingstatusname: item.shippingstatusname,
+            shipid: item.shipid,
+            statusname: item.statusname,
+            total: sum,
+            result: datas,
+          }
+          return responce != undefined && responce 
+          }
+        }
+      }));
+      let data = []
+      tranfrom.map(async(item) => {
+        if(item != undefined){
+          data.push(item);
+        }
+      })
+      
+      return Response.resSuccess(res, successMessage.success, data);
+  } catch (error) {
+      return Response.resError(res, errorMessage.saveError);
+  }
+}
+
 module.exports = {
   insert,
   login,
   lists,
   edit,
-  all
+  all,
+  role,
+  buy,
+  buyid
 }

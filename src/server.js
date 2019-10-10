@@ -10,6 +10,8 @@ const productRoute = require('./routes/ProductRoute');
 const memberRoute = require('./routes/MemberRoute');
 const paymentRoute = require('./routes/PaymentRoute');
 const orderRoute = require('./routes/OrderRoute');
+const shippingRoute = require('./routes/ShippingRoute');
+const dashboard = require('./routes/DashboardRoute');
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -34,6 +36,9 @@ app.use('/product', productRoute);
 app.use('/member', memberRoute);
 app.use('/payment', paymentRoute);
 app.use('/order', orderRoute);
+app.use('/shipping', shippingRoute);
+app.use('/dashboard', dashboard);
+
 app.use('/images', express.static(path.join(__dirname + '/../public/uploads')));
 
 app.listen(port,  () => {
