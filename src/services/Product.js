@@ -8,14 +8,14 @@ const productoptions = require('./productoptions');
 
 async function getPopup(req, res) {
     const detail = []
-    const getPopup = `select 
+    const sql = `select 
     product.proid,product.photo,product.proname, product.prodetail,product.category,
     productoption.proopid ,productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue
     from product
     inner join productoption on product.proid = productoption.proid 
     where product.proid = $1 `;
     try {
-        const { rows } = await db.query(getPopup, [req.params.id]);
+        const { rows } = await db.query(sql, [req.params.id]);
         for (let i = 0; i < rows.length; i++) {
             let obj = {
                 'proopid': rows[i].proopid,
@@ -284,6 +284,7 @@ return Responce.resSuccess(res, successMessage.success);
 }
 
 async function edit (req, res, next) { 
+    console.log(req.body);
     const { proid, proname, prodetail, category} = req.body;
     const options= JSON.parse(req.body.option)
     let data = req.files.map( (item, index) =>  item.filename );
