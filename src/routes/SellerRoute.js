@@ -1,52 +1,25 @@
-const router = require('express').Router()
-//SELLER
-const seller = require('../services/SellerService')
-//LIB IMAGE
-const img  =require('../lib/ImageUpload')
-//OPTION VALUE
-const optionvalue = require('../services/OptionvalueService')
-//PEODUCT
-const product = require('../services/ProductService')
-//PROORDER
-const preorder = require('../services/PreorderService')
-//ORDER
-const order = require('../services/OrderService')
+const router = require('express').Router();
+const seller = require('../services/Seller');
+const img  =require('../lib/ImageUpload');
+const optionvalue = require('../services/Optionvalue');
+const product = require('../services/Product');
+const preorder = require('../services/Preorder');
+const order = require('../services/Order');
+const auth = require('../lib/Auth');
 
-router.get('/',(req,res)=>{
-    res.json('SELLER ROUTER')
-})
-//TEST GET SELLER
-router.get('/get',seller.getall)
+router.get('/',(req,res)=>{res.json('SELLER ROUTE')});
+router.get('/popup/:id',product.Product.getPopup);
+router.get('/products/:id', preorder.getProduct);
+router.get('/preproduct/:id', preorder.getProductPreorder);
+router.get('/list/:id',seller.lists);
+router.get('/preorder',preorder.getProduct);
+router.get('/preorder/:id',preorder.getProductDetail);
+router.get('/all', seller.all);
 
-//REGISTER-SALER    
-router.post('/register',img.upload,seller.insert)
+router.post('/register',img.upload,seller.insert);
+router.post('/edit',img.upload,seller.edit);
+router.post('/login',seller.login);
+router.post('/optionvalue',img.upload,optionvalue.insert);
+router.post('/preorder',preorder.insertPreorder);
 
-//LOGIN-SALER
-router.post('/login',seller.login)
-
-//ADD PRODUCT-SALER
-router.post('/optionvalue',optionvalue.optionValue.insert)
-
-//PRODUCT(popup)-SALER-GET
-router.get('/popup/:id',product.Product.getPopup)
-
-//PRODUCTS LIST SELLER
-router.get('/products/:id', preorder.Preorder.getProduct)
-
-//SHOPINFO-SALER
-router.get('/shopinfo/:id',seller.shopinfo)
-
-//ORDERLIST-SALER
-router.post('/orderlistsaler',seller.orderlist_saler)
-
-//PREORDER
-router.get('/preorder',preorder.Preorder.getProduct)
-router.get('/preorder/:id',preorder.Preorder.getProductDetail)
-router.post('/preorder',preorder.Preorder.insertPreorder)
-
-//ORDER
-router.post('/orders/:id', order.Order.getOrderDetail)
-
-//======================Chapter 2 ======================//
-
-module.exports = router
+module.exports = router;

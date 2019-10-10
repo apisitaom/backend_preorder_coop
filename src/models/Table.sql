@@ -4,10 +4,14 @@
 --ADMIN
 create table admin (
     id                  uuid primary key         default gen_random_uuid(),
-    email               varchar(128) not null,
+    email               varchar(128) not null UNIQUE,
     password            varchar(128) not null,
     created_date        timestamp default now(),
     modified_date       timestamp
+    
+    --IS (**FK**) for table bank and promptpay
+    bankid              uuid,
+    promptpayid         uuid
 );
 --------------------------1--------------------
 --Shipping Status
@@ -46,7 +50,7 @@ create table Member(
     province            varchar(100),
     zipcode             varchar(100),
     photo               varchar(100),
-    email               varchar(100),
+    email               varchar(100) UNIQUE,
     phone               varchar(100),
     passwordUser        varchar(100)
 );
@@ -99,7 +103,7 @@ create table Seller(
     email               varchar(255) UNIQUE,
     sellerPassword      varchar(60)  not null,
     taxId               varchar(60)  ,
-    photo               text [],
+    photo               varchar(60),
 
     bankId              uuid   REFERENCES Bank(bankId),
     promptpayId         uuid   REFERENCES Promptpay (promptpayId)
@@ -113,7 +117,7 @@ create table Payment(
     datemodify          timestamp,
     slip                varchar(255),--photo
     summary             float  ,
-
+    datepayment         timestamp,
     payStatusId         uuid  ,
     FOREIGN KEY (payStatusId) REFERENCES PaymentStatus (payStatusId)
 );
@@ -139,7 +143,10 @@ create table Product(
     datemodify          timestamp,
     proName             varchar(50)  ,
     proDetail           varchar(50)  ,
-    photo               varchar(255)  ,
+    photo               text [] ,
+           
+    timeStart           timestamp,
+    timeEnd             timestamp,
 
     sellerId            uuid  ,
     userid              uuid ,
@@ -158,6 +165,9 @@ create table ProductOption(
     price               float,
     includingvat        float,
     optionvalue         json[],
+        --กำหนดว่าสินค้าเป็น pre_order หรือไม่
+    types            varchar(60),
+    totalProduct        float,
 
     proId               uuid ,
     FOREIGN key (proId) REFERENCES Product (proId)
@@ -211,10 +221,11 @@ create table OrderDetail(
     createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,    
-    amount              integer  ,
-    
-    orderId             uuid  ,
-    proOpId               uuid  ,
-    FOREIGN KEY (orderId) REFERENCES OrderProduct(orderId),
+    amount              integer,
+    address             varchar(500),
+    phone               varchar(50),
+
+    orderdetails             uuid  ,
     FOREIGN KEY (proOpId) REFERENCES ProductOption(proOpId)
+    FOREIGN KEY (orderId) REFERENCES OrderProduct(orderId),
 );

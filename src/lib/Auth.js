@@ -1,26 +1,82 @@
-const jwt = require ('jsonwebtoken')
-const con = require('../configdb/config')
+const jwt = require('jsonwebtoken')
+const db = require('../configdb/configDB');
+const helper = require('../lib/Helper');
+const Responce = require('../lib/Reposnce');
+const successMessage = require('../lib/successMessage');
+const errorMessage = require('../lib/errorMessage');
 
-const Auth = {
-    async verifyToken(req, res, next) {
-        const token = req.headers['x-access-token'];
-        if(!token) {
-          return res.status(400).send({ 'message': 'Token is not provided' });
-        }
-        try {
-          const decoded = await jwt.verify(token, process.env.SECRET);
-          const text = 'SELECT * FROM users WHERE id = $1';
-          const { rows } = await con.pool.query(text, [decoded.userid]);
-          if(!rows[0]) {
-            return res.status(400).send({ 'message': 'The token you provided is invalid' });
-          }
-          req.user = { id: decoded.userid };
-          next();
-        } catch(error) {
-          return res.status(400).send(error);
-        }
-      }
+async function userVerifyToken(req, res, next) {
+  const { headers } = req;
+  const subtoken = headers.authorization.split(' ');
+  const token = subtoken[1];
+  const decode = helper.Helper.verifyToken(token);
+
+  if (!token) {
+    return Responce.resError(res, errorMessage.noToken);
+  }
+  try {
+    const text = 'SELECT * FROM member WHERE userid = $1';
+    const { rows } = await db.query(text, [decode.data.id]);
+    if (!rows[0]) {
+      return Responce.resError(res, errorMessage.tokeninvalid);
+    }
+    req.user = { id: decode.data.id };
+    next();
+  } catch (error) {
+    return Responce.resError(res, errorMessage.saveError);
+  } 
+}
+//เปลี่ยน decode ก่อน
+async function adminVerifyToken(req, res, next){
+  const { headers } = req;
+  const subtoken = headers.authorization.split(' ');
+  const token = subtoken[1];
+  const decode = helper.Helper.verifyToken(token);
+    if (!token) {
+    return Responce.resError(res, errorMessage.noToken);
+  }
+  try {
+    const text = 'SELECT * FROM admin WHERE id = $1';
+    //change here
+    const { rows } = await db.query(text, [decode.data.id]);
+    if (!rows[0]) {
+      return Responce.resError(res, errorMessage.tokeninvalid);
+    }
+    //change here
+    req.user = { id: decode.data.id };
+    next();
+  } catch (error) {
+    return Responce.resError(res, errorMessage.saveError);
+  }
+
+}
+//เปลี่ยน decode ก่อน 
+async function sellerVerifyToken(req, res, next){
+const { headers } = req;
+  const subtoken = headers.authorization.split(' ');
+  const token = subtoken[1];
+  const decode = helper.Helper.verifyToken(token);
+    if (!token) {
+    return Responce.resError(res, errorMessage.noToken);
+  }
+  try {
+    const text = 'SELECT * FROM seller WHERE sellerid = $1';
+    //change here
+    const { rows } = await db.query(text, [decode.data.id]);
+    if (!rows[0]) {
+      return Responce.resError(res, errorMessage.tokeninvalid);
+    }
+    //change here
+    req.user = { id: decode.data.id };
+    next();
+  } catch (error) {
+    return Responce.resError(res, errorMessage.saveError);
+  }
 }
 
-exports.Auth = Auth
+module.exports = {
+  userVerifyToken,
+  adminVerifyToken,
+  sellerVerifyToken
+}
 
