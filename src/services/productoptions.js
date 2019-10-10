@@ -96,9 +96,22 @@ async function option (productid) {
         }
     });
 }
+async function optionorder (productid) {
+    const sql = `select productoption.proopid,productoption.sku,productoption.price,productoption.includingvat,productoption.optionvalue,productoption.totalproduct from productoption where types ='order' and proid = $1`
+    return new Promise(async(resolve , reject) => {
+        try {
+            const { rows } = await db.query(sql, [productid]);
+            resolve(rows);
+            res.end();
+        } catch (error) {
+            reject(error)
+        }
+    });
+}
 
 module.exports = {
     Productoption,
     ProductoptionSeller,
-    option
+    option,
+    optionorder
 }
