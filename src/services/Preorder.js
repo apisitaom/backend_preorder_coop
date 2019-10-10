@@ -3,25 +3,31 @@ const errorMessage = require('../lib/errorMessage');
 const successMessage = require('../lib/successMessage');
 const Responce = require('../lib/Reposnce');
 const moment = require('moment');
+const productoptions = require('./options');
 
 async function getProduct (req, res) {
     const sql = `select 
-    product.proid, product.proname
+    product.proid, product.proname, product.category
     from productoption
     full join product on product.proid = productoption.proid
     where 
-    sellerid = $1 and productoption.types ='order' group by product.proid`
+    sellerid = $1 
+    and 
+    productoption.types ='order' 
+    group by product.proid`
     let responce = []
     try {
-        const value = await db.query(sql, [req.params.id]);
-        for ( let i = 0; i < (value.rows).length; i++) {
-            let data = {
-                order : i+1,
-                productid : value.rows[i].proid,
-                productname : value.rows[i].proname
+        const product = await db.query(sql, [req.params.id]);
+        await Promise.all(product.rows.map(async(item) => {
+            const option = await productoptions.optionorder(item.proid);
+            let obj = {
+                proid: item.proid,
+                proname: item.proname,
+                category: item.category,
+                result: option
             }
-            responce.push(data)
-        }
+            responce.push(obj);
+        }))
         return Responce.resSuccess(res,successMessage.success, responce);
     } catch (error) {
         return Responce.resError(res, errorMessage.saveError);
@@ -29,15 +35,18 @@ async function getProduct (req, res) {
         res.end();
     }
 }
+
 async function getProductPreorder (req,res, next) {
-    const sql = `select proid,proname,prodetail,photo,sellerid,timestart,timeend from product where sellerid = $1`;
+    const sql = `select 
+    proid,proname,prodetail,photo,sellerid,timestart,timeend 
+    from product 
+    where sellerid = $1`;
     let products = [];
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
     try {
         const product = await db.query(sql, [req.params.id]);
         await Promise.all(product.rows.map(async(item) => {
-        const option = await getOption(item.proid);
-
+        const option = await productoptions.option(item.proid);
         if(item.timestart !== null){
         item.timeend = moment(item.timeend).subtract(7, 'h');
         item.timeend = moment(item.timeend).format('YYYY-MM-DD HH:mm:ss');
@@ -85,18 +94,7 @@ async function getProductPreorder (req,res, next) {
         res.end();
     }
 }
-async function getOption (productid) {
-    const sql = `select productoption.proopid,productoption.sku,productoption.price,productoption.includingvat,productoption.optionvalue,productoption.totalproduct from productoption where types ='preorder' and proid = $1`
-    return new Promise(async(resolve , reject) => {
-        try {
-            const { rows } = await db.query(sql, [productid]);
-            resolve(rows);
-            res.end();
-        } catch (error) {
-            reject(error)
-        }
-    });
-}
+
 async function getProductDetail (req, res) {
     const key = req.params.id
     const selectOne =   `select 
@@ -112,6 +110,7 @@ async function getProductDetail (req, res) {
         res.end();
     }
 }
+
 async function insertPreorder (req, res) {
     const active = true
     const today = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
@@ -137,6 +136,7 @@ async function insertPreorder (req, res) {
         res.end();
     }
 }
+
 module.exports = {
     getProduct,
     getProductPreorder,

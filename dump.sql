@@ -174,7 +174,8 @@ CREATE TABLE public.orderproduct (
     userid uuid,
     payid uuid,
     shipid uuid,
-    eventid uuid
+    eventid uuid,
+    sellerid text[]
 );
 
 
@@ -191,8 +192,9 @@ CREATE TABLE public.payment (
     datemodify timestamp without time zone,
     slip character varying(255),
     summary double precision,
-    paystatusid uuid,
-    datepayment timestamp without time zone
+    datepayment timestamp without time zone,
+    paystatusid integer,
+    summarycheck double precision
 );
 
 
@@ -203,7 +205,7 @@ ALTER TABLE public.payment OWNER TO aom;
 --
 
 CREATE TABLE public.paymentstatus (
-    paystatusid uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    paystatusid integer NOT NULL,
     createdate timestamp without time zone DEFAULT now(),
     active boolean,
     datemodify timestamp without time zone,
@@ -228,7 +230,8 @@ CREATE TABLE public.product (
     sellerid uuid,
     userid uuid,
     timestart timestamp without time zone,
-    timeend timestamp without time zone
+    timeend timestamp without time zone,
+    category character varying(50)
 );
 
 
@@ -323,7 +326,7 @@ CREATE TABLE public.shipping (
     active boolean,
     datemodify timestamp without time zone,
     shiptrackno character varying(100),
-    shipstatusid uuid
+    shipstatusid integer
 );
 
 
@@ -334,7 +337,7 @@ ALTER TABLE public.shipping OWNER TO aom;
 --
 
 CREATE TABLE public.shippingstatus (
-    shipstatusid uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    shipstatusid integer NOT NULL,
     shippingstatusname character varying(50),
     createdate timestamp without time zone DEFAULT now(),
     active boolean,

@@ -8,15 +8,11 @@ create table admin (
     password            varchar(128) not null,
     created_date        timestamp default now(),
     modified_date       timestamp
-    
-    --IS (**FK**) for table bank and promptpay
-    bankid              uuid,
-    promptpayid         uuid
 );
 --------------------------1--------------------
 --Shipping Status
 create table ShippingStatus(
-    shipStatusId        uuid primary key         default gen_random_uuid(),
+    shipStatusId        integer primary key,
     shippingStatusName  varchar(50)  ,
     createdate          timestamp default now(),
     active              boolean,
@@ -57,7 +53,7 @@ create table Member(
 
 --Payment Status
 create table PaymentStatus(
-    payStatusId         uuid primary key         default gen_random_uuid(),
+    payStatusId         integer primary key,
     createdate          timestamp default now(),
     active              boolean,
     datemodify          timestamp,
@@ -117,8 +113,10 @@ create table Payment(
     datemodify          timestamp,
     slip                varchar(255),--photo
     summary             float  ,
+    summarycheck       float  , -- เช็คราคา
+
     datepayment         timestamp,
-    payStatusId         uuid  ,
+    payStatusId         integer  ,
     FOREIGN KEY (payStatusId) REFERENCES PaymentStatus (payStatusId)
 );
 
@@ -130,7 +128,7 @@ create table Shipping(
     datemodify          timestamp,
     shipTrackNo         varchar(100),
 
-    shipStatusId        uuid  ,
+    shipStatusId        integer  ,
     FOREIGN KEY (shipStatusId) REFERENCES shippingstatus (shipstatusid)
 );
 
@@ -144,7 +142,7 @@ create table Product(
     proName             varchar(50)  ,
     proDetail           varchar(50)  ,
     photo               text [] ,
-           
+    category            varchar(50),     
     timeStart           timestamp,
     timeEnd             timestamp,
 
@@ -234,3 +232,17 @@ create table OrderDetail(
     FOREIGN KEY (proOpId) REFERENCES ProductOption(proOpId)
     FOREIGN KEY (orderId) REFERENCES OrderProduct(orderId),
 );
+
+-- เเอดมิน
+insert into admin (email, password) values ('test@gmail.com', 12345);
+
+-- ข้อมูลสถานะการจ่ายตัง
+insert into paymentstatus (paystatusid, active, statusname ) values (1, true, 'รอชำระ');
+insert into paymentstatus (paystatusid, active, statusname ) values (2, true, ' รอตรวจสอบ');
+insert into paymentstatus (paystatusid, active, statusname ) values (3, true, 'ชำระเงินเเล้ว');
+
+-- ข้อมมูลสถานะการส่ง
+insert into shippingstatus (shipstatusid, active, shippingstatusname) values (1, true, 'สินค้ายังไม่ได้ทำการจัดส่ง');
+insert into shippingstatus (shipstatusid, active, shippingstatusname) values (2, true, 'รอตรวจสอบ การส่งสินค้า');
+insert into shippingstatus (shipstatusid, active, shippingstatusname) values (3, true, 'สินค้าทำการจัดส่งเรียบร้อยเเล้ว');
+insert into shippingstatus (shipstatusid, active, shippingstatusname) values (4, true, 'ยืนยันการจัดส่งเรียบร้อยเเล้ว');

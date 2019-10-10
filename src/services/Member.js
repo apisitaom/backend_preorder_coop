@@ -29,6 +29,7 @@ async function registerMember (req, res, next) {
         res.end()
       }
 }
+
 async function getProfileMember (req, res, next) {
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
@@ -59,6 +60,7 @@ async function getProfileMember (req, res, next) {
         res.end();
     }   
 }
+
 async function updateMember (req, res, next) {
     const {customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email} = req.body
     const { headers } = req;
@@ -87,6 +89,7 @@ async function updateMember (req, res, next) {
         res.end();
     }
 }
+
 async function logInMember (req, res, next) {
     const { email, password } = req.body;  
     if (!email || !password) {
