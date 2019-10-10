@@ -1,15 +1,29 @@
 const router = require('express').Router()
 
-const admin = require('../services/AdminService')
+const { 
+    updatePaymentStatus, 
+    updateSellerStatus, 
+    login, 
+    getUserData, 
+    createAdmin, 
+    getUserOneData, 
+    sellers,
+    orders
+ }= require('../services/AdminService')
 
 router.get('/',(req,res)=>{
     res.json('ADMIN ROUTER')
 })
 
-//LOGIN ADMIN
-router.post('/login',admin.Admin.login)
+router.get('/orders', orders)
+router.get('/orders/:id', orders)
+router.get('/sellers', sellers)
+router.get('/sellers/:id', sellers)
 
-//REGISTER ADMIN
-router.post('/register',admin.Admin.createAdmin)
+router.post('/sellers/:id', updateSellerStatus)
+router.post('/orders/:id', updatePaymentStatus)
+
+router.post('/login', login)
+router.post('/register', createAdmin)
 
 module.exports = router
