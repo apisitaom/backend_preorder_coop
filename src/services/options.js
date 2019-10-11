@@ -123,10 +123,28 @@ async function optionorder (productid) {
     });
 }
 
+async function summary (proid) {
+    const sqlproductoption = `select 
+    sum(totalproduct)
+    from productoption
+    where proid = $1
+    `
+    return new Promise(async(resolve , reject) => {
+        try {
+            const { rows } = await db.query(sqlproductoption, [proid]);
+            resolve(rows[0]);
+        } catch (error) {
+            reject(proid);
+        }
+    })
+}
+
+
 module.exports = {
     Productoption,
     ProductoptionSeller,
     option,
     optionorder,
+    summary
     
 }

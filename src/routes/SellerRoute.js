@@ -15,6 +15,7 @@ router.get('/preorder/:id',preorder.getProductDetail);
 router.get('/all', seller.all);
 router.get('/buy', seller.buy);
 router.get('/buyid/:id', seller.buyid);
+router.get('/summary', seller.summary);
 
 router.post('/register',img.upload,seller.add);
 router.post('/edit',img.upload,seller.edit);
