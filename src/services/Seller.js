@@ -303,10 +303,45 @@ async function buyid (req, res, next) {
           data.push(item);
         }
       })
-      
       return Response.resSuccess(res, successMessage.success, data);
   } catch (error) {
       return Response.resError(res, errorMessage.saveError);
+  }
+}
+
+async function summary (req, res, next) {
+  const { headers } = req;
+  const subtoken = headers.authorization.split(' ');
+  const token = subtoken[1];
+  const decode = helper.Helper.verifyToken(token);
+  const sqlproduct = `select 
+  product.proid, product.proname, product.prodetail
+  from product
+  full join seller on seller.sellerid = product.sellerid 
+  `
+  const valueproduct = []
+  const sqlcount = `select 
+  count(proid) 
+  from product 
+  where sellerid = $1`
+  try {
+    const count = await db.query(sqlcount, [decode.data.id]);
+    const { rows } = await db.query(sqlproduct, valueproduct);
+    const tranfrom = await Promise.all(rows.map(async(item) => {      
+      if (item.proid !== null) {
+        const products = await productoptions.summary(item.proid);
+        return {
+          proname: item.proname,
+          prodetail: item.prodetail,
+          total :products,
+          amountproduct: count.rows[0]
+        }
+
+      }
+    }))
+    return Response.resSuccess(res, successMessage.success, tranfrom);
+  } catch (error) {
+    return Response.resError(res, errorMessage.saveError);
   }
 }
 
@@ -318,5 +353,6 @@ module.exports = {
   all,
   role,
   buy,
-  buyid
+  buyid,
+  summary
 }
