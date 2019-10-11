@@ -67,7 +67,6 @@ async function updateMember (req, res, next) {
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-    
     try {
         if (req.files === null || req.files === [] || req.files[0] === undefined) {
             const sqls = `update member set firstname = $1, lastname = $2, gender = $3, brithday = $4, addressuser = $5,

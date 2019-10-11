@@ -41,7 +41,15 @@ async function lists (req, res, next) {
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-    const sql = `select * 
+    const sql = `select 
+    orderdetail.createdate, orderdetail.phone, orderdetail.proopids, orderdetail.amounts,
+    member.lastname, member.firstname,
+    orderproduct.orderid,
+    orderdetail.address, orderdetail.disstrict, orderdetail.province, orderdetail.zipcode,
+    payment.payid, 
+    shipping.shiptrackno, shipping.shipid,
+    shippingstatus.shippingstatusname, 
+    paymentstatus.statusname
     from orderdetail 
     full join orderproduct on orderproduct.orderid = orderdetail.orderid
     full join payment on payment.payid = orderproduct.payid
@@ -60,14 +68,13 @@ async function lists (req, res, next) {
             })
             return {
             fullname: item.firstname +' '+ item.lastname,
-            createdate: moment(item.createdate,).format('YYYY-MM-DD HH:mm:ss'),
+            createdate: item.createdate,
             orderid: item.orderid,
             orderdetailid: item.orderdetailid,
             address: item.address,
             disstrict: item.disstrict,
             province: item.province,
             zipcode: item.zipcode,
-            orderid: item.orderid,
             phone: item.phone,
             payid: item.payid,
             shiptrackno: item.shiptrackno,
