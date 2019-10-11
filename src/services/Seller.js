@@ -58,6 +58,9 @@ async function login(req, res) {
   const text = 'SELECT * FROM seller WHERE email = $1';
   try {
     const { rows } = await db.query(text, [req.body.email]);
+    if (rows[0].active === false) {
+      return Response.resError(res, errorMessage.seller);
+    }
     if (!rows[0]) {
       return Response.resError(res, errorMessage.saveError);
     }
