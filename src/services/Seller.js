@@ -169,7 +169,8 @@ async function role (req, res) {
   const { active, sellerid } = req.body;
   const sql = `update seller set active = $1 where sellerid = $2`;
   const value = [active, sellerid];
-  try {  
+  try {
+  
     await db.query(sql, value);
     return Response.resSuccess(res, successMessage.success);
   } catch (error) {

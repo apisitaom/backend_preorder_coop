@@ -6,7 +6,7 @@ const product = require('../services/Product');
 const preorder = require('../services/Preorder');
 
 router.get('/',(req,res)=>{res.json('SELLER ROUTE')});
-router.get('/popup/:id',product.getPopup);
+router.get('/popup/:id',product.list);
 router.get('/products/:id', preorder.getProduct);
 router.get('/preproduct/:id', preorder.getProductPreorder);
 router.get('/list/:id',seller.lists);
