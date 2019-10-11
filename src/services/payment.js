@@ -204,9 +204,9 @@ async function adminpaymentadd (req, res, next) {
         const { payid , orderid } = req.body;
         const active = true;
         const sqlpayment = `update payment set paystatusid = $1 where payid = $2`
-        const valuepayment = [ 3, payid]; // 3 = การชำระเงินเสร็จสิ้นเเล้ว
+        const valuepayment = [ 3, payid]; 
         const sqlshipping = `insert into shipping (active, shipstatusid) values ($1, $2) returning shipid`
-        const valueshipping = [active, 1] // 1 = สินค้ายังไม่ได้ทำการจัดส่ง
+        const valueshipping = [active, 1] 
         const sqlorderproduct = `update orderproduct set shipid = $1 where orderid = $2`
         try {
             const shipping = await db.query(sqlshipping, valueshipping);
