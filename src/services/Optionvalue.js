@@ -4,7 +4,7 @@ const Responce = require('../lib/Reposnce');
 const successMessage = require('../lib/successMessage');
 const errorMessage = require('../lib/errorMessage');
 
-async function insert (req,res){    
+async function add (req,res){    
     const {productname,detail,sellerid, category} = req.body
     const optionJson = JSON.parse(req.body.option)
     const today = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
@@ -34,5 +34,5 @@ async function insert (req,res){
 }
 
 module.exports = {
-    insert
+    add
 }

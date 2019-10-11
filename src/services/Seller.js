@@ -169,9 +169,7 @@ async function role (req, res) {
   const { active, sellerid } = req.body;
   const sql = `update seller set active = $1 where sellerid = $2`;
   const value = [active, sellerid];
-  try {const db = require('../configdb/configDB');
-  const moment = require('moment');
-  const errorMessage = require('../lib/errorMessage');
+  try {
   
     await db.query(sql, value);
     return Response.resSuccess(res, successMessage.success);

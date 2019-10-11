@@ -5,7 +5,7 @@ const errorMessage = require('../lib/errorMessage');
 const helper = require('../lib/Helper');
 const Responce = require('../lib/Reposnce');
 
-async function registerMember (req, res, next) {
+async function add (req, res, next) {
     const { customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email , picture, password} = req.body;
     if (!customerfirstname || !customerlastname || !sex || !email) {
         return Responce.resError(res, errorMessage.paramsNotMatch);
@@ -30,7 +30,7 @@ async function registerMember (req, res, next) {
       }
 }
 
-async function getProfileMember (req, res, next) {
+async function list (req, res, next) {
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
@@ -61,13 +61,12 @@ async function getProfileMember (req, res, next) {
     }   
 }
 
-async function updateMember (req, res, next) {
+async function edit (req, res, next) {
     const {customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email} = req.body
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-    
     try {
         if (req.files === null || req.files === [] || req.files[0] === undefined) {
             const sqls = `update member set firstname = $1, lastname = $2, gender = $3, brithday = $4, addressuser = $5,
@@ -90,7 +89,7 @@ async function updateMember (req, res, next) {
     }
 }
 
-async function logInMember (req, res, next) {
+async function login (req, res, next) {
     const { email, password } = req.body;  
     if (!email || !password) {
         return Responce.resError(res, errorMessage.paramsNotMatch);
@@ -123,8 +122,8 @@ async function logInMember (req, res, next) {
 }
 
 module.exports = {
-    registerMember,
-    getProfileMember,
-    logInMember,
-    updateMember
+    add,
+    list,
+    login,
+    edit
 }
