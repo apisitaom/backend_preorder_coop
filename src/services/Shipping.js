@@ -9,7 +9,7 @@ async function sellershipping (req, res, next) {
     const { shipid, shiptrackno } = req.body;
     const sqlshipping = `update shipping set shipstatusid = $1, shiptrackno = $2
     where shipid = $3`
-    const valueshipping = [3, shiptrackno, shipid] //  3 = สินค้ายังทำการจัดส่งเรียบร้อยเเล้ว
+    const valueshipping = [3, shiptrackno, shipid] 
     try {
         await db.query(sqlshipping, valueshipping);
         return Responce.resSuccess(res, successMessage.success);
@@ -22,7 +22,7 @@ async function customerreceive (req, res, next) {
     const { shipid } = req.body;
     const sqlshipping = `update shipping set shipstatusid = $1
     where shipid = $2`
-    const valueshipping = [4, shipid] // 4 = ยืนยันการจัดส่งเรียบร้อยเเล้ว
+    const valueshipping = [4, shipid] 
     try {
         await db.query(sqlshipping, valueshipping);
         return Responce.resSuccess(res, successMessage.success, 'ยืนยันการจัดส่งเรียบร้อยเเล้ว');
@@ -30,8 +30,6 @@ async function customerreceive (req, res, next) {
         return Responce.resSuccess(res, errorMessage.saveError);
     }
 }
-
-// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ ADMIN $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 async function lists (req, res, next) {
     const sql = `select 
