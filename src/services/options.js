@@ -77,7 +77,7 @@ return new Promise (async(resolve, reject) => {
                 return responce;
             } else {
                 delete rows[0]
-            }
+                }
             } 
         }));
         resolve(data);
@@ -115,5 +115,6 @@ module.exports = {
     Productoption,
     ProductoptionSeller,
     option,
-    optionorder
+    optionorder,
+    
 }
