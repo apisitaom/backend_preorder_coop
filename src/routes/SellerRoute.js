@@ -16,7 +16,7 @@ router.get('/all', seller.all);
 router.get('/buy', seller.buy);
 router.get('/buyid/:id', seller.buyid);
 
-router.post('/register',img.upload,seller.insert);
+router.post('/register',img.upload,seller.add);
 router.post('/edit',img.upload,seller.edit);
 router.post('/login',seller.login);
 router.post('/optionvalue',img.upload,optionvalue.add);

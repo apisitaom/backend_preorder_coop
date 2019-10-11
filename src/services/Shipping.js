@@ -2,12 +2,8 @@ const db = require('../configdb/configDB');
 const errorMessage = require('../lib/errorMessage');
 const successMessage = require('../lib/successMessage');
 const Responce = require('../lib/Reposnce');
-<<<<<<< HEAD
-const moment = require('moment')
-=======
 const moment = require('moment');
 const productoptions = require('./options');
->>>>>>> aom
 
 async function sellershipping (req, res, next) {
     const { shipid, shiptrackno } = req.body;
@@ -52,24 +48,26 @@ async function lists (req, res, next) {
     full join member on member.userid = orderproduct.userid 
     `
     try {
-        const { rows } = await db.query(sql);
-        rows.map(async(element ,index) => {
-            if (element.orderid != null) {
-                let responce = {
-                    createdate: moment(element.createdate).format('YYYY-MM-DD HH:mm:ss'),
-                    payid: element.payid,
-                    orderid: element.orderid,
-                    phone: element.phone,
-                    disstrict: element.disstrict,
-                    province: element.province,
-                    zipcode: element.zipcode,
-                    shiptrackno: element.shiptrackno,
-                    shippingstatusname: element.shippingstatusname,
-                    fullname: element.firstname + ' '+ element.lastname,
-                    gender: element.gender,
-                    email: element.email,
-                }
-                data.push(responce);
+        const { rows } = await db.query(sql); 
+        const tranfrom = await Promise.all(rows.map(async(item) => {
+            if (item.proopids !== null) {
+                const productoption = await productoptions.Productoption(item.proopids, item.amounts);
+                return {
+                    fullname: item.firstname +' '+ item.lastname,
+                    createdate: item.createdate,
+                    orderid: item.orderid,
+                    orderdetailid: item.orderdetailid,
+                    address: item.address,
+                    disstrict: item.disstrict,
+                    province: item.province,
+                    zipcode: item.zipcode,
+                    orderid: item.orderid,
+                    phone: item.phone,
+                    statusname: item.statusname,
+                    payid: item.payid,
+                    shippingstatusname: item.shippingstatusname,
+                    result: productoption,
+                    }
             }
             }));
         return Responce.resSuccess(res, successMessage.success, tranfrom);

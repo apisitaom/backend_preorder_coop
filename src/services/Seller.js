@@ -6,7 +6,7 @@ const Response = require('../lib/Reposnce');
 const helper = require('../lib/Helper');
 const productoptions = require('./options'); 
 
-async function insert(req, res) {
+async function add(req, res) {
   if (!req.body.email || !req.body.password) {
     return Response.resError(res, errorMessage.paramsNotMatch);
   }
@@ -16,25 +16,25 @@ async function insert(req, res) {
   const { shopname, address, subdistrict, district, province, zipcode, phone, email, password, taxid, bankname, accountname, accountnumber, promptpayname, promptpaynumber,picture } = req.body
   const insertBank = 'INSERT INTO bank(createdate,active,datemodify,bankname,bankaccountname,banknumber) VALUES($1,$2,$3,$4,$5,$6) returning bankid'
   const insertPromptpay = 'INSERT INTO promptpay(createdate,active,datemodify,promptpayname,promptpaynumber) VALUES($1,$2,$3,$4,$5) returning promptpayid'
-  const activeStatus = true;
+  const active = false;
   const hashPassword = helper.Helper.hashPassword(password);
   const today = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
-  const valuePromptpay = [today, activeStatus, today, promptpayname, promptpaynumber]
-  const valueBank = [today, activeStatus, today, bankname, accountname, accountnumber]
+  const valuePromptpay = [today, active, today, promptpayname, promptpaynumber]
+  const valueBank = [today, active, today, bankname, accountname, accountnumber]
   try {
     if (!req.files[0] || !req.files ||req.files === null || req.files === [] || req.files[0] === undefined) {
       const rowBankNew = await db.query(insertBank, valueBank);
       const rowPromptpayNew = await db.query(insertPromptpay, valuePromptpay)
       const insertSeller = `INSERT INTO seller(active,datemodify,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,bankid,promptpayid) 
       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) returning sellerid`
-      const value = [activeStatus, today, shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, taxid, rowBankNew.rows[0].bankid, rowPromptpayNew.rows[0].promptpayid]
+      const value = [active, today, shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, taxid, rowBankNew.rows[0].bankid, rowPromptpayNew.rows[0].promptpayid]
       await db.query(insertSeller, value);
     } else {
       const rowBankNew = await db.query(insertBank, valueBank);
       const rowPromptpayNew = await db.query(insertPromptpay, valuePromptpay)
       const insertSeller = `INSERT INTO seller(active,datemodify,sellername,address,subdistrict,district,zipcode,province,phonenumber,email,sellerpassword,taxid,bankid,promptpayid, photo) 
       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) returning sellerid`
-      const value = [activeStatus, today, shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, taxid, rowBankNew.rows[0].bankid, rowPromptpayNew.rows[0].promptpayid, req.files[0].filename]
+      const value = [active, today, shopname, address, subdistrict, district, zipcode, province, phone, email, hashPassword, taxid, rowBankNew.rows[0].bankid, rowPromptpayNew.rows[0].promptpayid, req.files[0].filename]
       await db.query(insertSeller, value);
     }
       return Response.resSuccess(res, successMessage.success);
@@ -55,9 +55,12 @@ async function login(req, res) {
   if (!helper.Helper.isValidEmail(req.body.email)) {
     return Response.resError(res, errorMessage.saveError);
   }
-  const text = 'SELECT * FROM seller WHERE email = $1';
+  const sql = 'SELECT * FROM seller WHERE email = $1';
   try {
-    const { rows } = await db.query(text, [req.body.email]);
+    const { rows } = await db.query(sql, [req.body.email]);
+    if (rows[0].active === false) {
+      return Response.resError(res, errorMessage.seller);
+    }
     if (!rows[0]) {
       return Response.resError(res, errorMessage.saveError);
     }
@@ -308,7 +311,7 @@ async function buyid (req, res, next) {
 }
 
 module.exports = {
-  insert,
+  add,
   login,
   lists,
   edit,
