@@ -6,7 +6,7 @@ const helper = require('../lib/Helper');
 const productoptions = require('./options');
 
 async function add (req, res, next) {
-    const {address, phonenumber, countdowntime, amounts, proopid, district, province, zipcode, sellerid} = req.body;
+    const {address, phonenumber, amounts, proopid, district, province, zipcode, sellerid} = req.body;
     if (amounts.length != proopid.length) {
         return Responce.resError(res, errorMessage.saveError);
     }
@@ -22,6 +22,11 @@ async function add (req, res, next) {
             const sqlorderproduct = `insert into orderproduct (active, userid, payid, sellerid) values ($1, $2, $3, $4) returning orderid`
             const valueorderproduct = [active, decode.data.id,payment.rows[0].payid, sellerid];
             const orderproduct = await db.query(sqlorderproduct, valueorderproduct);
+            amounts.map(async(element, index) => {
+                const updateproductoption = `update productoption set totalproduct = totalproduct - $1 where proopid = $2`
+                const valueupdateproductoption = [element, proopid[amounts.indexOf(element)] ]
+                await db.query(updateproductoption, valueupdateproductoption);
+            })
             const sqlorderdetail = `insert into orderdetail (active, amounts, address, phone, proopids, orderid, disstrict, province, zipcode) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
             const valueorderdetail = [active, amounts, address, phonenumber, proopid, orderproduct.rows[0].orderid, district, province, zipcode];
             await db.query(sqlorderdetail, valueorderdetail);
