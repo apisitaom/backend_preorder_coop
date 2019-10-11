@@ -97,11 +97,10 @@ async function list (req, res, next) {
 }
 
 async function add (req, res, next) {
-    const {total, day, time, sellerid, orderid, payid} = req.body;  
-    const { headers } = req;
-    const subtoken = headers.authorization.split(' ');
-    const token = subtoken[1];
-    const decode = helper.Helper.verifyToken(token);
+    const {total, day, time, payid} = req.body; 
+     if (!total || !day || !time || !payid) {
+        return Responce.resError(res, errorMessage.paramsNotMatch);
+     }
     const date = day + ' ' + time;
     const active = true;    
         if (!req.files[0]) {
@@ -113,8 +112,6 @@ async function add (req, res, next) {
             return Responce.resSuccess(res, successMessage.success);
         }
 }
-
-// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ ADMIN $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 async function adminpaymentlists (req, res, next) {
     const sql = `select 
