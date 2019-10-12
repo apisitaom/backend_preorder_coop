@@ -2,7 +2,6 @@ const db = require('../configdb/configDB');
 const errorMessage = require('../lib/errorMessage');
 const successMessage = require('../lib/successMessage');
 const Responce = require('../lib/Reposnce');
-const moment = require('moment');
 const productoptions = require('./options');
 
 async function sellershipping (req, res, next) {
@@ -46,6 +45,7 @@ async function lists (req, res, next) {
     full join shipping on shipping.shipid = orderproduct.shipid
     full join shippingstatus on shippingstatus.shipstatusid = shipping.shipstatusid
     full join member on member.userid = orderproduct.userid 
+    where shipping.shipstatusid = 3
     `
     try {
         const { rows } = await db.query(sql); 
