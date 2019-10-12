@@ -125,6 +125,7 @@ async function adminpaymentlists (req, res, next) {
     full join payment on payment.payid = orderproduct.payid
     full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
     full join member on member.userid = orderproduct.userid 
+    where payment.paystatusid = 3
     `
     try {
         const { rows } = await db.query(sql); 
