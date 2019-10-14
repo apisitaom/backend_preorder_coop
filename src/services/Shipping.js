@@ -22,14 +22,103 @@ async function customerreceive (req, res, next) {
     const sqlshipping = `update shipping set shipstatusid = $1
     where shipid = $2`
     const valueshipping = [4, shipid] // 4 = ยืนยันการจัดส่งเรียบร้อยเเล้ว
+    const sqlSelectJoin = `
+    select 	orderproduct.orderid, orderproduct.sellerid, orderproduct.createdate, 
+		shipping.shipid, orderdetail.proopids, orderdetail.amounts,
+		member.userid, member.firstname, member.lastname, orderdetail.province, member.gender, extract(year from member.brithday) as brithday
+    from orderproduct
+    inner join shipping
+        on orderproduct.shipid = shipping.shipid
+    inner join orderdetail
+        on orderproduct.orderid = orderdetail.orderid
+    inner join member
+        on orderproduct.userid = member.userid
+    where shipping.shipid = $1
+    `
+    const sqlSelectSeller = `
+        select sellerid, sellername from seller
+        where sellerid = $1
+    `
+    const sqlSelectProduct = `
+        select 
+            product.proid, product.proname,
+            productoption.proopid, productoption.sku, productoption.price, productoption.includingvat, productoption.optionvalue
+        from productoption
+        inner join product
+            on productoption.proid = product.proid 
+        where productoption.proopid = $1
+    `
+    const sqlInsertToRecipt = `
+        insert into receipt(createdate, quantity, grand_price, province, gender, age, customer_id, customer_name, order_id)
+        values($1, $2, $3, $4, $5, $6, $7, $8, $9) returning receipt_id
+    `
+    const sqlInsertToReceiptDetail = `
+        insert into receipt_detail(seller_id, seller_name, proid, product_name, product_option_id, option_value, sku, price, vat, grand_price, amount, receipt_id)
+        values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+    `
+    let arrSeller = []
+    let arrProduct = []
+    let arrReceipt = []
+    let sumAmount = 0
+    let sumPrice = 0
+    const year = new Date().getFullYear()
     try {
+        const valueReceipt = await db.query(sqlSelectJoin, [shipid])
+        console.log(valueReceipt.rows[0])
+        for(let i = 0; i <  valueReceipt.rows[0].sellerid.length; i++) {
+            const valueSeller = await db.query(sqlSelectSeller, [valueReceipt.rows[0].sellerid[i]])
+            arrSeller.push(valueSeller.rows[0])
+        }
+        for(let i = 0; i <  valueReceipt.rows[0].sellerid.length; i++) {
+            const valueProduct = await db.query(sqlSelectProduct, [valueReceipt.rows[0].proopids[i]])
+            arrProduct.push(valueProduct.rows[0])
+        }
+        const arrSumAmount = valueReceipt.rows[0].amounts.map( e => {
+            sumAmount += parseInt(e)
+            return sumAmount
+        })
+        for(let i = 0; i < valueReceipt.rows[0].amounts.length; i++){
+            sumPrice += parseInt(valueReceipt.rows[0].amounts[i]) * parseInt(arrProduct[i].price)
+        }
+        const age = parseInt(year) - parseInt(valueReceipt.rows[0].brithday)
+        const insertValueReceipt = [
+            valueReceipt.rows[0].createdate,
+            arrSumAmount[valueReceipt.rows[0].amounts.length-1],
+            sumPrice,
+            valueReceipt.rows[0].province,
+            valueReceipt.rows[0].gender,
+            age,
+            valueReceipt.rows[0].userid,
+            valueReceipt.rows[0].firstname + " " + valueReceipt.rows[0].lastname,
+            valueReceipt.rows[0].orderid
+        ]
+        await db.query('begin')
+        const { rows } = await db.query(sqlInsertToRecipt, insertValueReceipt)
+        for(let i = 0; i < valueReceipt.rows[0].amounts.length; i++){        
+            const insertValueReceiptDetail = [
+                arrSeller[i].sellerid,
+                arrSeller[i].sellername,
+                arrProduct[i].proid,
+                arrProduct[i].proname,
+                arrProduct[i].proopid,
+                arrProduct[i].optionvalue,
+                arrProduct[i].sku,
+                arrProduct[i].price - arrProduct[i].includingvat,
+                arrProduct[i].includingvat,
+                arrProduct[i].price,
+                valueReceipt.rows[0].amounts[i],
+                rows[0].receipt_id
+            ]
+            await db.query(sqlInsertToReceiptDetail, insertValueReceiptDetail)
+        }
+        await db.query('commit')
         await db.query(sqlshipping, valueshipping);
-        return Responce.resSuccess(res, successMessage.success, 'ยืนยันการจัดส่งเรียบร้อยเเล้ว');
+        return Responce.resSuccess(res, successMessage.success, "ยืนยันการจัดส่งเรียบร้อยเเล้ว");
     } catch (error) {
+        console.log(error)
         return Responce.resSuccess(res, errorMessage.saveError);
     }
 }
-
 // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ ADMIN $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 async function lists (req, res, next) {

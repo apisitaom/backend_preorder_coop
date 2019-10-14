@@ -4,6 +4,7 @@ const img  =require('../lib/ImageUpload');
 const optionvalue = require('../services/Optionvalue');
 const product = require('../services/Product');
 const preorder = require('../services/Preorder');
+const dashboard = require('../services/Dashboard')
 
 router.get('/',(req,res)=>{res.json('SELLER ROUTE')});
 router.get('/popup/:id',product.getPopup);
@@ -15,7 +16,17 @@ router.get('/preorder/:id',preorder.getProductDetail);
 router.get('/all', seller.all);
 router.get('/buy', seller.buy);
 router.get('/buyid/:id', seller.buyid);
+router.get('/sales', dashboard.sales)
+router.get('/sales/:id', dashboard.sales)
+router.get('/amount', dashboard.totalAmount)
+router.get('/amount/:id', dashboard.totalAmount)
+router.get('/customer/:id', dashboard.totalCustomer)
+router.get('/top/:id', dashboard.topTenProducts)
 
+router.post('/product/sales/lists/:id', dashboard.topTenProducts)
+router.post('/product/sales/:id', dashboard.productSale)
+router.post('/graph/:id', dashboard.graph)
+router.post('/user/:id', dashboard.users)
 router.post('/register',img.upload,seller.insert);
 router.post('/edit',img.upload,seller.edit);
 router.post('/login',seller.login);
