@@ -7,6 +7,7 @@ const preorder = require('../services/Preorder');
 const dashboard = require('../services/Dashboard')
 
 router.get('/',(req,res)=>{res.json('SELLER ROUTE')});
+router.get('/trackno/:id', seller.trackno)
 router.get('/popup/:id',product.getPopup);
 router.get('/products/:id', preorder.getProduct);
 router.get('/preproduct/:id', preorder.getProductPreorder);

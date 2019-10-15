@@ -185,7 +185,11 @@ async function buy (req, res, next) {
   const subtoken = headers.authorization.split(' ');
   const token = subtoken[1];
   const decode = helper.Helper.verifyToken(token);
-  const sql = `select * 
+  const sql = `
+  select 
+	orderdetail.proopids, orderdetail.amounts, member.firstname, member.lastname, orderdetail.createdate, orderproduct.orderid,
+	orderdetail.orderdetailid, orderdetail.address, orderdetail.disstrict, orderdetail.province, orderdetail.zipcode,
+	orderdetail.phone, shipping.shiptrackno, shippingstatus.shippingstatusname, shipping.shipid, paymentstatus.statusname
   from orderdetail 
   full join orderproduct on orderproduct.orderid = orderdetail.orderid
   full join payment on payment.payid = orderproduct.payid
@@ -249,14 +253,18 @@ async function buyid (req, res, next) {
   const subtoken = headers.authorization.split(' ');
   const token = subtoken[1];
   const decode = helper.Helper.verifyToken(token);
-  const sql = `select * 
+  const sql = `
+  select 
+	orderdetail.proopids, orderdetail.amounts, member.firstname, member.lastname, orderdetail.createdate, orderproduct.orderid,
+	orderdetail.orderdetailid, orderdetail.address, orderdetail.disstrict, orderdetail.province, orderdetail.zipcode,
+	orderdetail.phone, shipping.shiptrackno, shippingstatus.shippingstatusname, shipping.shipid, paymentstatus.statusname
   from orderdetail 
   full join orderproduct on orderproduct.orderid = orderdetail.orderid
   full join payment on payment.payid = orderproduct.payid
   full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
   full join shipping on shipping.shipid = orderproduct.shipid
   full join shippingstatus on shippingstatus.shipstatusid = shipping.shipstatusid
-  full join member on member.userid = orderproduct.userid
+  full join member on member.userid = orderproduct.userid 
   where orderproduct.orderid = $1 
   `
   try {
@@ -308,7 +316,23 @@ async function buyid (req, res, next) {
       return Response.resError(res, errorMessage.saveError);
   }
 }
-
+async function trackno(req, res){
+  const sql = `
+    select shipping.shipid, shipping.createdate, shipping.shiptrackno, shippingstatus.shippingstatusname from shipping
+    inner join shippingstatus
+      on shipping.shipstatusid = shippingstatus.shipstatusid
+      where shipping.shipid = $1
+  `
+  const value = [ req.params.id ]
+  try {
+    const { rows } = await db.query(sql, value)
+    console.log(rows)
+    return Response.resSuccess(res, successMessage.success, rows);
+  } catch (error) {
+    console.log(error)
+    return Response.resError(res, errorMessage.saveError);
+  }
+}
 module.exports = {
   insert,
   login,
@@ -317,5 +341,6 @@ module.exports = {
   all,
   role,
   buy,
-  buyid
+  buyid,
+  trackno
 }

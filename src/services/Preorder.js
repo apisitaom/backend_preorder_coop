@@ -65,13 +65,13 @@ async function getProductPreorder (req,res, next) {
                 timestart:item.timestart,
                 timeend: item.timeend,
                 time : moment(item.timeend).format('mm:ss'),
-                hour: moment(item.timeend).format('HH'),
+                hour: parseInt(moment(item.timeend).format('HH')) - parseInt(moment(item.timestart).format('HH')),
                 result :option,
             }
             products.push(obj);
         } else {
             let obj = {
-                'status':'time out',
+                'status':'in coming',
                 proid: item.proid,
                 proname: item.proname,
                 prodetail: item.prodetail,

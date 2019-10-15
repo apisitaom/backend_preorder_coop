@@ -3,11 +3,10 @@ const errorMessage = require('../lib/errorMessage');
 const successMessage = require('../lib/successMessage');
 const Responce = require('../lib/Reposnce');
 const helper = require('../lib/Helper');
-const moment = require('moment');
 const productoptions = require('./options');
 
 async function add (req, res, next) {
-    const {address, phonenumber, countdowntime, amounts, proopid, district, province, zipcode, sellerid} = req.body;
+    const {address, phonenumber, amounts, proopid, district, province, zipcode, sellerid} = req.body;
     if (amounts.length != proopid.length) {
         return Responce.resError(res, errorMessage.saveError);
     }
@@ -23,6 +22,11 @@ async function add (req, res, next) {
             const sqlorderproduct = `insert into orderproduct (active, userid, payid, sellerid) values ($1, $2, $3, $4) returning orderid`
             const valueorderproduct = [active, decode.data.id,payment.rows[0].payid, sellerid];
             const orderproduct = await db.query(sqlorderproduct, valueorderproduct);
+            amounts.map(async(element, index) => {
+                const updateproductoption = `update productoption set totalproduct = totalproduct - $1 where proopid = $2`
+                const valueupdateproductoption = [element, proopid[amounts.indexOf(element)] ]
+                await db.query(updateproductoption, valueupdateproductoption);
+            })
             const sqlorderdetail = `insert into orderdetail (active, amounts, address, phone, proopids, orderid, disstrict, province, zipcode) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
             const valueorderdetail = [active, amounts, address, phonenumber, proopid, orderproduct.rows[0].orderid, district, province, zipcode];
             await db.query(sqlorderdetail, valueorderdetail);
@@ -41,7 +45,15 @@ async function lists (req, res, next) {
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-    const sql = `select * 
+    const sql = `select 
+    orderdetail.createdate, orderdetail.phone, orderdetail.proopids, orderdetail.amounts,
+    member.lastname, member.firstname,
+    orderproduct.orderid,
+    orderdetail.address, orderdetail.disstrict, orderdetail.province, orderdetail.zipcode,
+    payment.payid, 
+    shipping.shiptrackno, shipping.shipid,
+    shippingstatus.shippingstatusname, 
+    paymentstatus.statusname
     from orderdetail 
     full join orderproduct on orderproduct.orderid = orderdetail.orderid
     full join payment on payment.payid = orderproduct.payid
@@ -60,14 +72,13 @@ async function lists (req, res, next) {
             })
             return {
             fullname: item.firstname +' '+ item.lastname,
-            createdate: moment(item.createdate,).format('YYYY-MM-DD HH:mm:ss'),
+            createdate: item.createdate,
             orderid: item.orderid,
             orderdetailid: item.orderdetailid,
             address: item.address,
             disstrict: item.disstrict,
             province: item.province,
             zipcode: item.zipcode,
-            orderid: item.orderid,
             phone: item.phone,
             payid: item.payid,
             shiptrackno: item.shiptrackno,
