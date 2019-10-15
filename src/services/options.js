@@ -15,6 +15,7 @@ async function Productoption (productoptionid, amounts) {
     return new Promise (async(resolve, reject) => {
             let data = await Promise.all(productoptionid.map(async(index) => {
                 const {rows} = await db.query(sql, [index]);
+                if (rows[0] !== undefined) {
                     rows[0].timeend = moment(rows[0].timeend).subtract(7, 'h');
                     rows[0].timeend = moment(rows[0].timeend).format('YYYY-MM-DD HH:mm:ss');
                     rows[0].timestart = moment(rows[0].timestart).format('YYYY-MM-DD HH:mm:ss');                  
@@ -37,6 +38,7 @@ async function Productoption (productoptionid, amounts) {
                             totalprice: amounts[productoptionid.indexOf(index)] * rows[0].price
                         }
                     return responce;
+                }
             }));
             resolve(data);
     });
