@@ -124,7 +124,8 @@ async function adminpaymentlists (req, res, next) {
     full join orderproduct on orderproduct.orderid = orderdetail.orderid
     full join payment on payment.payid = orderproduct.payid
     full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
-    full join member on member.userid = orderproduct.userid 
+    full join member on member.userid = orderproduct.userid
+    where payment.paystatusid = 3
     `
     try {
         const { rows } = await db.query(sql); 
@@ -158,6 +159,7 @@ async function adminpaymentlists (req, res, next) {
 
 async function adminpaymentcheck (req, res, next) {
     const sql = `select 
+    payment.slip,
     orderdetail.orderdetailid, orderdetail.createdate, orderdetail.proopids, orderdetail.amounts,
     orderdetail.address, orderdetail.disstrict, orderdetail.province, orderdetail.zipcode, orderdetail.phone,
     member.firstname, member.lastname,
@@ -188,6 +190,7 @@ async function adminpaymentcheck (req, res, next) {
                     phone: item.phone,
                     statusname: item.statusname,
                     payid: item.payid,
+                    slip: item.slip,
                     result: productoption,
                     }
             }
@@ -201,7 +204,7 @@ async function adminpaymentcheck (req, res, next) {
 }
 
 async function adminpaymentadd (req, res, next) {
-        const { payid , orderid } = req.body;
+        const { payid, orderid } = req.body;
         const active = true;
         const sqlpayment = `update payment set paystatusid = $1 where payid = $2`
         const valuepayment = [ 3, payid]; 
