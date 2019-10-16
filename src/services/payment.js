@@ -50,6 +50,7 @@ async function lists (req, res, next) {
     } finally {
         res.end();
     }
+
 }
 
 async function list (req, res, next) {
@@ -94,23 +95,25 @@ async function list (req, res, next) {
     } catch (error) {
         return Responce.resError(res, errorMessage.saveError);
     }
+
 }
 
 async function add (req, res, next) {
     const {total, day, time, payid} = req.body; 
-     if (!total || !day || !time || !payid) {
-        return Responce.resError(res, errorMessage.paramsNotMatch);
-     }
-    const date = day + ' ' + time;
-    const active = true;    
-        if (!req.files[0]) {
-            return Responce.resError(res, errorMessage.photo);
-        } else {
-            const sqlPayment = `update payment set active = $1, datepayment = $2, summary = $3, slip = $4, paystatusid = $5 where payid = $6`
-            const valuePayment = [active, moment(date).format('YYYY-MM-DD HH:mm:ss'), total, req.files[0].fieldname, 2, payid];    
-            await db.query(sqlPayment, valuePayment);
-            return Responce.resSuccess(res, successMessage.success);
-        }
+    if (!total || !day || !time || !payid) {
+       return Responce.resError(res, errorMessage.paramsNotMatch);
+    }
+   const date = day + ' ' + time;
+   const active = true;    
+       if (!req.files[0]) {
+           return Responce.resError(res, errorMessage.photo);
+       } else {
+           const sqlPayment = `update payment set active = $1, datepayment = $2, summary = $3, slip = $4, paystatusid = $5 where payid = $6`
+           const valuePayment = [active, moment(date).format('YYYY-MM-DD HH:mm:ss'), total, req.files[0].fieldname, 2, payid];    
+           await db.query(sqlPayment, valuePayment);
+           return Responce.resSuccess(res, successMessage.success);
+       }
+
 }
 
 async function adminpaymentlists (req, res, next) {
@@ -159,7 +162,6 @@ async function adminpaymentlists (req, res, next) {
 
 async function adminpaymentcheck (req, res, next) {
     const sql = `select 
-    payment.slip,
     orderdetail.orderdetailid, orderdetail.createdate, orderdetail.proopids, orderdetail.amounts,
     orderdetail.address, orderdetail.disstrict, orderdetail.province, orderdetail.zipcode, orderdetail.phone,
     member.firstname, member.lastname,
@@ -190,7 +192,6 @@ async function adminpaymentcheck (req, res, next) {
                     phone: item.phone,
                     statusname: item.statusname,
                     payid: item.payid,
-                    slip: item.slip,
                     result: productoption,
                     }
             }

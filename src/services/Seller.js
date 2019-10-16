@@ -186,7 +186,11 @@ async function buy (req, res, next) {
   const subtoken = headers.authorization.split(' ');
   const token = subtoken[1];
   const decode = helper.Helper.verifyToken(token);
-  const sql = `select * 
+  const sql = `
+  select 
+	orderdetail.proopids, orderdetail.amounts, member.firstname, member.lastname, orderdetail.createdate, orderproduct.orderid,
+	orderdetail.orderdetailid, orderdetail.address, orderdetail.disstrict, orderdetail.province, orderdetail.zipcode,
+	orderdetail.phone, shipping.shiptrackno, shippingstatus.shippingstatusname, shipping.shipid, paymentstatus.statusname
   from orderdetail 
   full join orderproduct on orderproduct.orderid = orderdetail.orderid
   full join payment on payment.payid = orderproduct.payid
@@ -250,14 +254,18 @@ async function buyid (req, res, next) {
   const subtoken = headers.authorization.split(' ');
   const token = subtoken[1];
   const decode = helper.Helper.verifyToken(token);
-  const sql = `select * 
+  const sql = `
+  select 
+	orderdetail.proopids, orderdetail.amounts, member.firstname, member.lastname, orderdetail.createdate, orderproduct.orderid,
+	orderdetail.orderdetailid, orderdetail.address, orderdetail.disstrict, orderdetail.province, orderdetail.zipcode,
+	orderdetail.phone, shipping.shiptrackno, shippingstatus.shippingstatusname, shipping.shipid, paymentstatus.statusname
   from orderdetail 
   full join orderproduct on orderproduct.orderid = orderdetail.orderid
   full join payment on payment.payid = orderproduct.payid
   full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
   full join shipping on shipping.shipid = orderproduct.shipid
   full join shippingstatus on shippingstatus.shipstatusid = shipping.shipstatusid
-  full join member on member.userid = orderproduct.userid
+  full join member on member.userid = orderproduct.userid 
   where orderproduct.orderid = $1 
   `
   try {
@@ -308,43 +316,23 @@ async function buyid (req, res, next) {
       return Response.resError(res, errorMessage.saveError);
   }
 }
-
-async function summary (req, res, next) {
-  const { headers } = req;
-  const subtoken = headers.authorization.split(' ');
-  const token = subtoken[1];
-  const decode = helper.Helper.verifyToken(token);
-  const sqlproduct = `select 
-  product.proid, product.proname, product.prodetail
-  from product
-  full join seller on seller.sellerid = product.sellerid 
+async function trackno(req, res){
+  const sql = `
+    select shipping.shipid, shipping.createdate, shipping.shiptrackno, shippingstatus.shippingstatusname from shipping
+    inner join shippingstatus
+      on shipping.shipstatusid = shippingstatus.shipstatusid
+      where shipping.shipid = $1
   `
-  const valueproduct = []
-  const sqlcount = `select 
-  count(proid) 
-  from product 
-  where sellerid = $1`
+  const value = [ req.params.id ]
   try {
-    const count = await db.query(sqlcount, [decode.data.id]);
-    const { rows } = await db.query(sqlproduct, valueproduct);
-    const tranfrom = await Promise.all(rows.map(async(item) => {      
-      if (item.proid !== null) {
-        const products = await productoptions.summary(item.proid);
-        return {
-          proname: item.proname,
-          prodetail: item.prodetail,
-          total :products,
-          amountproduct: count.rows[0]
-        }
-
-      }
-    }))
-    return Response.resSuccess(res, successMessage.success, tranfrom);
+    const { rows } = await db.query(sql, value)
+    console.log(rows)
+    return Response.resSuccess(res, successMessage.success, rows);
   } catch (error) {
+    console.log(error)
     return Response.resError(res, errorMessage.saveError);
   }
 }
-
 module.exports = {
   add,
   login,
@@ -354,5 +342,5 @@ module.exports = {
   role,
   buy,
   buyid,
-  summary
+  trackno
 }
