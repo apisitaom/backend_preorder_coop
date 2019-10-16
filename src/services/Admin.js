@@ -5,7 +5,7 @@ const errorMessage = require('../lib/errorMessage');
 const Responce = require('../lib/Reposnce');
 const helper = require('../lib/Helper');
 const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-
+const options = require('../services/options');
 async function login(req,res){
  if(!req.body.email || !req.body.password){
     return Responce.resError(res, errorMessage.saveError);
@@ -34,6 +34,7 @@ async function login(req,res){
     return Responce.resError(res, errorMessage.saveError); 
  }
 }
+
 async function add(req, res) {
   if (!req.body.email || !req.body.password) {
     return Responce.resError(res, errorMessage.saveError);
@@ -62,6 +63,8 @@ async function add(req, res) {
     return Responce.resError(res, errorMessage.saveError);
   }
 } 
+
+
 
 module.exports = {
   login,

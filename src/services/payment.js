@@ -159,6 +159,7 @@ async function adminpaymentlists (req, res, next) {
 
 async function adminpaymentcheck (req, res, next) {
     const sql = `select 
+    payment.slip,
     orderdetail.orderdetailid, orderdetail.createdate, orderdetail.proopids, orderdetail.amounts,
     orderdetail.address, orderdetail.disstrict, orderdetail.province, orderdetail.zipcode, orderdetail.phone,
     member.firstname, member.lastname,
@@ -189,6 +190,7 @@ async function adminpaymentcheck (req, res, next) {
                     phone: item.phone,
                     statusname: item.statusname,
                     payid: item.payid,
+                    slip: item.slip,
                     result: productoption,
                     }
             }
