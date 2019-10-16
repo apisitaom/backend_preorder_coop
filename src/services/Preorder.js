@@ -69,7 +69,7 @@ async function getProductPreorder (req,res, next) {
                 result :option,
             }
             products.push(obj);
-        } else if(endTime < date && date < startTime){
+        } else if(endTime < date && date > startTime){
             let obj = {
                 'status':'time out',
                 proid: item.proid,

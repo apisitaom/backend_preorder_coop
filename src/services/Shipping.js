@@ -3,6 +3,7 @@ const errorMessage = require('../lib/errorMessage');
 const successMessage = require('../lib/successMessage');
 const Responce = require('../lib/Reposnce');
 const productoptions = require('./options');
+const moment = require('moment')
 
 async function sellershipping (req, res, next) {
     const { shipid, shiptrackno } = req.body;
@@ -44,8 +45,8 @@ async function customerreceive (req, res, next) {
     where proopid = $1
     `
     const insertReceip = `
-    INSERT INTO receipt(createdate, quantity, grand_price, province, gender, age, customer_id, customer_name, order_id)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    INSERT INTO receipt(createdate, quantity, grand_price, province, gender, age, customer_id, customer_name, order_id, life_span, day)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
     returning receipt_id
     `
     const insertReceiptDetail = `
@@ -56,7 +57,7 @@ async function customerreceive (req, res, next) {
         let arrSeller = []
         let arrProductOption = []
         let amountValue = 0
-        let totalPrice = 0
+        let totalPrice = 0, life_span = 0
         const day = new Date()
         const a = day.getFullYear()
         const valueOrder = await db.query(sqlSelectOrder, [shipid])
@@ -73,7 +74,16 @@ async function customerreceive (req, res, next) {
             totalPrice += (parseInt(valueOrder.rows[0].quantity[i]) * arrProductOption[i].price)
         }
         const age = parseInt(a) - parseInt(valueOrder.rows[0].brithday)
-        const valueForInsert = [ day, amountValue, totalPrice, valueOrder.rows[0].province, valueOrder.rows[0].gender, age, valueOrder.rows[0].userid, valueOrder.rows[0].firstname + " " +valueOrder.rows[0].lastname, valueOrder.rows[0].orderid ]
+        if(age >= 0 && age < 30){
+            life_span = 'adolescence'
+        }else if(age > 29 && age < 60){
+            life_span = 'adult'
+        }else if(age > 59 && age < 100){
+            life_span = 'elder'
+        }else{
+            life_span = 'unknow'
+        }
+        const valueForInsert = [ day, amountValue, totalPrice, valueOrder.rows[0].province, valueOrder.rows[0].gender, age, valueOrder.rows[0].userid, valueOrder.rows[0].firstname + " " +valueOrder.rows[0].lastname, valueOrder.rows[0].orderid, life_span , moment(day).format('dddd')]
         const valueReceiptID = await db.query(insertReceip, valueForInsert)
         for(let i = 0; i < arrProductOption.length; i++){
             const data = [
