@@ -5,7 +5,7 @@ const successMessage = require('../lib/successMessage');
 const errorMessage = require('../lib/errorMessage');
 
 async function insert (req,res){    
-    const {productname,detail,sellerid, category} = req.body
+    const { productname, detail, sellerid, category } = req.body
     const optionJson = JSON.parse(req.body.option)
     const today = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     const active = true;

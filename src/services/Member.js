@@ -7,7 +7,7 @@ const Responce = require('../lib/Reposnce');
 
 async function registerMember (req, res, next) {
     const { customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email , picture, password} = req.body;
-    if (!customerfirstname || !customerlastname || !sex || !email || birthday !== moment(Date.now()).format('YYYY')) {
+    if (!customerfirstname || !customerlastname || !sex || !email ) {
         return Responce.resError(res, errorMessage.paramsNotMatch);
     }
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');

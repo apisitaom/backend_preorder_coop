@@ -333,6 +333,31 @@ async function trackno(req, res){
     return Response.resError(res, errorMessage.saveError);
   }
 }
+async function productLists(req, res){
+  const sql = `
+  select 
+	receipt_detail.proid, receipt_detail.sku, receipt_detail.product_name,
+	cast(sum(receipt_detail.amount) as integer)as total_amount, cast(sum(receipt_detail.grand_price) as integer) as total_price,
+	productoption.totalproduct as balance
+  from receipt
+  inner join receipt_detail
+    on receipt.receipt_id = receipt_detail.receipt_id
+  inner join productoption
+    on receipt_detail.product_option_id = productoption.proopid
+  where seller_id = $1
+  group by receipt_detail.product_name, productoption.totalproduct, receipt_detail.proid, receipt_detail.sku,
+    receipt_detail.proid
+  `
+  const value = [ req.params.id ]
+  try {
+    const { rows } = await db.query(sql, value)
+    console.log(rows)
+    return Response.resSuccess(res, successMessage.success, rows)
+  } catch (error) {
+    console.log(error)
+    return Response.resError(res, errorMessage.saveError)
+  }
+}
 module.exports = {
   insert,
   login,
@@ -342,5 +367,6 @@ module.exports = {
   role,
   buy,
   buyid,
-  trackno
+  trackno,
+  productLists
 }

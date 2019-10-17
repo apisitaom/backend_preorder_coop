@@ -12,7 +12,8 @@ module.exports = {
     users,
     productSale,
     topTenSeller,
-    proviceLists
+    proviceLists,
+    customerGroup
 }
 function checkMount(val){
     switch(val){
@@ -156,6 +157,7 @@ async function graph (req, res) {
         dateValue = 'YYYY'
     }else{
         date = 'receipt.day'
+        dateValue = 'dd'
     }
     let sql = `
     select ${date} as date, sum(receipt_detail.grand_price)
@@ -245,10 +247,11 @@ async function users (req, res) {
             group = `receipt_detail.seller_id,`
         }else{
             sql += `
+                where ${date} = '${today}'
                 group by receipt.gender, ${date}
             `
             selectJoin = await db.query(sql)
-            userProcess = ''
+            userProcess = `where ${date} = '${today}'`
             group = ``
         }
         const sqlAge = `
@@ -329,21 +332,55 @@ async function proviceLists (req, res) {
         return Response.resError(res, errorMessage.saveError);
     }
 }
-
-// ยอดใช้ตามภูมิภาค แอดมิน
-// ยอดขายทั้งจังหวัด
-// select province, sum(grand_price) as total_price 
-// from receipt
-// group by receipt.province
-// อายุ
-// select 
-// 	province, life_span, cast(count(customer_id) as integer) as total_customer
-// from receipt
-// group by receipt.province, life_span
-// สินค้า
-// select 
-// 	receipt.province, receipt_detail.product_name, sum(receipt_detail.amount) as total_amount
-// from receipt
-// inner join receipt_detail
-// 	on receipt.receipt_id = receipt_detail.receipt_id
-// group by receipt.province, receipt_detail.product_name
+async function customerGroup (req, res) {
+    const day = new Date()
+    const dd = String(day.getDate()).padStart(2, '0')
+    const mm = String(day.getMonth() + 1).padStart(2, '0')
+    const yyyy = day.getFullYear()
+    let today
+    if(req.body.value === 'month'){
+        date = 'extract(month from receipt.createdate)'
+        today = mm
+    }else if(req.body.value === 'year'){
+        date = 'extract(year from receipt.createdate)'
+        today = yyyy
+    }else{
+        date = 'date(receipt.createdate)'
+        today = yyyy + '-' + mm + '-' + dd
+    }
+    let userProcess = `where ${date} = '${today}'`
+    let sqlTotalPrice = `
+    select ${date} , province, sum(grand_price) as total_price 
+    from receipt
+    ${userProcess}
+    group by ${date} , province
+    `
+    let sqlTotalAge = `
+    select ${date} , province, life_span, cast(count(customer_id) as integer) as total_customer
+    from receipt
+    ${userProcess}
+    group by ${date} , province, life_span
+    `
+    let sqlTotalProduct = `
+    select ${date} , receipt.province, receipt_detail.product_name, sum(receipt_detail.amount) as total_amount
+    from receipt
+    inner join receipt_detail
+        on receipt.receipt_id = receipt_detail.receipt_id
+    ${userProcess}
+    group by ${date} , receipt.province, receipt_detail.product_name
+    `
+    try {
+        const valueTotalPrice = await db.query(sqlTotalPrice)
+        const valueTotalAge = await db.query(sqlTotalAge)
+        const valueTotalProduct = await db.query(sqlTotalProduct)
+        const data = {
+            "valueTotal_price": valueTotalPrice.rows,
+            "valueTotal_age": valueTotalAge.rows,
+            "valueTotal_product": valueTotalProduct.rows
+        }
+        return Response.resSuccess(res, successMessage.success, data);
+    } catch (error) {
+        console.log(error)
+        return Response.resError(res, errorMessage.saveError);
+    }
+}

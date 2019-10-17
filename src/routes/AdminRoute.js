@@ -28,6 +28,7 @@ router.get('/sellerstop/:top', dashboard.topTenSeller)
 router.get('/sellerstop', dashboard.topTenSeller)
 router.get('/provinces', dashboard.proviceLists)
 
+router.post('/customerGroup', dashboard.customerGroup)
 router.post('/sellerstop', dashboard.topTenSeller)
 router.post('/provinces', dashboard.proviceLists)
 router.post('/user', dashboard.users)

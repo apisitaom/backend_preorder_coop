@@ -96,7 +96,7 @@ async function customerreceive (req, res, next) {
                 arrProductOption[i].sku,
                 parseInt(arrProductOption[i].price) - parseInt(arrProductOption[i].vat),
                 arrProductOption[i].vat,
-                arrProductOption[i].price,
+                parseInt(arrProductOption[i].price) * parseInt(valueOrder.rows[0].quantity[i]),
                 valueOrder.rows[0].quantity[i],
                 valueReceiptID.rows[0].receipt_id
             ]

@@ -16,6 +16,7 @@ router.get('/preorder',preorder.getProduct);
 router.get('/preorder/:id',preorder.getProductDetail);
 router.get('/all', seller.all);
 router.get('/buy', seller.buy);
+router.get('/products/list/:id', seller.productLists)
 router.get('/buyid/:id', seller.buyid);
 router.get('/sales/:id', dashboard.sales)
 router.get('/amount/:id', dashboard.totalAmount)
