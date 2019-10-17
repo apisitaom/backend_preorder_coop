@@ -335,24 +335,28 @@ async function trackno(req, res){
 }
 async function productLists(req, res){
   const sql = `
-  select 
-	receipt_detail.proid, receipt_detail.sku, receipt_detail.product_name,
-	cast(sum(receipt_detail.amount) as integer)as total_amount, cast(sum(receipt_detail.grand_price) as integer) as total_price,
-	productoption.totalproduct as balance
-  from receipt
-  inner join receipt_detail
-    on receipt.receipt_id = receipt_detail.receipt_id
+  select product.proid, product.proname, productoption.optionvalue, productoption.allproduct, productoption.totalproduct, productoption.price from product
   inner join productoption
-    on receipt_detail.product_option_id = productoption.proopid
-  where seller_id = $1
-  group by receipt_detail.product_name, productoption.totalproduct, receipt_detail.proid, receipt_detail.sku,
-    receipt_detail.proid
+      on product.proid = productoption.proid
+  where sellerid = $1
+  order by product.proname
   `
   const value = [ req.params.id ]
   try {
+    let arrValue = []
     const { rows } = await db.query(sql, value)
-    console.log(rows)
-    return Response.resSuccess(res, successMessage.success, rows)
+    rows.map(e => {
+      data = {
+        "proid": e.proid,
+        "proname": e.proname,
+        "optionvalue": e.optionvalue,
+        "all_product": e.allproduct,
+        "balance_product": e.totalproduct,
+        "total_price": (parseInt(e.allproduct) - parseInt(e.totalproduct)) * parseInt(e.price)
+      }
+      arrValue.push(data)
+    })
+    return Response.resSuccess(res, successMessage.success, arrValue)
   } catch (error) {
     console.log(error)
     return Response.resError(res, errorMessage.saveError)

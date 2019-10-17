@@ -272,8 +272,8 @@ async function preOrder( req, res, next) {
         const value = [active,rows[0].proname, rows[0].prodetail, rows[0].photo, rows[0].sellerid, ends, new Date(end.toString()), rows[0].category];
         const product = await db.query(sql, value);
             optionJson.forEach(async (element, index) => {                
-                const sqlProductoption = `insert into productoption (active, sku, price, optionvalue,includingvat, proid, types, totalproduct) values ($1, $2, $3, $4, $5, $6, $7, $8) returning proopid `;
-                const valueProductoption = [active, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, optionJson[index].vat, product.rows[0].proid, types, optionJson[index].amount];
+                const sqlProductoption = `insert into productoption (active, sku, price, optionvalue,includingvat, proid, types, totalproduct, allproduct) values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning proopid `;
+                const valueProductoption = [active, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, optionJson[index].vat, product.rows[0].proid, types, optionJson[index].amount, optionJson[index].amount];
                 await db.query (sqlProductoption, valueProductoption);
 });
 return Responce.resSuccess(res, successMessage.success);

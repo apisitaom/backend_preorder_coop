@@ -368,6 +368,8 @@ async function customerGroup (req, res) {
         on receipt.receipt_id = receipt_detail.receipt_id
     ${userProcess}
     group by ${date} , receipt.province, receipt_detail.product_name
+    order by total_amount desc
+    limit 5
     `
     try {
         const valueTotalPrice = await db.query(sqlTotalPrice)
