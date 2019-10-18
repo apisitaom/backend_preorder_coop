@@ -335,10 +335,10 @@ async function trackno(req, res){
 }
 async function productLists(req, res){
   const sql = `
-  select product.proid, product.proname, productoption.optionvalue, productoption.allproduct, productoption.totalproduct, productoption.price from product
+  select product.createdate, product.proid, product.proname, productoption.optionvalue, productoption.allproduct, productoption.totalproduct, productoption.price from product
   inner join productoption
       on product.proid = productoption.proid
-  where sellerid = $1
+  where product.sellerid = $1 and productoption.price IS NOT NULL and productoption.allproduct is not null and productoption.totalproduct is not null
   order by product.proname
   `
   const value = [ req.params.id ]
@@ -354,7 +354,7 @@ async function productLists(req, res){
         "balance_product": e.totalproduct,
         "total_price": (parseInt(e.allproduct) - parseInt(e.totalproduct)) * parseInt(e.price)
       }
-      arrValue.push(data)
+      arrValue.push(e)
     })
     return Response.resSuccess(res, successMessage.success, arrValue)
   } catch (error) {

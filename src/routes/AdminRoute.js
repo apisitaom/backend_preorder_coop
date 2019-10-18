@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const admin = require('../services/Admin');
 const dashboard = require('../services/Dashboard')
+const order = require('../services/Order')
 const { 
     updatePaymentStatus, 
     updateSellerStatus, 
@@ -17,6 +18,7 @@ router.get('/', (req, res) => {
 router.post('/add',admin.add);
 router.post('/login', admin.login);
 
+router.get('/order', order.adminorder);
 router.get('/orders', orders)
 router.get('/orders/:id', orders)
 router.get('/sellers', sellers)
