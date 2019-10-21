@@ -162,7 +162,7 @@ async function adminpaymentlists (req, res, next) {
 
 async function adminpaymentcheck (req, res, next) {
     const sql = `select 
-    orderdetail.orderdetailid, orderdetail.createdate, orderdetail.proopids, orderdetail.amounts,
+    payment.slip, orderdetail.orderdetailid, orderdetail.createdate, orderdetail.proopids, orderdetail.amounts,
     orderdetail.address, orderdetail.disstrict, orderdetail.province, orderdetail.zipcode, orderdetail.phone,
     member.firstname, member.lastname,
     orderproduct.orderid,
@@ -192,6 +192,7 @@ async function adminpaymentcheck (req, res, next) {
                     phone: item.phone,
                     statusname: item.statusname,
                     payid: item.payid,
+                    slip: item.slip,
                     result: productoption,
                     }
             }
@@ -205,23 +206,25 @@ async function adminpaymentcheck (req, res, next) {
 }
 
 async function adminpaymentadd (req, res, next) {
-        const { payid , orderid } = req.body;
-        const active = true;
-        const sqlpayment = `update payment set paystatusid = $1 where payid = $2`
-        const valuepayment = [ 3, payid]; 
-        const sqlshipping = `insert into shipping (active, shipstatusid) values ($1, $2) returning shipid`
-        const valueshipping = [active, 1] 
-        const sqlorderproduct = `update orderproduct set shipid = $1 where orderid = $2`
-        try {
-            const shipping = await db.query(sqlshipping, valueshipping);
-            await db.query(sqlpayment, valuepayment);
-            const valueorderproduct = [shipping.rows[0].shipid, orderid];
-            await db.query(sqlorderproduct, valueorderproduct);
-            return Responce.resSuccess(res, successMessage.success);
-        } catch (error) {
-            return Responce.resError(res, errorMessage.saveError);
+    const { payid , orderid } = req.body;
+    const active = true;
+    const sqlpayment = `update payment set paystatusid = $1 where payid = $2`
+    const valuepayment = [ 3, payid]; 
+    const sqlshipping = `insert into shipping (active, shipstatusid) values ($1, $2) returning shipid`
+    const valueshipping = [active, 1] 
+    const sqlorderproduct = `update orderproduct set shipid = $1 where orderid = $2`
+    try {
+        console.log("req.body", req.body)
+        await db.query(sqlpayment, valuepayment);
+        const shipping = await db.query(sqlshipping, valueshipping);
+        const valueorderproduct = [shipping.rows[0].shipid, orderid];
+        await db.query(sqlorderproduct, valueorderproduct);
+        return Responce.resSuccess(res, successMessage.success);
+    } catch (error) {
+        return Responce.resError(res, errorMessage.saveError);
     }
 }
+
 
 module.exports = {
     lists,

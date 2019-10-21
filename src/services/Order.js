@@ -115,7 +115,7 @@ async function adminorder (req, res, next) {
         const { rows } = await db.query(sql);
         rows.map(async(item) => {
             if (item.createdate !== null) {
-                let sum = item.amounts.reduce((index1, index2) => index1 + index2);
+                let sum = item.amounts.reduce((index1, index2) => parseInt(index1) + parseInt(index2));
                 let responce = {
                     fullname: item.firstname + ' ' + item.lastname,
                     phone: item.phone,
