@@ -220,6 +220,7 @@ create table OrderDetail(
     active              boolean,
     datemodify          timestamp,    
     amount              integer,
+    amounts             integer[],
     address             varchar(500),
 
     disstrict           varchar(100),

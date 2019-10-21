@@ -95,7 +95,51 @@ async function lists (req, res, next) {
     }
 }
 
+async function adminorder (req, res, next) {
+    const sql = `select 
+    orderdetail.createdate, orderdetail.phone, orderdetail.amounts,
+    member.lastname, member.firstname,
+    orderdetail.address, orderdetail.disstrict, orderdetail.province, orderdetail.zipcode,
+    shipping.shiptrackno,
+    shippingstatus.shippingstatusname, 
+    paymentstatus.statusname
+    from orderdetail 
+    full join orderproduct on orderproduct.orderid = orderdetail.orderid
+    full join payment on payment.payid = orderproduct.payid
+    full join paymentstatus on paymentstatus.paystatusid = payment.paystatusid
+    full join shipping on shipping.shipid = orderproduct.shipid
+    full join shippingstatus on shippingstatus.shipstatusid = shipping.shipstatusid
+    full join member on member.userid = orderproduct.userid 
+    `
+    let datas = []
+    try {
+        const { rows } = await db.query(sql);
+        rows.map(async(item) => {
+            if (item.createdate !== null) {
+                let sum = item.amounts.reduce((index1, index2) => index1 + index2);
+                let responce = {
+                    fullname: item.firstname + ' ' + item.lastname,
+                    phone: item.phone,
+                    sum: sum,
+                    address: item.address,
+                    disstrict: item.disstrict,
+                    province: item.province,
+                    zipcode: item.zipcode,
+                    shiptrackno: item.shiptrackno,
+                    shippingstatusname: item.shippingstatusname,
+                    statusname: item.statusname
+                }
+                datas.push(responce);
+            }
+        })
+        return Responce.resSuccess(res, successMessage.success, datas);
+    } catch (error) {
+        return Responce.resError(res, errorMessage.saveError);
+    }
+} 
+
 module.exports = {
     add,
-    lists
+    lists,
+    adminorder
 }
