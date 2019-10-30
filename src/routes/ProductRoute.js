@@ -3,14 +3,15 @@ const product = require('../services/Product');
 const img = require('../lib/ImageUpload');
 const auth = require('../lib/Auth');
 
-router.get('/', (req, res, next)=>{res.json('PRODUCT ROUTE')});
-router.get('/lists', product.homepage);
-router.get('/pay',auth.userVerifyToken,product.orderlists);
-router.get('/list' ,auth.sellerVerifyToken,product.lists);
-router.get('/list/:id', product.getproduct);
+router.get('/', (req, res)=>{res.json('PRODUCT ROUTE')});
+router.get('/lists', product.homepageCustomer);
+router.get('/pay',auth.userVerifyToken,product.getCartCustomer);
+router.get('/list' ,auth.sellerVerifyToken,product.shopCustomer);
+router.get('/list/:id', product.getProduct);
 
-router.post('/add', product.addhomepage);
-router.post('/buy',auth.userVerifyToken,img.upload, product.orderadd);
+router.post('/add', product.insertProductHomepage);
+router.post('/buy',auth.userVerifyToken,img.upload, product.cartCustomer);
+router.post('/adds', product.preOrder);
 router.post('/edit', img.upload ,product.edit);
 router.post('/search', product.search);
 

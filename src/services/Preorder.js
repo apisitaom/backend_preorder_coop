@@ -5,16 +5,21 @@ const Responce = require('../lib/Reposnce');
 const moment = require('moment');
 const productoptions = require('./options');
 
+module.exports = {
+    getProduct,
+    getProductPreorder,
+    getProductDetail,
+    insertPreorder
+}
+
 async function getProduct (req, res) {
-    const sql = `select 
-    product.proid, product.proname, product.category
-    from productoption
-    full join product on product.proid = productoption.proid
-    where 
-    sellerid = $1 
-    and 
-    productoption.types ='order' 
-    group by product.proid`
+    const sql = `
+        select 
+            product.proid, product.proname, product.category
+            from productoption
+            full join product on product.proid = productoption.proid
+        where sellerid = $1 and productoption.types ='order' 
+        group by product.proid`
     let responce = []
     try {
         const product = await db.query(sql, [req.params.id]);
@@ -37,10 +42,11 @@ async function getProduct (req, res) {
 }
 
 async function getProductPreorder (req,res, next) {
-    const sql = `select 
-    proid,proname,prodetail,photo,sellerid,timestart,timeend 
-    from product 
-    where sellerid = $1`;
+    const sql = `
+        select 
+            proid,proname,prodetail,photo,sellerid,timestart,timeend 
+        from product 
+        where sellerid = $1`;
     let products = [];
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
     try {
@@ -54,9 +60,24 @@ async function getProductPreorder (req,res, next) {
         const addTime = item.timeend = moment(item.timeend).add(7, 'h');
         const endTime = item.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
         const startTime = item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');
-        if (endTime > date && date > startTime) {
+        if(endTime > date && date > startTime){
             let obj = {
                 'status':'on preorder',
+                proid: item.proid,
+                proname: item.proname,
+                prodetail: item.prodetail,
+                photo: item.photo,
+                sellerid: item.sellerid,
+                timestart:item.timestart,
+                timeend: item.timeend,
+                time : moment(item.timeend).format('mm:ss'),
+                hour: parseInt(moment(item.timeend).format('HH')) - parseInt(moment(item.timestart).format('HH')),
+                result :option,
+            }
+            products.push(obj);
+        }else if(endTime < date && date > startTime){
+            let obj = {
+                'status':'time out',
                 proid: item.proid,
                 proname: item.proname,
                 prodetail: item.prodetail,
@@ -69,9 +90,9 @@ async function getProductPreorder (req,res, next) {
                 result :option,
             }
             products.push(obj);
-        } else {
+        }else{
             let obj = {
-                'status':'time out',
+                'status':'in coming',
                 proid: item.proid,
                 proname: item.proname,
                 prodetail: item.prodetail,
@@ -97,10 +118,11 @@ async function getProductPreorder (req,res, next) {
 
 async function getProductDetail (req, res) {
     const key = req.params.id
-    const selectOne =   `select 
-                proopid,sku,price,optionvalue 
-                from productoption
-                WHERE proid = $1`
+    const selectOne = `
+        select 
+            proopid,sku,price,optionvalue 
+        from productoption
+        WHERE proid = $1`
     try { 
         const result = await db.query(selectOne,[key])
         return Responce.resSuccess(res, successMessage.success, result.rows);
@@ -114,13 +136,20 @@ async function getProductDetail (req, res) {
 async function insertPreorder (req, res) {
     const active = true
     const today = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
-    const {dStart, dEnd, option} = req.body
-    const queryEvent = 'INSERT INTO eventproduct(active,datemodify,timestart,timeend,countdowntime) VALUES($1,$2,$3,$4,$5) returning eventid'
-    const queryEventDetail = 'INSERT INTO eventdetail(totalproduct,eventid,proopid) VALUES($1,$2,$3)'
+    const { dStart, dEnd, option } = req.body
+    const queryEvent = `
+        INSERT INTO 
+            eventproduct(active,datemodify,timestart,timeend,countdowntime) 
+        VALUES($1,$2,$3,$4,$5) 
+        returning eventid`
+    const queryEventDetail = `
+        INSERT INTO 
+            eventdetail(totalproduct,eventid,proopid) 
+        VALUES($1,$2,$3)`
     try {
-        let a = moment(dEnd)
-        let b = moment(dStart)
-        let countdown = a.diff(b)
+        let _dEnd = moment(dEnd)
+        let _bEnd = moment(dStart)
+        let countdown = _dEnd.diff(_bEnd)
         const valueEvent = [active, today, dStart, dEnd, countdown]
         await db.query('BEGIN');
         const result = await db.query(queryEvent, valueEvent)
@@ -135,11 +164,4 @@ async function insertPreorder (req, res) {
     } finally {
         res.end();
     }
-}
-
-module.exports = {
-    getProduct,
-    getProductPreorder,
-    getProductDetail,
-    insertPreorder
 }

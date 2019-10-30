@@ -1,24 +1,30 @@
 const db = require('../configdb/configDB');
 const moment = require('moment');
 
+module.exports = {
+    Productoption,
+    ProductoptionSeller,
+    option,
+    optionorder
+}
+
 async function Productoption (productoptionid, amounts) {
-    const sql = `select productoption.proopid, productoption.price, productoption.includingvat,
-    productoption.optionvalue, productoption.totalproduct,
-    productoption.sku, 
-    product.proid, product.proname, product.prodetail, product.photo, product.sellerid,
-    product.timestart, product.timeend,
-    seller.sellername
-    from productoption
-    full join product on product.proid = productoption.proid
-    full join seller on seller.sellerid = product.sellerid
-    where productoption.proopid = $1`
+    const sql = `
+        select productoption.proopid, productoption.price, productoption.includingvat,
+            productoption.optionvalue, productoption.totalproduct,
+            productoption.sku, 
+            product.proid, product.proname, product.prodetail, product.photo, product.sellerid,
+            product.timestart, product.timeend
+        from productoption
+        full join product 
+            on product.proid = productoption.proid
+        where productoption.proopid = $1`
     return new Promise (async(resolve, reject) => {
             let data = await Promise.all(productoptionid.map(async(index) => {
                 const {rows} = await db.query(sql, [index]);
-                if (rows[0] !== undefined) {
-                    // rows[0].timeend = moment(rows[0].timeend).subtract(7, 'h');
-                    // rows[0].timeend = moment(rows[0].timeend).format('YYYY-MM-DD HH:mm:ss');
-                    // rows[0].timestart = moment(rows[0].timestart).format('YYYY-MM-DD HH:mm:ss');                  
+                    rows[0].timeend = moment(rows[0].timeend).subtract(7, 'h');
+                    rows[0].timeend = moment(rows[0].timeend).format('YYYY-MM-DD HH:mm:ss');
+                    rows[0].timestart = moment(rows[0].timestart).format('YYYY-MM-DD HH:mm:ss');                  
                     let responce = {
                             proopid: rows[0].proopid,
                             price: rows[0].price,
@@ -33,31 +39,31 @@ async function Productoption (productoptionid, amounts) {
                             sellerid: rows[0].sellerid,
                             timestart: rows[0].timestart,
                             timeend: rows[0].timeend,
-                            sellername: rows[0].sellername,
                             amounts: amounts[productoptionid.indexOf(index)],
                             totalprice: amounts[productoptionid.indexOf(index)] * rows[0].price
                         }
-                        return responce;
-                    }
+                    return responce;
             }));
             resolve(data);
     });
 }
 
 async function ProductoptionSeller (productoptionid, amounts, id) {
-const sql = `select 
-productoption.proopid, productoption.price, productoption.includingvat,
-productoption.optionvalue, productoption.totalproduct,
-productoption.sku, 
-product.proid, product.proname, product.prodetail, product.photo, product.sellerid,
-product.timestart, product.timeend
-from productoption
-full join product on product.proid = productoption.proid
-where productoption.proopid = $1 and product.sellerid = $2`
-return new Promise (async(resolve, reject) => {
+    const sql = `
+        select 
+            productoption.proopid, productoption.price, productoption.includingvat,
+            productoption.optionvalue, productoption.totalproduct,
+            productoption.sku, 
+            product.proid, product.proname, product.prodetail, product.photo, product.sellerid,
+            product.timestart, product.timeend
+        from productoption
+        full join product 
+            on product.proid = productoption.proid
+        where productoption.proopid = $1 and product.sellerid = $2`
+    return new Promise (async(resolve, reject) => {
         let data = await Promise.all(productoptionid.map(async(index) => {
-            for (let i = 0; i< amounts.length;i++) {
-            const { rows } = await db.query(sql, [index, id]);
+            try {
+                const { rows } = await db.query(sql, [index, id]);
             if (rows[0] != undefined) {
                 rows[0].timeend = moment(rows[0].timeend).subtract(7, 'h');
                 rows[0].timeend = moment(rows[0].timeend).format('YYYY-MM-DD HH:mm:ss');
@@ -83,19 +89,21 @@ return new Promise (async(resolve, reject) => {
             } else {
                 delete rows[0]
                 }
-            } 
+            } catch (error) {
+                reject(error);
+            }
         }));
         resolve(data);
     });
 }
 
 async function option (productid) {
-    const sql = `select 
-    productoption.proopid,productoption.sku,productoption.price,productoption.includingvat,productoption.optionvalue,productoption.totalproduct 
-    from productoption 
-    where types ='preorder' 
-    and 
-    proid = $1`
+    const sql = `
+        select 
+            productoption.proopid,productoption.sku,productoption.price,
+            productoption.includingvat,productoption.optionvalue,productoption.totalproduct 
+        from productoption 
+        where types ='preorder' and proid = $1`
     return new Promise(async(resolve , reject) => {
         try {
             const { rows } = await db.query(sql, [productid]);
@@ -108,12 +116,12 @@ async function option (productid) {
 }
 
 async function optionorder (productid) {
-    const sql = `select 
-    productoption.proopid,productoption.sku,productoption.price,productoption.includingvat,productoption.optionvalue,productoption.totalproduct 
-    from productoption 
-    where types ='order' 
-    and 
-    proid = $1`
+    const sql = `
+        select 
+            productoption.proopid,productoption.sku,productoption.price,productoption.includingvat,
+            productoption.optionvalue,productoption.totalproduct 
+        from productoption 
+        where types ='order' and proid = $1`
     return new Promise(async(resolve , reject) => {
         try {
             const { rows } = await db.query(sql, [productid]);
@@ -123,30 +131,4 @@ async function optionorder (productid) {
             reject(error)
         }
     });
-}
-
-async function summary (proid) {
-    const sqlproductoption = `select 
-    sum(totalproduct)
-    from productoption
-    where proid = $1
-    `
-    return new Promise(async(resolve , reject) => {
-        try {
-            const { rows } = await db.query(sqlproductoption, [proid]);
-            resolve(rows[0]);
-        } catch (error) {
-            reject(proid);
-        }
-    })
-}
-
-
-module.exports = {
-    Productoption,
-    ProductoptionSeller,
-    option,
-    optionorder,
-    summary
-    
 }

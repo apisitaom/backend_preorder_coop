@@ -5,17 +5,34 @@ const errorMessage = require('../lib/errorMessage');
 const helper = require('../lib/Helper');
 const Responce = require('../lib/Reposnce');
 
-async function add (req, res, next) {
-    const { customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email , picture, password} = req.body;
-    if (!customerfirstname || !customerlastname || !sex || !email) {
+module.exports = {
+    registerMember,
+    getProfileMember,
+    logInMember,
+    updateMember
+}
+
+async function registerMember (req, res) {
+    const { customerfirstname, customerlastname, sex, birthday, email, password, picture } = req.body;
+    if (!customerfirstname || !customerlastname || !sex || !email ) {
+        return Responce.resError(res, errorMessage.paramsNotMatch);
+    }
+    if(moment(birthday).format('YYYY') === moment(Date.now()).format('YYYY')){
+        return Responce.resError(res, errorMessage.paramsNotMatch)
+    }
+    if(email.indexOf("@") === -1){
         return Responce.resError(res, errorMessage.paramsNotMatch);
     }
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     const active = true;
+    const address = '', subdistrict = '', district = '', province = '', zipcode = '', phonenumber = ''
     const hashPassword = helper.Helper.hashPassword(password);
-    const sql = `INSERT INTO member (createdate, active, datemodify, firstname, lastname, gender, brithday, addressuser, subdistrict, disstrict, province, zipcode, photo, email, phone, passworduser) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`
+    const sql = `
+        INSERT INTO member (createdate, active, datemodify, firstname, lastname, gender, brithday, addressuser, subdistrict, disstrict, province, zipcode, photo, email, phone, passworduser)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+    `
 
-    const values = [date, active, date, customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, picture, email, phonenumber, hashPassword];
+    const values = [ date, active, date, customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, picture, email, phonenumber, hashPassword ];
     
     try {
         const { rows } = await db.query(sql, values);
@@ -25,17 +42,22 @@ async function add (req, res, next) {
           return Response.resError(res, errorMessage.emailInvalid);
         }
         return Response.resError(res, errorMessage.saveError);
-      } finally {
-        res.end()
-      }
+    } finally {
+    res.end()
+    }
 }
 
-async function list (req, res, next) {
+async function getProfileMember (req, res) {
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-    const sql = `select firstname, lastname, gender, brithday, addressuser, subdistrict, disstrict, province, zipcode, photo, email, phone from member where userid = $1`
+    const sql = `
+        select 
+            firstname, lastname, gender, brithday, addressuser, subdistrict, 
+            disstrict, province, zipcode, photo, email, phone 
+        from member where userid = $1
+    `
     const value = [decode.data.id];
     try {
         const { rows } = await db.query(sql, value);
@@ -61,25 +83,29 @@ async function list (req, res, next) {
     }   
 }
 
-async function edit (req, res, next) {
-    const {customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email} = req.body
+async function updateMember (req, res) {
+    const { customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email } = req.body
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
     try {
-        if (req.files === null || req.files === [] || req.files[0] === undefined) {
-            const sqls = `update member set firstname = $1, lastname = $2, gender = $3, brithday = $4, addressuser = $5,
-            subdistrict = $6, disstrict = $7, province = $8, zipcode = $9, phone = $10, email = $11 where userid = $12`
-            const values = [customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, decode.data.id];
-        
+        if(req.files === null || req.files === [] || req.files[0] === undefined) {
+            const sqls = `
+                update member 
+                set firstname = $1, lastname = $2, gender = $3, brithday = $4, addressuser = $5,
+                    subdistrict = $6, disstrict = $7, province = $8, zipcode = $9, phone = $10, email = $11
+                where userid = $12`
+            const values = [ customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, decode.data.id ];
             await db.query(sqls, values);
-        } else {
-            const sql = `update member set firstname = $1, lastname = $2, gender = $3, brithday = $4, addressuser = $5,
-            subdistrict = $6, disstrict = $7, province = $8, zipcode = $9, phone = $10, email = $11, photo = $12 where userid = $13`
-            const value = [customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, req.files[0].filename,decode.data.id];
-    
-        await db.query(sql, value);
+        }else{
+            const sql = `
+                update member 
+                set firstname = $1, lastname = $2, gender = $3, brithday = $4, addressuser = $5,
+                    subdistrict = $6, disstrict = $7, province = $8, zipcode = $9, phone = $10, email = $11, photo = $12 
+                where userid = $13`
+            const value = [ customerfirstname, customerlastname, sex, birthday, address, subdistrict, district, province, zipcode, phonenumber, email, req.files[0].filename,decode.data.id ];
+            await db.query(sql, value);
         }
         return Responce.resSuccess(res, successMessage.upload);
     } catch (error){
@@ -89,12 +115,14 @@ async function edit (req, res, next) {
     }
 }
 
-async function login (req, res, next) {
+async function logInMember (req, res) {
     const { email, password } = req.body;  
     if (!email || !password) {
         return Responce.resError(res, errorMessage.paramsNotMatch);
     }
-    const sql = 'SELECT * FROM member WHERE email = $1';
+    const sql = `
+        SELECT * FROM member 
+        WHERE email = $1`
     try {
         const { rows } = await db.query(sql, [req.body.email]);
         if (!rows[0]) {
@@ -119,11 +147,4 @@ async function login (req, res, next) {
     } finally {
         res.end();
     }
-}
-
-module.exports = {
-    add,
-    list,
-    login,
-    edit
 }

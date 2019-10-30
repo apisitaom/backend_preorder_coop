@@ -6,14 +6,29 @@ const helper = require('../lib/Helper');
 const moment = require('moment')
 const productoptions = require('./options');
 
-async function list (req, res) {
+module.exports = {
+    getPopup,
+    getCartCustomer,
+    homepageCustomer,
+    insertProductHomepage,
+    shopCustomer,
+    getProduct,
+    cartCustomer,
+    preOrder,
+    edit,
+    search,
+}
+
+async function getPopup(req, res) {
     const detail = []
-    const sql = `select 
-    product.proid,product.photo,product.proname, product.prodetail,product.category,
-    productoption.proopid ,productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue
-    from product
-    inner join productoption on product.proid = productoption.proid 
-    where product.proid = $1 `;
+    const sql = `
+        select 
+            product.proid,product.photo,product.proname, product.prodetail,product.category,
+            productoption.proopid ,productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue
+        from product
+        inner join productoption 
+            on product.proid = productoption.proid 
+        where product.proid = $1 `;
     try {
         const { rows } = await db.query(sql, [req.params.id]);
         for (let i = 0; i < rows.length; i++) {
@@ -40,38 +55,42 @@ async function list (req, res) {
     }
 }
 
-async function homepage(req, res, next) {
-        const sql = `select proid,proname,prodetail,photo,sellerid,timestart,timeend,category from product where active = true`;
+async function homepageCustomer(req, res) {
+        const sql = `
+            select 
+                proid,proname,prodetail,photo,sellerid,timestart,timeend,category 
+            from product 
+            where active = true`;
         let products = [];
         const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
         try {
             const product = await db.query(sql);
             await Promise.all(product.rows.map(async(item) => {
-            const option = await productoptions.option(item.proid);
-            if(item.timestart !== null){
-            item.timeend = moment(item.timeend).subtract(7, 'h');
-            item.timeend = moment(item.timeend).format('YYYY-MM-DD HH:mm:ss');
-            item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');                    
-            const addTime = item.timeend = moment(item.timeend).add(7, 'h');
-            const endTime = item.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
-            const startTime = item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');
-            if (endTime > date && date > startTime) {
-                let obj = {
-                    proid: item.proid,
-                    proname: item.proname,
-                    prodetail: item.prodetail,
-                    category: item.category,
-                    photo: item.photo,
-                    sellerid: item.sellerid,
-                    timestart:item.timestart,
-                    timeend: item.timeend,
-                    time : moment(item.timeend).format('mm:ss'),
-                    hour: moment(item.timeend).format('HH'),
-                    result :option,
+                const option = await productoptions.option(item.proid);
+                if(item.timestart !== null){
+                    item.timeend = moment(item.timeend).subtract(7, 'h');
+                    item.timeend = moment(item.timeend).format('YYYY-MM-DD HH:mm:ss');
+                    item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');                    
+                    const addTime = item.timeend = moment(item.timeend).add(7, 'h');
+                    const endTime = item.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
+                    const startTime = item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');
+                    if (endTime > date && date > startTime) {
+                        let obj = {
+                            proid: item.proid,
+                            proname: item.proname,
+                            prodetail: item.prodetail,
+                            category: item.category,
+                            photo: item.photo,
+                            sellerid: item.sellerid,
+                            timestart:item.timestart,
+                            timeend: item.timeend,
+                            time : moment(item.timeend).format('mm:ss'),
+                            hour: moment(item.timeend).format('HH'),
+                            result :option,
+                        }
+                        products.push(obj);
+                    }
                 }
-                products.push(obj);
-            }
-        }
             }));
             return Responce.resSuccess(res, successMessage.success, products);
         } catch (error) {
@@ -81,16 +100,22 @@ async function homepage(req, res, next) {
     }
 }
 
-async function addhomepage(req, res, next) {
+async function insertProductHomepage(req, res) {
     const { amount, userid, proopid } = req.body;
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
-    const decode = helper.Helper.verifyToken(token);
     const active = true;
-    const sqlOrderProduct = `insert into orderproduct (active, userid) values ($1, $2) returning orderid`
+    const sqlOrderProduct = `
+        insert into 
+            orderproduct (active, userid) 
+            values ($1, $2) 
+        returning orderid`
     const valuesOrderProduct = [active, userid];
-    const sqlOrderDetail = `insert into orderdetail (active, amount, proopid, orderid) values ($1, $2, $3, $4)`
+    const sqlOrderDetail = `
+        insert into 
+            orderdetail(active, amount, proopid, orderid) 
+        values ($1, $2, $3, $4)`
     try {
         await db.query('BEGIN');
         const orderproduct = await db.query(sqlOrderProduct, valuesOrderProduct);
@@ -106,27 +131,33 @@ async function addhomepage(req, res, next) {
     }
 }
 
-async function orderlists (req, res, next) {
+async function getCartCustomer(req, res) {
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-    const sql = `select 
-    orderproduct.orderid,
-    product.proname, product.photo,
-    orderdetail.address, orderdetail.phonenumber,
-    eventproduct.countdowntime,
-    productoption.sku, productoption.price, productoption.includingvat, productoption.optionvalue
-    from orderproduct 
-    full join member on member.userid = orderproduct.userid
-    full join orderdetail on orderdetail.orderid = orderproduct.orderid
-    full join productoption on productoption.proopid = orderdetail.proopid
-    full join shipping on shipping.shipid = orderproduct.shipid
-    full join payment on payment.payid = orderproduct.payid
-    full join product on product.proid =  productoption.proid
-    full join eventdetail on  eventdetail.proopid = productoption.proopid
-    full join eventproduct on eventproduct.eventid = eventdetail.eventid
-    where member.userid = $1`
+    const sql = `
+        select 
+            orderproduct.orderid, product.proname, product.photo, orderdetail.address, orderdetail.phonenumber,
+            eventproduct.countdowntime, productoption.sku, productoption.price, productoption.includingvat, productoption.optionvalue
+        from orderproduct 
+        full join member 
+            on member.userid = orderproduct.userid
+        full join orderdetail 
+            on orderdetail.orderid = orderproduct.orderid
+        full join productoption 
+            on productoption.proopid = orderdetail.proopid
+        full join shipping 
+            on shipping.shipid = orderproduct.shipid
+        full join payment 
+            on payment.payid = orderproduct.payid
+        full join product 
+            on product.proid =  productoption.proid
+        full join eventdetail 
+            on  eventdetail.proopid = productoption.proopid
+        full join eventproduct 
+            on eventproduct.eventid = eventdetail.eventid
+        where member.userid = $1`
     const value = [decode.data.id];
     try {
         const { rows } = await db.query(sql, value);
@@ -138,7 +169,7 @@ async function orderlists (req, res, next) {
     }
 }
 
-async function orderadd(req, res, next) {
+async function cartCustomer(req, res) {
     const { productname, address, phonenumber, countdowntime, amount , sellerid} = req.body
     const optionJson = JSON.parse(req.body.option);
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
@@ -150,34 +181,64 @@ async function orderadd(req, res, next) {
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-    const sqlProduct = `insert into product (active, proname, photo, userid, sellerid) values ($1, $2, $3, $4, $5) returning proid`
-    const valueProduct = [active, productname, data, decode.data.id, sellerid];
-    const sqlEventProduct = `insert into eventproduct (active, countdowntime) values ($1, $2) returning eventid`
-    const valueEventProduct = [active, countdowntime]; 
-    const sqlEventDetail = `insert into eventdetail (eventid, proopid) values ($1, $2);`
-    const sqlShipping = `insert into shipping (active) values ($1) returning shipid`
+    const valueProduct = [ active, productname, data, decode.data.id, sellerid ];
+    const valueEventProduct = [active, countdowntime];
     const valueShipping = [active];
-    const sqlPayment = `insert into payment (active )values ($1) returning payid`
     const valuePayment = [active];
-    const sqlOrderProduct = `insert into orderproduct (active, userid, payid, shipid, eventid) values ($1, $2, $3, $4, $5) returning orderid`
-    const sqlOrderDetail = `insert into orderdetail (active, amount, address, phonenumber, orderid, proopid) values ($1, $2, $3, $4, $5, $6)`
+    const sqlProduct = `
+        insert into 
+            product(active, proname, photo, userid, sellerid) 
+        values ($1, $2, $3, $4, $5) 
+        returning proid`
+    const sqlEventProduct = `
+        insert into 
+            eventproduct(active, countdowntime)
+        values ($1, $2) 
+        returning eventid`
+    const sqlEventDetail = `
+        insert into 
+            eventdetail(eventid, proopid)
+        values($1, $2);`
+    const sqlShipping = `
+        insert into 
+            shipping (active)
+        values ($1) 
+        returning shipid`
+    const sqlPayment = `
+        insert into 
+            payment (active )
+        values ($1) 
+        returning payid`
+    const sqlOrderProduct = `
+        insert into 
+            orderproduct(active, userid, payid, shipid, eventid) 
+        values ($1, $2, $3, $4, $5) 
+        returning orderid`
+    const sqlOrderDetail = `
+        insert into 
+            orderdetail(active, amount, address, phonenumber, orderid, proopid)
+        values ($1, $2, $3, $4, $5, $6)`
     try {
         const product = await db.query(sqlProduct, valueProduct);
         const eventproduct = await db.query(sqlEventProduct, valueEventProduct);
-        const sqlProductoption = 'INSERT INTO productoption(active,datemodify,sku,price,optionvalue,proid,includingvat) VALUES($1,$2,$3,$4,$5,$6,$7) returning proopid'
+        const sqlProductoption = `
+            INSERT INTO 
+                productoption(active,datemodify,sku,price,optionvalue,proid,includingvat) 
+            VALUES($1,$2,$3,$4,$5,$6,$7) 
+            returning proopid`
         optionJson.forEach(async (element, index) => {                                                         
-        const valueProductoption = [active, date, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, product.rows[0].proid, optionJson[index].vat]
-        const productoption = await db.query(sqlProductoption, valueProductoption);
-        const valueEventDetail = [eventproduct.rows[0].eventid, productoption.rows[0].proopid];
-        await db.query(sqlEventDetail, valueEventDetail);
-        const shipping = await db.query(sqlShipping, valueShipping);
-        const payment = await db.query(sqlPayment, valuePayment);
-        const valueOrderProduct = [active, decode.data.id, payment.rows[0].payid, shipping.rows[0].shipid, eventproduct.rows[0].eventid]; 
-        const orderproduct = await db.query(sqlOrderProduct, valueOrderProduct);
-        productoption.rows.map(index => {
-            const valueOrderDetail = [active, amount, address, phonenumber, orderproduct.rows[0].orderid, index.proopid]; 
-            db.query(sqlOrderDetail, valueOrderDetail);
-        })
+            const valueProductoption = [active, date, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, product.rows[0].proid, optionJson[index].vat]
+            const productoption = await db.query(sqlProductoption, valueProductoption);
+            const valueEventDetail = [eventproduct.rows[0].eventid, productoption.rows[0].proopid];
+            await db.query(sqlEventDetail, valueEventDetail);
+            const shipping = await db.query(sqlShipping, valueShipping);
+            const payment = await db.query(sqlPayment, valuePayment);
+            const valueOrderProduct = [active, decode.data.id, payment.rows[0].payid, shipping.rows[0].shipid, eventproduct.rows[0].eventid]; 
+            const orderproduct = await db.query(sqlOrderProduct, valueOrderProduct);
+            productoption.rows.map(index => {
+                const valueOrderDetail = [active, amount, address, phonenumber, orderproduct.rows[0].orderid, index.proopid]; 
+                db.query(sqlOrderDetail, valueOrderDetail);
+            })
         });
         return Responce.resSuccess(res, successMessage.success);
     } catch (error) {
@@ -187,24 +248,26 @@ async function orderadd(req, res, next) {
     }
 }
 
-async function lists(req, res, next) {
+async function shopCustomer(req, res) {
     const { headers } = req;
     const subtoken = headers.authorization.split(' ');
     const token = subtoken[1];
     const decode = helper.Helper.verifyToken(token);
-    const sql = `select 
-    product.photo, product.proname, product.category,
-    seller.address, seller.subdistrict, seller.district, seller.zipcode, 
-    seller.province, seller.phonenumber, seller.email, seller.photo, 
-    eventproduct.timestart, 
-    eventproduct.timeend, eventproduct.timeend,
-    productoption.sku, productoption.price, productoption.includingvat, productoption.optionvalue  
-    from product 
-    full join seller on seller.sellerid = product.sellerid
-    full join productoption on productoption.proid = product.proid 
-    full join eventdetail on eventdetail.proopid = productoption.proid 
-    full join eventproduct on eventproduct.eventid = eventdetail.eventid 
-    where seller.sellerid = $1`
+    const sql = `
+        select 
+            product.photo, product.proname, product.category, seller.address, seller.subdistrict, seller.district, 
+            seller.zipcode, seller.province, seller.phonenumber, seller.email, seller.photo, eventproduct.timestart, 
+            eventproduct.timeend, eventproduct.timeend, productoption.sku, productoption.price, productoption.includingvat, productoption.optionvalue  
+        from product 
+        full join seller 
+            on seller.sellerid = product.sellerid
+        full join productoption 
+            on productoption.proid = product.proid 
+        full join eventdetail 
+            on eventdetail.proopid = productoption.proid 
+        full join eventproduct 
+            on eventproduct.eventid = eventdetail.eventid 
+        where seller.sellerid = $1`
     const value = [decode.data]
     try {
         const { rows } = await db.query(sql, value);
@@ -216,16 +279,19 @@ async function lists(req, res, next) {
     }
 }
 
-async function getproduct(req, res) {
+async function getProduct(req, res) {
     const detail = []
-    const getPopup = `select 
-    product.proid,product.photo,product.proname, product.prodetail, product.category,
-    productoption.proopid,productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue,productoption.totalproduct,
-    seller.sellername,seller.sellerid
-    from product
-    inner join productoption on product.proid = productoption.proid
-    full join seller on seller.sellerid = product.sellerid 
-    where product.proid = $1` ;
+    const getPopup = `
+        select 
+            product.proid,product.photo,product.proname, product.prodetail, product.category, productoption.proopid,
+            productoption.price,productoption.sku,productoption.includingvat ,productoption.optionvalue,
+            productoption.totalproduct, seller.sellername,seller.sellerid
+        from product
+        inner join productoption 
+            on product.proid = productoption.proid
+        full join seller 
+            on seller.sellerid = product.sellerid 
+        where product.proid = $1` ;
     try {
         const { rows } = await db.query(getPopup, [req.params.id]);
         for (let i = 0; i < rows.length; i++) {
@@ -255,14 +321,60 @@ async function getproduct(req, res) {
     }
 }
 
-async function edit (req, res, next) { 
+async function preOrder( req, res) {
+    const {productid, date, time, hour} = req.body;
+    const optionJson = JSON.parse(req.body.option);
+    const active = true;
+    const dates = date +' '+ time;
+    const ends = moment(dates).format('YYYY-MM-DD HH:mm:ss');
+    const end = moment(ends).add(hour, 'h');
+    const types = 'preorder';
+    const valueProduct = [productid];
+    const sqlProduct = `
+        select * from product 
+        where proid = $1`;
+    const sql = `
+        insert into 
+            product(active, proname, prodetail, photo, sellerid, timestart, timeend, category) 
+        values ($1, $2, $3, $4, $5, $6, $7, $8) 
+        returning proid`;
+    const sqlProductoption = `
+        insert into 
+            productoption(active, sku, price, optionvalue,includingvat, proid, types, totalproduct, allproduct) 
+        values ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+        returning proopid `;
+    try {
+        const { rows } = await db.query(sqlProduct, valueProduct);
+        const value = [active,rows[0].proname, rows[0].prodetail, rows[0].photo, rows[0].sellerid, ends, new Date(end.toString()), rows[0].category];
+        const product = await db.query(sql, value);
+        optionJson.forEach(async (element, index) => {
+            const valueProductoption = [active, optionJson[index].sku, optionJson[index].price, optionJson[index].optionvalue, optionJson[index].vat, product.rows[0].proid, types, optionJson[index].amount, optionJson[index].amount];
+            await db.query (sqlProductoption, valueProductoption);
+        });
+return Responce.resSuccess(res, successMessage.success);
+} catch (error) {
+    db.query('REVOKE');
+    return Responce.resError(res, errorMessage.saveError);
+    }
+}
+
+async function edit (req, res) { 
     const { proid, proname, prodetail, category} = req.body;
     const options= JSON.parse(req.body.option)
     let data = req.files.map( (item, index) =>  item.filename );
-    const sqlproduct = `update product set proname = $1, prodetail = $2, category = $3, photo = $4 where proid = $5`
+    const sqlproduct = `
+        update product 
+        set proname = $1, prodetail = $2, category = $3, photo = $4 
+        where proid = $5`
     const valueproduct = [proname, prodetail, category, data, proid]
-    const sqlproductoption = `update productoption set price = $1 where proopid = $2`
-    const sqlproducts = `update product set proname = $1, prodetail = $2, category = $3 where proid = $4`
+    const sqlproductoption = `
+        update productoption 
+        set price = $1 
+        where proopid = $2`
+    const sqlproducts = `
+        update product 
+        set proname = $1, prodetail = $2, category = $3 
+        where proid = $4`
     const valueproducts = [proname, prodetail, category, proid]
     try {
         if (data[0] === undefined) {
@@ -284,44 +396,45 @@ async function edit (req, res, next) {
     }
 }
 
-async function search (req, res, next) {
+async function search (req, res) {
     const { proname } = req.body;
     const search = '%'+proname+ '%'
-    const sql = `select 
-    proid, proname, prodetail, photo, sellerid, timestart, timeend, category 
-    from product 
-    where proname like $1 `;
+    const sql = `
+        select 
+            proid, proname, prodetail, photo, sellerid, timestart, timeend, category 
+        from product 
+        where proname like $1 `;
     const value = [ search ]
     let products = [];
     const date = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     try {
         const product = await db.query(sql, value);
         await Promise.all(product.rows.map(async(item) => {
-        const option = await productoptions.option(item.proid);
-        if(item.timestart !== null){
-        item.timeend = moment(item.timeend).subtract(7, 'h');
-        item.timeend = moment(item.timeend).format('YYYY-MM-DD HH:mm:ss');
-        item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');                    
-        const addTime = item.timeend = moment(item.timeend).add(7, 'h');
-        const endTime = item.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
-        const startTime = item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');
-        if (endTime > date && date > startTime) {
-            let obj = {
-                proid: item.proid,
-                proname: item.proname,
-                prodetail: item.prodetail,
-                category: item.category,
-                photo: item.photo,
-                sellerid: item.sellerid,
-                timestart:item.timestart,
-                timeend: item.timeend,
-                time : moment(item.timeend).format('mm:ss'),
-                hour: moment(item.timeend).format('HH'),
-                result :option,
+            const option = await productoptions.option(item.proid);
+            if(item.timestart !== null){
+                item.timeend = moment(item.timeend).subtract(7, 'h');
+                item.timeend = moment(item.timeend).format('YYYY-MM-DD HH:mm:ss');
+                item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');                    
+                const addTime = item.timeend = moment(item.timeend).add(7, 'h');
+                const endTime = item.timeend = moment(addTime).format('YYYY-MM-DD HH:mm:ss');
+                const startTime = item.timestart = moment(item.timestart).format('YYYY-MM-DD HH:mm:ss');
+                if(endTime > date && date > startTime) {
+                    let obj = {
+                        proid: item.proid,
+                        proname: item.proname,
+                        prodetail: item.prodetail,
+                        category: item.category,
+                        photo: item.photo,
+                        sellerid: item.sellerid,
+                        timestart:item.timestart,
+                        timeend: item.timeend,
+                        time : moment(item.timeend).format('mm:ss'),
+                        hour: moment(item.timeend).format('HH'),
+                        result :option,
+                    }
+                    products.push(obj);
+                }
             }
-            products.push(obj);
-        }
-    }
         }));
         return Responce.resSuccess(res, successMessage.success, products);
     } catch (error) {
@@ -329,16 +442,4 @@ async function search (req, res, next) {
     } finally {
         res.end();
     }
-}
-
-module.exports = {
-    list,
-    orderlists,
-    homepage,
-    addhomepage,
-    lists,
-    getproduct,
-    orderadd,
-    edit,
-    search
 }
